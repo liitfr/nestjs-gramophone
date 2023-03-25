@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { join } from 'path';
 
-import { AuthorsService } from './authors.service';
-import { AuthorsResolver } from './authors.resolver';
-import { PostsService } from './posts.service';
+import { BlogModule } from '../blog/blog.module';
 
 @Module({
   imports: [
@@ -14,8 +13,14 @@ import { PostsService } from './posts.service';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      fieldResolverEnhancers: ['interceptors'],
     }),
+    MongooseModule.forRoot(
+      'mongodb://localhost:27017/eSocnaDb?replicaSet=eSocnaRs',
+      { dbName: 'poc' },
+    ),
+    BlogModule,
   ],
-  providers: [AuthorsService, PostsService, AuthorsResolver],
+  providers: [],
 })
 export class AppModule {}

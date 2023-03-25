@@ -3,19 +3,84 @@
 # ------------------------------------------------------
 
 type Author {
+  _id: MongoObjectId!
   firstName: String!
-  id: Int!
   lastName: String!
   posts: [Post!]!
 }
 
-type Post {
-  authorId: Author!
+input CreateAuthorInput {
+  """
+  Author's optional id
+  """
+  _id: MongoObjectId
+  firstName: String!
+  lastName: String!
+}
+
+input CreatePostInput {
+  """
+  Post's optional id
+  """
+  _id: MongoObjectId
+  authorId: Int!
   content: String!
-  id: Int!
+
+  """
+  Post's memo
+  """
+  memo: String
   title: String!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""
+Mongo object id scalar type
+"""
+scalar MongoObjectId
+
+type Mutation {
+  createAuthor(author: CreateAuthorInput!): Author!
+  createPost(post: CreatePostInput!): Post!
+}
+
+type Post {
+  _id: MongoObjectId!
+  authorId: Int!
+  content: String!
+
+  """
+  Post's created at
+  """
+  createdAt: DateTime!
+
+  """
+  Post's created by
+  """
+  createdBy: String!
+
+  """
+  Post's memo
+  """
+  memo: String
+  title: String!
+
+  """
+  Post's updated at
+  """
+  updatedAt: DateTime!
+
+  """
+  Post's updated by
+  """
+  updatedBy: String!
+}
+
 type Query {
-  author(id: Int!): Author!
+  author(id: MongoObjectId!): Author!
+  post(id: MongoObjectId!): Post!
 }

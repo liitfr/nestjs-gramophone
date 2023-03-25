@@ -17,10 +17,6 @@ export class TestInterceptor implements NestInterceptor {
   ): Promise<Observable<any>> {
     this.logger.log('start');
 
-    return next.handle().pipe(
-      tap({
-        finalize: () => this.logger.log('intercept'),
-      }),
-    );
+    return next.handle().pipe(tap(() => this.logger.log('intercept')));
   }
 }
