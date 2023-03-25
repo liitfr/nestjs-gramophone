@@ -23,7 +23,11 @@ input CreatePostInput {
   Post's optional id
   """
   _id: MongoObjectId
-  authorId: Int!
+
+  """
+  ¨Post's author id
+  """
+  authorId: MongoObjectId!
   content: String!
 
   """
@@ -50,7 +54,12 @@ type Mutation {
 
 type Post {
   _id: MongoObjectId!
-  authorId: Int!
+  author: Author!
+
+  """
+  ¨Post's author id
+  """
+  authorId: MongoObjectId!
   content: String!
 
   """

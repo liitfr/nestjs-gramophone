@@ -27,9 +27,17 @@ export class Post {
   @Prop()
   content: string;
 
-  @Field(() => Int)
-  @Prop()
-  authorId: number;
+  @Field(() => MongoObjectIdScalar, {
+    nullable: false,
+    description: "¨Post's author id",
+  })
+  @Prop({
+    type: MongooseTypes.ObjectId,
+    ref: 'Author',
+    autopopulate: false,
+    required: true,
+  })
+  authorId: MongooseTypes.ObjectId;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

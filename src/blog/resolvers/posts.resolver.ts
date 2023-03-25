@@ -30,6 +30,12 @@ export class PostsResolver {
     return this.postsService.findOneById(id);
   }
 
+  @ResolveField(() => Author, { name: 'author' })
+  async author(@Parent() post: Post) {
+    const { authorId } = post;
+    return this.authorsService.findOneById(authorId);
+  }
+
   @Mutation(() => Post)
   async createPost(@Args('post') post: CreatePostInput) {
     return this.postsService.create(post);
