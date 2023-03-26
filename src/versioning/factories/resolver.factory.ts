@@ -27,12 +27,7 @@ export function resolverFactory(
       @Args('originalId', { type: () => MongoObjectIdScalar })
       originalId: MongooseTypes.ObjectId,
     ) {
-      const result =
-        await this.versioningService.findAllVersionsForOneOriginalId(
-          originalId,
-        );
-      console.log(result);
-      return result;
+      return this.versioningService.findAllVersionsForOneOriginalId(originalId);
     }
 
     @Query(() => EntityVersion, {
