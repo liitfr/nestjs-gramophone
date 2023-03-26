@@ -2,9 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types as MongooseTypes } from 'mongoose';
 
+import { Versioned } from '../../versioning/decorators/versioned.decorator';
+import { SaveVersion } from '../../versioning/decorators/save-version.decorator';
+
 import { Post, PostDocument } from '../models/post.model';
 import { CreatePostInput } from '../dto/create-post.input';
 
+@Versioned(Post)
 @Injectable()
 export class PostsService {
   constructor(
@@ -24,6 +28,7 @@ export class PostsService {
     return this.postModel.find({ authorId }).exec();
   }
 
+  @SaveVersion()
   async create(post: CreatePostInput): Promise<Post> {
     const createdPost = new this.postModel(post);
     return createdPost.save();

@@ -1,13 +1,14 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Prop, Schema } from '@nestjs/mongoose';
+
 import {
   EntityDecorator,
   entityDescription,
   entityName,
   getEntityDescription,
   getEntityName,
-} from '../entity-decorator.type';
-import { Prop, Schema } from '@nestjs/mongoose';
-import { pluralize } from 'mongoose';
+} from '../entity-decorator';
+import { pluralizeEntityName } from '../pluralize-entity-name';
 
 export interface Trackable {
   createdBy: string;
@@ -16,8 +17,6 @@ export interface Trackable {
   updatedAt: Date;
 }
 
-const plFn = pluralize();
-
 export function Trackable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
@@ -25,7 +24,7 @@ export function Trackable() {
     const entityDescriptionValue = getEntityDescription(constructor);
 
     @ObjectType(entityNameValue)
-    @Schema({ collection: plFn(entityNameValue) })
+    @Schema({ collection: pluralizeEntityName(entityNameValue) })
     class Tracked extends constructor implements EntityDecorator {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
@@ -34,28 +33,44 @@ export function Trackable() {
         nullable: false,
         description: `${entityDescriptionValue}\'s created by`,
       })
-      @Prop()
+      @Prop({
+        type: String,
+        required: true,
+        default: 'admin',
+      })
       createdBy: string;
 
       @Field({
         nullable: false,
         description: `${entityDescriptionValue}\'s updated by`,
       })
-      @Prop()
+      @Prop({
+        type: String,
+        required: true,
+        default: 'admin',
+      })
       updatedBy: string;
 
       @Field({
         nullable: false,
         description: `${entityDescriptionValue}\'s created at`,
       })
-      @Prop()
+      @Prop({
+        type: Date,
+        required: true,
+        default: new Date(),
+      })
       createdAt: Date;
 
       @Field({
         nullable: false,
         description: `${entityDescriptionValue}\'s updated at`,
       })
-      @Prop()
+      @Prop({
+        type: Date,
+        required: true,
+        default: new Date(),
+      })
       updatedAt: Date;
     }
 

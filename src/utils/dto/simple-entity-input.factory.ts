@@ -1,10 +1,11 @@
 import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
 import { Type } from '@nestjs/common';
-import { MongoObjectIdScalar } from './scalars/mongo-id.scalar';
 import { Types as MongooseTypes } from 'mongoose';
-import { entityDescription } from './entity-decorator.type';
 
-export function SimpleInputGenerator<T>(classRef: Type<T>) {
+import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
+import { entityDescription } from '../entity-decorator';
+
+export function SimpleEntityInputFactory<T>(classRef: Type<T>) {
   const entityDescriptionValue = classRef[entityDescription];
 
   @InputType()

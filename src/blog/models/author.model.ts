@@ -7,7 +7,7 @@ import {
 } from 'mongoose';
 
 import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
-import { entityDescription } from '../../utils/entity-decorator.type';
+import { entityDescription } from '../../utils/entity-decorator';
 
 // export type AuthorDocument = HydratedDocument<Author>;
 export type AuthorDocument = Author & MongooseDocument<MongooseTypes.ObjectId>;

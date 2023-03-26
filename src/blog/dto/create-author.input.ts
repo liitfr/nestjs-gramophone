@@ -1,7 +1,10 @@
 import { InputType } from '@nestjs/graphql';
 
+import { SimpleVersionedEntityInputFactory } from '../../versioning/dto/simple-versioned-entity-input.factory';
+
 import { Author } from '../models/author.model';
-import { SimpleInputGenerator } from 'src/utils/simple-input';
 
 @InputType()
-export class CreateAuthorInput extends SimpleInputGenerator(Author) {}
+export class CreateAuthorInput extends SimpleVersionedEntityInputFactory(
+  Author,
+) {}

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { VersioningModule } from '../versioning/versioning.module';
+
 import { Author, AuthorSchema } from './models/author.model';
 import { Post, PostSchema } from './models/post.model';
 import { AuthorsResolver } from './resolvers/authors.resolver';
@@ -14,6 +16,7 @@ import { PostsResolver } from './resolvers/posts.resolver';
       { name: Author.name, schema: AuthorSchema },
       { name: Post.name, schema: PostSchema },
     ]),
+    VersioningModule.forRoot(),
   ],
   providers: [AuthorsResolver, AuthorsService, PostsService, PostsResolver],
   exports: [],

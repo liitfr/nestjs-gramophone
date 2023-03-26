@@ -16,6 +16,13 @@ input CreateAuthorInput {
   _id: MongoObjectId
   firstName: String!
   lastName: String!
+
+  """
+  Author's version data
+  """
+  versionData: VersionDataInput = {
+    automaticMemo: "Memo automatique généré via GraphQL"
+  }
 }
 
 input CreatePostInput {
@@ -28,13 +35,30 @@ input CreatePostInput {
   ¨Post's author id
   """
   authorId: MongoObjectId!
+
+  """
+  Post's automatic memo
+  """
+  automaticMemo: String = "Memo automatique généré via GraphQL"
   content: String!
+
+  """
+  Post's internal memo
+  """
+  internalMemo: String
 
   """
   Post's memo
   """
   memo: String
   title: String!
+
+  """
+  Post's version data
+  """
+  versionData: VersionDataInput = {
+    automaticMemo: "Memo automatique généré via GraphQL"
+  }
 }
 
 """
@@ -60,6 +84,11 @@ type Post {
   ¨Post's author id
   """
   authorId: MongoObjectId!
+
+  """
+  Post's automatic memo
+  """
+  automaticMemo: String
   content: String!
 
   """
@@ -71,6 +100,11 @@ type Post {
   Post's created by
   """
   createdBy: String!
+
+  """
+  Post's internal memo
+  """
+  internalMemo: String
 
   """
   Post's memo
@@ -92,4 +126,21 @@ type Post {
 type Query {
   author(id: MongoObjectId!): Author!
   post(id: MongoObjectId!): Post!
+}
+
+input VersionDataInput {
+  """
+  Version Data's automatic memo
+  """
+  automaticMemo: String = "Memo automatique généré via GraphQL"
+
+  """
+  Version Data's internal memo
+  """
+  internalMemo: String
+
+  """
+  Version Data's memo
+  """
+  memo: String
 }
