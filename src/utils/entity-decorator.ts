@@ -3,6 +3,7 @@ export const entityDescription = Symbol('entityDescription');
 
 export abstract class EntityDecorator {
   static [entityName]: string;
+  static [entityDescription]?: string;
 }
 
 export const isEntityDecorator = (object: any): object is EntityDecorator => {

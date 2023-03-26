@@ -2,6 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
 import {
+  EntityDecorator,
   entityDescription,
   entityName,
   getEntityDescription,
@@ -21,7 +22,7 @@ export function Memoable() {
 
     @ObjectType(entityNameValue)
     @Schema({ collection: pluralizeEntityName(entityNameValue) })
-    class Memoed extends constructor {
+    class Memoed extends constructor implements EntityDecorator {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
 
@@ -56,6 +57,8 @@ export function Memoable() {
       })
       automaticMemo: string;
     }
+
+    Object.defineProperty(Memoed, 'name', { value: constructor.name });
 
     return Memoed;
   };

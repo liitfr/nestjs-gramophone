@@ -1,24 +1,17 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {
-  // HydratedDocument,
-  Document as MongooseDocument,
-  Types as MongooseTypes,
-} from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
-import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
 import { entityDescription } from '../../utils/entity-decorator';
+import { Idable } from '../../utils/decorators/idable.decorator';
 
-// export type AuthorDocument = HydratedDocument<Author>;
-export type AuthorDocument = Author & MongooseDocument<MongooseTypes.ObjectId>;
+export type AuthorDocument = HydratedDocument<Author>;
 
+@Idable()
 @ObjectType()
 @Schema()
 export class Author {
   static [entityDescription] = 'Author';
-
-  @Field(() => MongoObjectIdScalar)
-  _id: MongooseTypes.ObjectId;
 
   @Field({ nullable: false })
   @Prop()
@@ -30,3 +23,6 @@ export class Author {
 }
 
 export const AuthorSchema = SchemaFactory.createForClass(Author);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Author extends Idable {}

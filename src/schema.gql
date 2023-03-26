@@ -3,6 +3,9 @@
 # ------------------------------------------------------
 
 type Author {
+  """
+  Author's id
+  """
   _id: MongoObjectId!
   firstName: String!
   lastName: String!
@@ -129,6 +132,9 @@ type Mutation {
 }
 
 type Post {
+  """
+  Post's id
+  """
   _id: MongoObjectId!
   author: Author!
 

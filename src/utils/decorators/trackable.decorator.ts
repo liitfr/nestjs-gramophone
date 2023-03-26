@@ -74,6 +74,8 @@ export function Trackable() {
       updatedAt: Date;
     }
 
+    Object.defineProperty(Tracked, 'name', { value: constructor.name });
+
     return Tracked;
   };
 }
