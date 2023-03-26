@@ -8,8 +8,9 @@ import { versioners } from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';
 
 import { modelFactory } from './model.factory';
+import { resolverFactory } from './resolver.factory';
 
-function versionerFactory(
+function versioningServiceFactory(
   versioningService: VersioningService<unknown>,
   model: Model<unknown>,
 ) {
@@ -27,14 +28,17 @@ export const createVersioners = () => {
       name: entityVersionName,
       schema: EntityVersionSchema,
     });
+    const providerName = `VersioningServiceFor${serviceName}`;
     providers.push({
-      provide: `VersioningServiceFor${serviceName}`,
-      useFactory: versionerFactory,
+      provide: providerName,
+      useFactory: versioningServiceFactory,
       inject: [
         VersioningService,
         { token: getModelToken(entityVersionName), optional: false },
       ],
     });
+    const resolver = resolverFactory(EntityVersion, providerName);
+    providers.push(resolver);
   }
 
   return {

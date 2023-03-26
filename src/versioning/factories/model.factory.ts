@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema, Types as MongooseTypes } from 'mongoose';
-import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
 import {
@@ -20,17 +20,17 @@ export function modelFactory(Entity: Type<unknown>) {
 
   const EntitySchema = SchemaFactory.createForClass(Entity);
 
-  const newEntitySchema = `${entityNameValue}Version`;
+  const newEntityName = `${entityNameValue}Version`;
   const newEntityDescription = `${entityDescriptionValue} Version`;
 
   @Trackable()
   @Memoable()
-  @ObjectType(newEntitySchema)
+  @ObjectType(newEntityName)
   @Schema({
-    collection: pluralizeEntityName(newEntitySchema),
+    collection: pluralizeEntityName(newEntityName),
   })
   class EntityVersion {
-    static [entityName] = newEntitySchema;
+    static [entityName] = newEntityName;
     static [entityDescription] = newEntityDescription;
 
     @Field(() => MongoObjectIdScalar, {

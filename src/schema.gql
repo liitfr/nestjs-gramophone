@@ -9,6 +9,58 @@ type Author {
   posts: [Post!]!
 }
 
+type AuthorVersion {
+  """
+  Author Version's id
+  """
+  _id: MongoObjectId!
+
+  """
+  Author Version's automatic memo
+  """
+  automaticMemo: String
+
+  """
+  Author Version's created at
+  """
+  createdAt: DateTime!
+
+  """
+  Author Version's created by
+  """
+  createdBy: String!
+
+  """
+  Author Version's internal memo
+  """
+  internalMemo: String
+
+  """
+  Author Version's memo
+  """
+  memo: String
+
+  """
+  Author Version's original id
+  """
+  originalId: MongoObjectId!
+
+  """
+  Author Version's updated at
+  """
+  updatedAt: DateTime!
+
+  """
+  Author Version's updated by
+  """
+  updatedBy: String!
+
+  """
+  Author Version's version
+  """
+  version: Author!
+}
+
 input CreateAuthorInput {
   """
   Author's optional id
@@ -123,8 +175,68 @@ type Post {
   updatedBy: String!
 }
 
+type PostVersion {
+  """
+  Post Version's id
+  """
+  _id: MongoObjectId!
+
+  """
+  Post Version's automatic memo
+  """
+  automaticMemo: String
+
+  """
+  Post Version's created at
+  """
+  createdAt: DateTime!
+
+  """
+  Post Version's created by
+  """
+  createdBy: String!
+
+  """
+  Post Version's internal memo
+  """
+  internalMemo: String
+
+  """
+  Post Version's memo
+  """
+  memo: String
+
+  """
+  Post Version's original id
+  """
+  originalId: MongoObjectId!
+
+  """
+  Post Version's updated at
+  """
+  updatedAt: DateTime!
+
+  """
+  Post Version's updated by
+  """
+  updatedBy: String!
+
+  """
+  Post Version's version
+  """
+  version: Post!
+}
+
 type Query {
   author(id: MongoObjectId!): Author!
+  findAllAuthorVersionsForOneOriginalId(
+    originalId: MongoObjectId!
+  ): [AuthorVersion!]!
+  findAllPostVersionsForOneOriginalId(
+    originalId: MongoObjectId!
+  ): [PostVersion!]!
+  findOneAuthorVersionById(id: MongoObjectId!): AuthorVersion!
+  findOnePostVersionById(id: MongoObjectId!): PostVersion!
   post(id: MongoObjectId!): Post!
 }
 
