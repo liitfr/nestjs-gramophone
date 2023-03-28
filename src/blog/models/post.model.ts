@@ -7,6 +7,7 @@ import { Memoable } from '../../utils/decorators/memoable.decorator';
 import { entityDescription } from '../../utils/entity-decorator';
 import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
 import { Idable } from '../../utils/decorators/idable.decorator';
+import { Line, LineSchema } from './line.model';
 
 export type PostDocument = HydratedDocument<Post>;
 
@@ -25,6 +26,10 @@ export class Post {
   @Field({ nullable: false })
   @Prop()
   content: string;
+
+  // @Field(() => [Line], { nullable: false })
+  // @Prop(() => [LineSchema])
+  // lines: Line[];
 
   @Field(() => MongoObjectIdScalar, {
     nullable: false,

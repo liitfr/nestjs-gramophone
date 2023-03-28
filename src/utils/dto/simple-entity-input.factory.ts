@@ -23,8 +23,8 @@ export function SimpleEntityInputFactory<T>(classRef: Type<T>) {
     '_id',
     'createdAt',
     'updatedAt',
-    'createdBy',
-    'updatedBy',
+    'creatorId',
+    'updaterId',
   ];
 
   return IntersectionType(

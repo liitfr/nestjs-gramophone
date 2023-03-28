@@ -98,6 +98,11 @@ input CreatePostInput {
   content: String!
 
   """
+  Post's created by
+  """
+  createdBy: String!
+
+  """
   Post's internal memo
   """
   internalMemo: String
@@ -107,6 +112,11 @@ input CreatePostInput {
   """
   memo: String
   title: String!
+
+  """
+  Post's updated by
+  """
+  updatedBy: String!
 
   """
   Post's version data
