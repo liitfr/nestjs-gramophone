@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Schema } from '@nestjs/mongoose';
 import { Types as MongooseTypes } from 'mongoose';
+import { Type } from '@nestjs/common';
 
 import {
   EntityDecorator,
@@ -12,9 +13,14 @@ import {
 import { pluralizeEntityName } from '../pluralize-entity-name';
 import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
 
+export const isIdable = Symbol('isIdable');
+
 export interface Idable {
   _id: MongooseTypes.ObjectId;
 }
+
+export const checkIfIsIdable = (classRef: Type): classRef is Type<Idable> =>
+  !!Object.getOwnPropertyDescriptor(classRef, isIdable);
 
 export function Idable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -24,13 +30,14 @@ export function Idable() {
 
     @ObjectType(entityNameValue)
     @Schema({ collection: pluralizeEntityName(entityNameValue) })
-    class Ided extends constructor implements EntityDecorator {
+    class Ided extends constructor implements EntityDecorator, Idable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
+      static [isIdable] = true;
 
       @Field(() => MongoObjectIdScalar, {
         nullable: false,
-        description: `${entityDescriptionValue}\'s id`,
+        description: `${entityDescriptionValue}'s id`,
       })
       _id: MongooseTypes.ObjectId;
     }

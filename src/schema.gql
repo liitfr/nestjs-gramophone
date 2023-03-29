@@ -29,9 +29,9 @@ type AuthorVersion {
   createdAt: DateTime!
 
   """
-  Author Version's created by
+  Author Version's creator id
   """
-  createdBy: String!
+  creatorId: MongoObjectId!
 
   """
   Author Version's internal memo
@@ -54,9 +54,9 @@ type AuthorVersion {
   updatedAt: DateTime!
 
   """
-  Author Version's updated by
+  Author Version's updater id
   """
-  updatedBy: String!
+  updaterId: MongoObjectId!
 
   """
   Author Version's version
@@ -98,9 +98,14 @@ input CreatePostInput {
   content: String!
 
   """
-  Post's created by
+  Post's created at
   """
-  createdBy: String!
+  createdAt: DateTime!
+
+  """
+  Post's creator id
+  """
+  creatorId: MongoObjectId!
 
   """
   Post's internal memo
@@ -114,9 +119,14 @@ input CreatePostInput {
   title: String!
 
   """
-  Post's updated by
+  Post's updated at
   """
-  updatedBy: String!
+  updatedAt: DateTime!
+
+  """
+  Post's updater id
+  """
+  updaterId: MongoObjectId!
 
   """
   Post's version data
@@ -165,9 +175,9 @@ type Post {
   createdAt: DateTime!
 
   """
-  Post's created by
+  Post's creator id
   """
-  createdBy: String!
+  creatorId: MongoObjectId!
 
   """
   Post's internal memo
@@ -186,9 +196,9 @@ type Post {
   updatedAt: DateTime!
 
   """
-  Post's updated by
+  Post's updater id
   """
-  updatedBy: String!
+  updaterId: MongoObjectId!
 }
 
 type PostVersion {
@@ -208,9 +218,9 @@ type PostVersion {
   createdAt: DateTime!
 
   """
-  Post Version's created by
+  Post Version's creator id
   """
-  createdBy: String!
+  creatorId: MongoObjectId!
 
   """
   Post Version's internal memo
@@ -233,9 +243,9 @@ type PostVersion {
   updatedAt: DateTime!
 
   """
-  Post Version's updated by
+  Post Version's updater id
   """
-  updatedBy: String!
+  updaterId: MongoObjectId!
 
   """
   Post Version's version

@@ -1,6 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { Schema as MongooseSchema, Types as MongooseTypes } from 'mongoose';
 
+import { Type } from '@nestjs/common';
 import {
   EntityDecorator,
   entityDescription,
@@ -9,13 +11,21 @@ import {
   getEntityName,
 } from '../entity-decorator';
 import { pluralizeEntityName } from '../pluralize-entity-name';
+import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
+
+export const isTrackable = Symbol('isTrackable');
 
 export interface Trackable {
-  createdBy: string;
-  updatedBy: string;
+  creatorId: MongooseTypes.ObjectId;
+  updaterId: MongooseTypes.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export const checkIfIsTrackable = (
+  classRef: Type,
+): classRef is Type<Trackable> =>
+  !!Object.getOwnPropertyDescriptor(classRef, isTrackable);
 
 export function Trackable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -25,35 +35,38 @@ export function Trackable() {
 
     @ObjectType(entityNameValue)
     @Schema({ collection: pluralizeEntityName(entityNameValue) })
-    class Tracked extends constructor implements EntityDecorator {
+    class Tracked extends constructor implements EntityDecorator, Trackable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
+      static [isTrackable] = true;
 
-      @Field({
+      @Field(() => MongoObjectIdScalar, {
         nullable: false,
-        description: `${entityDescriptionValue}\'s created by`,
+        description: `${entityDescriptionValue}'s creator id`,
       })
       @Prop({
-        type: String,
+        type: MongooseSchema.Types.ObjectId,
+        ref: 'User',
+        autopopulate: false,
         required: true,
-        default: 'admin',
       })
-      createdBy: string;
+      creatorId: MongooseTypes.ObjectId;
 
-      @Field({
+      @Field(() => MongoObjectIdScalar, {
         nullable: false,
-        description: `${entityDescriptionValue}\'s updated by`,
+        description: `${entityDescriptionValue}'s updater id`,
       })
       @Prop({
-        type: String,
+        type: MongooseSchema.Types.ObjectId,
+        ref: 'User',
+        autopopulate: false,
         required: true,
-        default: 'admin',
       })
-      updatedBy: string;
+      updaterId: MongooseTypes.ObjectId;
 
-      @Field({
+      @Field(() => GraphQLISODateTime, {
         nullable: false,
-        description: `${entityDescriptionValue}\'s created at`,
+        description: `${entityDescriptionValue}'s created at`,
       })
       @Prop({
         type: Date,
@@ -62,9 +75,9 @@ export function Trackable() {
       })
       createdAt: Date;
 
-      @Field({
+      @Field(() => GraphQLISODateTime, {
         nullable: false,
-        description: `${entityDescriptionValue}\'s updated at`,
+        description: `${entityDescriptionValue}'s updated at`,
       })
       @Prop({
         type: Date,

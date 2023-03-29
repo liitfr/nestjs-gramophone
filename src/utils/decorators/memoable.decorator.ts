@@ -9,10 +9,16 @@ import {
   getEntityName,
 } from '../entity-decorator';
 import { pluralizeEntityName } from '../pluralize-entity-name';
+import { Type } from '@nestjs/common';
+
+export const isMemoable = Symbol('isMemoable');
 
 export interface Memoable {
   memo?: string;
 }
+
+export const checkIfIsMemoable = (classRef: Type): classRef is Type<Memoable> =>
+  !!Object.getOwnPropertyDescriptor(classRef, isMemoable);
 
 export function Memoable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -22,13 +28,14 @@ export function Memoable() {
 
     @ObjectType(entityNameValue)
     @Schema({ collection: pluralizeEntityName(entityNameValue) })
-    class Memoed extends constructor implements EntityDecorator {
+    class Memoed extends constructor implements EntityDecorator, Memoable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
+      static [isMemoable] = true;
 
       @Field({
         nullable: true,
-        description: `${entityDescriptionValue}\'s memo`,
+        description: `${entityDescriptionValue}'s memo`,
       })
       @Prop({
         type: String,
@@ -38,7 +45,7 @@ export function Memoable() {
 
       @Field({
         nullable: true,
-        description: `${entityDescriptionValue}\'s internal memo`,
+        description: `${entityDescriptionValue}'s internal memo`,
       })
       @Prop({
         type: String,
@@ -48,7 +55,7 @@ export function Memoable() {
 
       @Field({
         nullable: true,
-        description: `${entityDescriptionValue}\'s automatic memo`,
+        description: `${entityDescriptionValue}'s automatic memo`,
         defaultValue: 'Memo automatique généré via GraphQL',
       })
       @Prop({
