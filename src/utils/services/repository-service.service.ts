@@ -64,7 +64,3 @@ export abstract class RepositoryService<D> implements Repository<D> {
     return this.repository.count(filter, options);
   }
 }
-
-//     return ConnectedToRepository;
-// //   };
-// // }

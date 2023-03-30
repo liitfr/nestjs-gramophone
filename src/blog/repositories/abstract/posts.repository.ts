@@ -8,10 +8,4 @@ import { repositoryDescription } from '../../../utils/repositories/repository.ut
 @Injectable()
 export abstract class PostsRepository extends Repository<PostDocument> {
   static [repositoryDescription] = 'Posts Repository';
-
-  async findAllPostsForOneAuthor(
-    authorId: MongooseTypes.ObjectId,
-  ): Promise<Post[]> {
-    throw new Error('Method not implemented.');
-  }
 }

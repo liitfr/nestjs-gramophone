@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types as MongooseTypes } from 'mongoose';
+import { Model, Types as MongooseTypes, SaveOptions } from 'mongoose';
 
 import { Versioned } from '../../../versioning/decorators/versioned.decorator';
 import { SaveVersion } from '../../../versioning/decorators/save-version.decorator';
@@ -24,14 +24,11 @@ export class MongoPostsRepository
 
   static [repositoryDescription] = 'Posts Repository';
 
-  async findAllPostsForOneAuthor(
-    authorId: MongooseTypes.ObjectId,
-  ): Promise<Post[]> {
-    return this.find({ authorId });
-  }
-
   @SaveVersion()
-  async create(post: CreatePostInput) {
-    return super.create(post);
+  async create(
+    post: CreatePostInput,
+    saveOptions?: SaveOptions & { returnOnlyId?: boolean },
+  ) {
+    return super.create(post, saveOptions);
   }
 }
