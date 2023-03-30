@@ -31,8 +31,8 @@ const mustThrowError = (options?: Throwable) =>
   options?.errorIfUnknown === true;
 
 @Injectable()
-export class MongoRepository<T extends Document> implements Repository<T> {
-  constructor(@Optional() private readonly model: Model<T>) {}
+export class MongoRepository<D extends Document> implements Repository<D> {
+  constructor(@Optional() private readonly model: Model<D>) {}
 
   @Inject(DbSession)
   private readonly dbSession: DbSession<mongoose.ClientSession>;
@@ -46,7 +46,7 @@ export class MongoRepository<T extends Document> implements Repository<T> {
   async create(
     doc: object,
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
-  ): Promise<CreatedModel | T> {
+  ): Promise<CreatedModel | D> {
     const createdEntity = new this.model(doc);
     const savedResult = await createdEntity.save({
       ...saveOptions,
@@ -74,9 +74,9 @@ export class MongoRepository<T extends Document> implements Repository<T> {
   }
 
   async find(
-    filter: FilterQuery<T>,
-    options?: QueryOptions<T> & Throwable,
-  ): Promise<T[]> {
+    filter: FilterQuery<D>,
+    options?: QueryOptions<D> & Throwable,
+  ): Promise<D[]> {
     const result = await this.model
       .find(filter, null, options)
       .session(this.dbSession.get());
@@ -98,8 +98,8 @@ export class MongoRepository<T extends Document> implements Repository<T> {
 
   async findById(
     id: MongooseTypes.ObjectId,
-    options?: QueryOptions<T> & Throwable,
-  ): Promise<T | null> {
+    options?: QueryOptions<D> & Throwable,
+  ): Promise<D | null> {
     const result = await this.model
       .findById(id, null, options)
       .session(this.dbSession.get());
@@ -117,11 +117,11 @@ export class MongoRepository<T extends Document> implements Repository<T> {
     return result;
   }
 
-  async findAll(): Promise<T[]> {
+  async findAll(): Promise<D[]> {
     return await this.model.find().session(this.dbSession.get());
   }
 
-  async remove(filter: FilterQuery<T>): Promise<RemovedModel> {
+  async remove(filter: FilterQuery<D>): Promise<RemovedModel> {
     const { deletedCount } = await this.model
       .deleteMany(filter)
       .session(this.dbSession.get());
@@ -129,9 +129,9 @@ export class MongoRepository<T extends Document> implements Repository<T> {
   }
 
   async updateOne(
-    filter: FilterQuery<T>,
-    updated: UpdateWithAggregationPipeline | UpdateQuery<T>,
-    options?: QueryOptions<T>,
+    filter: FilterQuery<D>,
+    updated: UpdateWithAggregationPipeline | UpdateQuery<D>,
+    options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
     return await this.model
       .updateOne(filter, updated, { new: true, ...options })
@@ -139,9 +139,9 @@ export class MongoRepository<T extends Document> implements Repository<T> {
   }
 
   async updateMany(
-    filter: FilterQuery<T>,
-    updated: UpdateWithAggregationPipeline | UpdateQuery<T>,
-    options?: QueryOptions<T>,
+    filter: FilterQuery<D>,
+    updated: UpdateWithAggregationPipeline | UpdateQuery<D>,
+    options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
     return await this.model
       .updateMany(filter, updated, { new: true, ...options })
@@ -153,8 +153,8 @@ export class MongoRepository<T extends Document> implements Repository<T> {
   }
 
   async count(
-    filter: FilterQuery<T>,
-    options: QueryOptions<T>,
+    filter: FilterQuery<D>,
+    options: QueryOptions<D>,
   ): Promise<number> {
     return await this.model
       .countDocuments({ filter, options })

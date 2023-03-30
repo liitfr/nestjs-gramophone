@@ -11,6 +11,8 @@ import { AuthorsRepository } from './repositories/abstract/authors.repository';
 import { PostsRepository } from './repositories/abstract/posts.repository';
 import { MongoAuthorsRepository } from './repositories/mongo/authors.repository';
 import { MongoPostsRepository } from './repositories/mongo/posts.repository';
+import { PostsService } from './services/posts.service';
+import { AuthorsService } from './services/authors.service';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { MongoPostsRepository } from './repositories/mongo/posts.repository';
     AuthorsResolver,
     { provide: AuthorsRepository, useClass: MongoAuthorsRepository },
     { provide: PostsRepository, useClass: MongoPostsRepository },
+    PostsService,
+    AuthorsService,
     PostsResolver,
   ],
   exports: [],

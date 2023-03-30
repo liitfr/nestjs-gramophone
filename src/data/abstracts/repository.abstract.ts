@@ -9,7 +9,7 @@ import {
 } from './operations.abstract';
 
 @Injectable()
-export abstract class Repository<T> {
+export abstract class Repository<D> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(entity: any) {
     throw new Error('Not implemented');
@@ -17,26 +17,26 @@ export abstract class Repository<T> {
 
   static [repositoryDescription] = 'Abstract Repository';
 
-  public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | T> {
+  public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
     throw new Error('Not implemented');
   }
 
   public createMany(
     docs: object[],
     insertManyOptions?: unknown,
-  ): Promise<CreatedModel[] | T[]> {
+  ): Promise<CreatedModel[] | D[]> {
     throw new Error('Not implemented');
   }
 
-  public find(filter: unknown, options?: unknown): Promise<T[]> {
+  public find(filter: unknown, options?: unknown): Promise<D[]> {
     throw new Error('Not implemented');
   }
 
-  public findById(id: unknown): Promise<T | null> {
+  public findById(id: unknown): Promise<D | null> {
     throw new Error('Not implemented');
   }
 
-  public findAll(): Promise<T[]> {
+  public findAll(): Promise<D[]> {
     throw new Error('Not implemented');
   }
 
