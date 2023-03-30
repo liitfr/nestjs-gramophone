@@ -12,7 +12,7 @@ import {
   getEntityName,
 } from './enhancers.util';
 import { pluralizeEntityName } from '../pluralize-entity-name';
-import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
+import { IdScalar } from '../scalars/id.scalar';
 
 const IS_IDABLE = 'IS_IDABLE';
 
@@ -38,7 +38,7 @@ export function Idable() {
       static [entityDescription] = entityDescriptionValue;
       static [entityEnhancers] = [];
 
-      @Field(() => MongoObjectIdScalar, {
+      @Field(() => IdScalar, {
         nullable: false,
         description: `${entityDescriptionValue}'s id`,
       })

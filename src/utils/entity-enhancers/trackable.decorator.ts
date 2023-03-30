@@ -15,7 +15,7 @@ import {
   getEntityName,
 } from './enhancers.util';
 import { pluralizeEntityName } from '../pluralize-entity-name';
-import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
+import { IdScalar } from '../scalars/id.scalar';
 
 const IS_TRACKABLE = 'IS_TRACKABLE';
 
@@ -47,7 +47,7 @@ export function Trackable() {
       static [entityDescription] = entityDescriptionValue;
       static [entityEnhancers] = [];
 
-      @Field(() => MongoObjectIdScalar, {
+      @Field(() => IdScalar, {
         nullable: false,
         description: `${entityDescriptionValue}'s creator id`,
         defaultValue: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),
@@ -60,7 +60,7 @@ export function Trackable() {
       })
       creatorId: MongooseTypes.ObjectId;
 
-      @Field(() => MongoObjectIdScalar, {
+      @Field(() => IdScalar, {
         nullable: false,
         description: `${entityDescriptionValue}'s updater id`,
         defaultValue: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),

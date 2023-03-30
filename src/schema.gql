@@ -6,7 +6,7 @@ type Author {
   """
   Author's id
   """
-  _id: MongoObjectId!
+  _id: Id!
   firstName: String!
   lastName: String!
   posts: [Post!]!
@@ -16,7 +16,7 @@ input CreateAuthorInput {
   """
   Author's optional id
   """
-  _id: MongoObjectId
+  _id: Id
   firstName: String!
   lastName: String!
 
@@ -32,12 +32,12 @@ input CreatePostInput {
   """
   Post's optional id
   """
-  _id: MongoObjectId
+  _id: Id
 
   """
   ¨Post's author id
   """
-  authorId: MongoObjectId!
+  authorId: Id!
 
   """
   Post's automatic memo
@@ -70,9 +70,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 """
-Mongo object id scalar type
+Id scalar type
 """
-scalar MongoObjectId
+scalar Id
 
 type Mutation {
   createAuthor(author: CreateAuthorInput!): Author!
@@ -83,13 +83,13 @@ type Post {
   """
   Post's id
   """
-  _id: MongoObjectId!
+  _id: Id!
   author: Author!
 
   """
   ¨Post's author id
   """
-  authorId: MongoObjectId!
+  authorId: Id!
 
   """
   Post's automatic memo
@@ -105,7 +105,7 @@ type Post {
   """
   Post's creator id
   """
-  creatorId: MongoObjectId!
+  creatorId: Id!
 
   """
   Post's internal memo
@@ -126,14 +126,14 @@ type Post {
   """
   Post's updater id
   """
-  updaterId: MongoObjectId!
+  updaterId: Id!
 }
 
 type PostVersion {
   """
   Post Version's id
   """
-  _id: MongoObjectId!
+  _id: Id!
 
   """
   Post Version's automatic memo
@@ -148,7 +148,7 @@ type PostVersion {
   """
   Post Version's creator id
   """
-  creatorId: MongoObjectId!
+  creatorId: Id!
 
   """
   Post Version's internal memo
@@ -163,7 +163,7 @@ type PostVersion {
   """
   Post Version's original id
   """
-  originalId: MongoObjectId!
+  originalId: Id!
 
   """
   Post Version's updated at
@@ -173,7 +173,7 @@ type PostVersion {
   """
   Post Version's updater id
   """
-  updaterId: MongoObjectId!
+  updaterId: Id!
 
   """
   Post Version's version
@@ -182,12 +182,10 @@ type PostVersion {
 }
 
 type Query {
-  author(id: MongoObjectId!): Author!
-  findAllPostVersionsForOneOriginalId(
-    originalId: MongoObjectId!
-  ): [PostVersion!]!
-  findOnePostVersionById(id: MongoObjectId!): PostVersion!
-  post(id: MongoObjectId!): Post!
+  author(id: Id!): Author!
+  findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
+  findOnePostVersionById(id: Id!): PostVersion!
+  post(id: Id!): Post!
 }
 
 input VersionDataInput {

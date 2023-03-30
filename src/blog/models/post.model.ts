@@ -5,7 +5,7 @@ import { HydratedDocument, Types as MongooseTypes } from 'mongoose';
 import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
 import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
 import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
-import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
+import { IdScalar } from '../../utils/scalars/id.scalar';
 import { Idable } from '../../utils/entity-enhancers/idable.decorator';
 
 export type PostDocument = HydratedDocument<Post>;
@@ -30,7 +30,7 @@ export class Post {
   // @Prop(() => [LineSchema])
   // lines: Line[];
 
-  @Field(() => MongoObjectIdScalar, {
+  @Field(() => IdScalar, {
     nullable: false,
     description: "¨Post's author id",
   })

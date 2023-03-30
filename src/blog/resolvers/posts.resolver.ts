@@ -9,7 +9,7 @@ import {
 import { Types as MongooseTypes } from 'mongoose';
 
 import { AddTrackableFields } from '../../utils/pipes/add-trackable-fields.pipe';
-import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
+import { IdScalar } from '../../utils/scalars/id.scalar';
 
 import { Author } from '../models/author.model';
 import { Post } from '../models/post.model';
@@ -26,7 +26,7 @@ export class PostsResolver {
 
   @Query(() => Post)
   async post(
-    @Args('id', { type: () => MongoObjectIdScalar }) id: MongooseTypes.ObjectId,
+    @Args('id', { type: () => IdScalar }) id: MongooseTypes.ObjectId,
   ): Promise<Post> {
     return this.postsRepository.findById(id);
   }

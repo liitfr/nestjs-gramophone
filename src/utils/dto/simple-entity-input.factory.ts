@@ -8,7 +8,7 @@ import {
 } from '../entity-enhancers/trackable.decorator';
 import { Idable, checkIfIsIdable } from '../entity-enhancers/idable.decorator';
 import { entityDescription } from '../entity-enhancers/enhancers.util';
-import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
+import { IdScalar } from '../scalars/id.scalar';
 
 interface Options {
   isIdMandatory?: boolean;
@@ -26,7 +26,7 @@ export function SimpleEntityInputFactory(
     const entityDescriptionValue = classRef[entityDescription] ?? 'Entity';
     @InputType()
     class ClassOptionalId {
-      @Field(() => MongoObjectIdScalar, {
+      @Field(() => IdScalar, {
         nullable: true,
         description:
           `${entityDescriptionValue}'s optional id` ??

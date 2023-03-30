@@ -8,10 +8,10 @@ import {
 } from 'src/data/abstracts/operations.abstract';
 
 @Injectable()
-export abstract class RepositoryService<D> implements Repository<D> {
+export abstract class SimpleService<D> implements Repository<D> {
   constructor(private readonly repository: Repository<D>) {}
 
-  static [serviceDescription] = 'Connected Service';
+  static [serviceDescription] = 'Simple Service';
 
   public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
     return this.repository.create(doc, saveOptions);

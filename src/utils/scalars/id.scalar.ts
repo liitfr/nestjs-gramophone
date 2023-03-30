@@ -1,9 +1,9 @@
 import { Kind, ASTNode, GraphQLScalarType } from 'graphql';
 import { ObjectId } from 'mongodb';
 
-export const MongoObjectIdScalar = new GraphQLScalarType({
-  name: 'MongoObjectId',
-  description: 'Mongo object id scalar type',
+export const IdScalar = new GraphQLScalarType({
+  name: 'Id',
+  description: 'Id scalar type',
 
   // value from the client
   parseValue: (value: unknown) => new ObjectId(value as string),

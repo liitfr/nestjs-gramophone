@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema, Types as MongooseTypes } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
+import { IdScalar } from '../../utils/scalars/id.scalar';
 import {
   entityDescription,
   entityName,
@@ -33,13 +33,13 @@ export function modelFactory(Entity: Type<unknown>) {
     static [entityName] = newEntityName;
     static [entityDescription] = newEntityDescription;
 
-    @Field(() => MongoObjectIdScalar, {
+    @Field(() => IdScalar, {
       nullable: false,
       description: `${newEntityDescription}\'s id`,
     })
     _id: MongooseTypes.ObjectId;
 
-    @Field(() => MongoObjectIdScalar, {
+    @Field(() => IdScalar, {
       nullable: false,
       description: `${newEntityDescription}\'s original id`,
     })
