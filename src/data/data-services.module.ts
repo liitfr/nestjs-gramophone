@@ -21,7 +21,7 @@ import { MongoRepository } from './mongo/services/repository.service';
     },
     DbSessionPlugin,
   ],
-  exports: [DbSession],
+  exports: [DbSession, Repository],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class DataServicesModule {}

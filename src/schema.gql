@@ -3,87 +3,65 @@
 # ------------------------------------------------------
 
 type Author {
-  """Author's id"""
+  """
+  Author's id
+  """
   _id: MongoObjectId!
   firstName: String!
   lastName: String!
   posts: [Post!]!
 }
 
-type AuthorVersion {
-  """Author Version's id"""
-  _id: MongoObjectId!
-
-  """Author Version's automatic memo"""
-  automaticMemo: String
-
-  """Author Version's created at"""
-  createdAt: DateTime!
-
-  """Author Version's creator id"""
-  creatorId: MongoObjectId!
-
-  """Author Version's internal memo"""
-  internalMemo: String
-
-  """Author Version's memo"""
-  memo: String
-
-  """Author Version's original id"""
-  originalId: MongoObjectId!
-
-  """Author Version's updated at"""
-  updatedAt: DateTime!
-
-  """Author Version's updater id"""
-  updaterId: MongoObjectId!
-
-  """Author Version's version"""
-  version: Author!
-}
-
 input CreateAuthorInput {
-  """Author's optional id"""
+  """
+  Author's optional id
+  """
   _id: MongoObjectId
   firstName: String!
   lastName: String!
 
-  """Author's version data"""
-  versionData: VersionDataInput = {automaticMemo: "Memo automatique généré via GraphQL"}
+  """
+  Author's version data
+  """
+  versionData: VersionDataInput = {
+    automaticMemo: "Memo automatique généré via GraphQL"
+  }
 }
 
 input CreatePostInput {
-  """Post's optional id"""
+  """
+  Post's optional id
+  """
   _id: MongoObjectId
 
-  """¨Post's author id"""
+  """
+  ¨Post's author id
+  """
   authorId: MongoObjectId!
 
-  """Post's automatic memo"""
+  """
+  Post's automatic memo
+  """
   automaticMemo: String = "Memo automatique généré via GraphQL"
   content: String!
 
-  """Post's created at"""
-  createdAt: DateTime!
-
-  """Post's creator id"""
-  creatorId: MongoObjectId!
-
-  """Post's internal memo"""
+  """
+  Post's internal memo
+  """
   internalMemo: String
 
-  """Post's memo"""
+  """
+  Post's memo
+  """
   memo: String
   title: String!
 
-  """Post's updated at"""
-  updatedAt: DateTime!
-
-  """Post's updater id"""
-  updaterId: MongoObjectId!
-
-  """Post's version data"""
-  versionData: VersionDataInput = {automaticMemo: "Memo automatique généré via GraphQL"}
+  """
+  Post's version data
+  """
+  versionData: VersionDataInput = {
+    automaticMemo: "Memo automatique généré via GraphQL"
+  }
 }
 
 """
@@ -91,7 +69,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-"""Mongo object id scalar type"""
+"""
+Mongo object id scalar type
+"""
 scalar MongoObjectId
 
 type Mutation {
@@ -100,85 +80,129 @@ type Mutation {
 }
 
 type Post {
-  """Post's id"""
+  """
+  Post's id
+  """
   _id: MongoObjectId!
   author: Author!
 
-  """¨Post's author id"""
+  """
+  ¨Post's author id
+  """
   authorId: MongoObjectId!
 
-  """Post's automatic memo"""
+  """
+  Post's automatic memo
+  """
   automaticMemo: String
   content: String!
 
-  """Post's created at"""
+  """
+  Post's created at
+  """
   createdAt: DateTime!
 
-  """Post's creator id"""
+  """
+  Post's creator id
+  """
   creatorId: MongoObjectId!
 
-  """Post's internal memo"""
+  """
+  Post's internal memo
+  """
   internalMemo: String
 
-  """Post's memo"""
+  """
+  Post's memo
+  """
   memo: String
   title: String!
 
-  """Post's updated at"""
+  """
+  Post's updated at
+  """
   updatedAt: DateTime!
 
-  """Post's updater id"""
+  """
+  Post's updater id
+  """
   updaterId: MongoObjectId!
 }
 
 type PostVersion {
-  """Post Version's id"""
+  """
+  Post Version's id
+  """
   _id: MongoObjectId!
 
-  """Post Version's automatic memo"""
+  """
+  Post Version's automatic memo
+  """
   automaticMemo: String
 
-  """Post Version's created at"""
+  """
+  Post Version's created at
+  """
   createdAt: DateTime!
 
-  """Post Version's creator id"""
+  """
+  Post Version's creator id
+  """
   creatorId: MongoObjectId!
 
-  """Post Version's internal memo"""
+  """
+  Post Version's internal memo
+  """
   internalMemo: String
 
-  """Post Version's memo"""
+  """
+  Post Version's memo
+  """
   memo: String
 
-  """Post Version's original id"""
+  """
+  Post Version's original id
+  """
   originalId: MongoObjectId!
 
-  """Post Version's updated at"""
+  """
+  Post Version's updated at
+  """
   updatedAt: DateTime!
 
-  """Post Version's updater id"""
+  """
+  Post Version's updater id
+  """
   updaterId: MongoObjectId!
 
-  """Post Version's version"""
+  """
+  Post Version's version
+  """
   version: Post!
 }
 
 type Query {
   author(id: MongoObjectId!): Author!
-  findAllAuthorVersionsForOneOriginalId(originalId: MongoObjectId!): [AuthorVersion!]!
-  findAllPostVersionsForOneOriginalId(originalId: MongoObjectId!): [PostVersion!]!
-  findOneAuthorVersionById(id: MongoObjectId!): AuthorVersion!
+  findAllPostVersionsForOneOriginalId(
+    originalId: MongoObjectId!
+  ): [PostVersion!]!
   findOnePostVersionById(id: MongoObjectId!): PostVersion!
   post(id: MongoObjectId!): Post!
 }
 
 input VersionDataInput {
-  """Version Data's automatic memo"""
+  """
+  Version Data's automatic memo
+  """
   automaticMemo: String = "Memo automatique généré via GraphQL"
 
-  """Version Data's internal memo"""
+  """
+  Version Data's internal memo
+  """
   internalMemo: String
 
-  """Version Data's memo"""
+  """
+  Version Data's memo
+  """
   memo: String
 }

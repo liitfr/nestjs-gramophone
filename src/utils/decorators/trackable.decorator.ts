@@ -1,11 +1,15 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { Schema as MongooseSchema, Types as MongooseTypes } from 'mongoose';
+import mongoose, {
+  Schema as MongooseSchema,
+  Types as MongooseTypes,
+} from 'mongoose';
 
 import { Type } from '@nestjs/common';
 import {
   EntityDecorator,
   entityDescription,
+  entityEnhancers,
   entityName,
   getEntityDescription,
   getEntityName,
@@ -13,7 +17,7 @@ import {
 import { pluralizeEntityName } from '../pluralize-entity-name';
 import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
 
-export const isTrackable = Symbol('isTrackable');
+const IS_TRACKABLE = 'IS_TRACKABLE';
 
 export interface Trackable {
   creatorId: MongooseTypes.ObjectId;
@@ -24,8 +28,11 @@ export interface Trackable {
 
 export const checkIfIsTrackable = (
   classRef: Type,
-): classRef is Type<Trackable> =>
-  !!Object.getOwnPropertyDescriptor(classRef, isTrackable);
+): classRef is Type<Trackable> => {
+  return (
+    Object.getOwnPropertyDescriptor(classRef, entityEnhancers)?.value ?? []
+  ).includes(IS_TRACKABLE);
+};
 
 export function Trackable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -38,11 +45,12 @@ export function Trackable() {
     class Tracked extends constructor implements EntityDecorator, Trackable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
-      static [isTrackable] = true;
+      static [entityEnhancers] = [];
 
       @Field(() => MongoObjectIdScalar, {
         nullable: false,
         description: `${entityDescriptionValue}'s creator id`,
+        defaultValue: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),
       })
       @Prop({
         type: MongooseSchema.Types.ObjectId,
@@ -55,6 +63,7 @@ export function Trackable() {
       @Field(() => MongoObjectIdScalar, {
         nullable: false,
         description: `${entityDescriptionValue}'s updater id`,
+        defaultValue: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),
       })
       @Prop({
         type: MongooseSchema.Types.ObjectId,
@@ -67,6 +76,7 @@ export function Trackable() {
       @Field(() => GraphQLISODateTime, {
         nullable: false,
         description: `${entityDescriptionValue}'s created at`,
+        defaultValue: new Date(),
       })
       @Prop({
         type: Date,
@@ -78,6 +88,7 @@ export function Trackable() {
       @Field(() => GraphQLISODateTime, {
         nullable: false,
         description: `${entityDescriptionValue}'s updated at`,
+        defaultValue: new Date(),
       })
       @Prop({
         type: Date,
@@ -88,6 +99,13 @@ export function Trackable() {
     }
 
     Object.defineProperty(Tracked, 'name', { value: constructor.name });
+    Object.defineProperty(Tracked, entityEnhancers, {
+      value: [
+        IS_TRACKABLE,
+        ...(Object.getOwnPropertyDescriptor(constructor, entityEnhancers)
+          ?.value ?? []),
+      ],
+    });
 
     return Tracked;
   };

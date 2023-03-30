@@ -10,37 +10,38 @@ import {
 
 @Injectable()
 export abstract class Repository<T> {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(entity: any) {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
-  [repositoryDescription] = 'Abstract Repository';
+  static [repositoryDescription] = 'Abstract Repository';
 
-  public create(doc: object, saveOptions?: unknown): Promise<CreatedModel> {
-    throw new Error('Method not implemented.');
+  public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | T> {
+    throw new Error('Not implemented');
   }
 
   async createMany(
     docs: object[],
     insertManyOptions?: unknown,
-  ): Promise<CreatedModel[]> {
-    throw new Error('Method not implemented.');
+  ): Promise<CreatedModel[] | T[]> {
+    throw new Error('Not implemented');
   }
 
   public find(filter: unknown, options?: unknown): Promise<T[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public findById(id: unknown): Promise<T | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public findAll(): Promise<T[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public remove(filter: unknown): Promise<RemovedModel> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public updateOne(
@@ -48,7 +49,7 @@ export abstract class Repository<T> {
     updated: unknown,
     options?: unknown,
   ): Promise<UpdatedModel> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public updateMany(
@@ -56,14 +57,14 @@ export abstract class Repository<T> {
     updated: unknown,
     options?: unknown,
   ): Promise<UpdatedModel> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public countAll(): Promise<number> {
-    throw new Error('Method not implemented.');
+    throw new Error('Not implemented');
   }
 
   public count(filter: unknown, options: unknown): Promise<number> {
-    throw new Error('Method not implemented.');
+    return new Promise(() => 0);
   }
 }

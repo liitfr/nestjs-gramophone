@@ -1,9 +1,11 @@
 export const entityName = Symbol('entityName');
 export const entityDescription = Symbol('entityDescription');
+export const entityEnhancers = Symbol('entityEnhancers');
 
 export abstract class EntityDecorator {
   static [entityName]: string;
   static [entityDescription]?: string;
+  static [entityEnhancers]?: string[];
 }
 
 export const isEntityDecorator = (object: any): object is EntityDecorator => {

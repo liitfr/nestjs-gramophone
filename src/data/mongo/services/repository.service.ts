@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server-express';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import {
   FilterQuery,
@@ -32,25 +32,30 @@ const mustThrowError = (options?: Throwable) =>
 
 @Injectable()
 export class MongoRepository<T extends Document> implements Repository<T> {
-  constructor(
-    private readonly model: Model<T>,
-    private readonly dbSession: DbSession<mongoose.ClientSession>,
-  ) {}
+  constructor(@Optional() private readonly model: Model<T>) {}
 
-  [repositoryDescription] = 'Mongo Repository';
+  @Inject(DbSession)
+  private readonly dbSession: DbSession<mongoose.ClientSession>;
+
+  static [repositoryDescription] = 'Mongo Repository';
 
   getEntityDescription(): string {
     return this[repositoryDescription];
   }
 
-  async create(doc: object, saveOptions?: SaveOptions): Promise<CreatedModel> {
+  async create(
+    doc: object,
+    saveOptions?: SaveOptions & { returnOnlyId?: boolean },
+  ): Promise<CreatedModel | T> {
     const createdEntity = new this.model(doc);
     const savedResult = await createdEntity.save({
       ...saveOptions,
       session: this.dbSession.get(),
     });
 
-    return { id: savedResult.id, created: !!savedResult.id };
+    return saveOptions?.returnOnlyId
+      ? { id: savedResult._id, created: !!savedResult._id }
+      : savedResult;
   }
 
   async createMany(
@@ -98,7 +103,6 @@ export class MongoRepository<T extends Document> implements Repository<T> {
     const result = await this.model
       .findById(id, null, options)
       .session(this.dbSession.get());
-
     if (mustThrowError(options) && !result) {
       throw new UserInputError('No result with this id.', {
         service: 'repository',
@@ -130,7 +134,7 @@ export class MongoRepository<T extends Document> implements Repository<T> {
     options?: QueryOptions<T>,
   ): Promise<UpdatedModel> {
     return await this.model
-      .updateOne(filter, updated, options)
+      .updateOne(filter, updated, { new: true, ...options })
       .session(this.dbSession.get());
   }
 
@@ -140,7 +144,7 @@ export class MongoRepository<T extends Document> implements Repository<T> {
     options?: QueryOptions<T>,
   ): Promise<UpdatedModel> {
     return await this.model
-      .updateMany(filter, updated, options)
+      .updateMany(filter, updated, { new: true, ...options })
       .session(this.dbSession.get());
   }
 

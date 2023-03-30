@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 
 import { BlogModule } from '../blog/blog.module';
+import { DataServicesModule } from '../data/data-services.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { BlogModule } from '../blog/blog.module';
       'mongodb://localhost:27017/eSocnaDb?replicaSet=eSocnaRs',
       { dbName: 'poc' },
     ),
+    DataServicesModule,
     BlogModule,
   ],
   providers: [],

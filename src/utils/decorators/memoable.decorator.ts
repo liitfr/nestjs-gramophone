@@ -4,6 +4,7 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import {
   EntityDecorator,
   entityDescription,
+  entityEnhancers,
   entityName,
   getEntityDescription,
   getEntityName,
@@ -11,14 +12,16 @@ import {
 import { pluralizeEntityName } from '../pluralize-entity-name';
 import { Type } from '@nestjs/common';
 
-export const isMemoable = Symbol('isMemoable');
+const IS_MEMOABLE = 'IS_MEMOABLE';
 
 export interface Memoable {
   memo?: string;
 }
 
-export const checkIfIsMemoable = (classRef: Type): classRef is Type<Memoable> =>
-  !!Object.getOwnPropertyDescriptor(classRef, isMemoable);
+export const checkIfIsIdable = (classRef: Type): classRef is Type<Memoable> =>
+  (
+    Object.getOwnPropertyDescriptor(classRef, entityEnhancers)?.value ?? []
+  ).includes(IS_MEMOABLE);
 
 export function Memoable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -31,7 +34,7 @@ export function Memoable() {
     class Memoed extends constructor implements EntityDecorator, Memoable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
-      static [isMemoable] = true;
+      static [entityEnhancers] = [];
 
       @Field({
         nullable: true,
@@ -66,6 +69,13 @@ export function Memoable() {
     }
 
     Object.defineProperty(Memoed, 'name', { value: constructor.name });
+    Object.defineProperty(Memoed, entityEnhancers, {
+      value: [
+        IS_MEMOABLE,
+        ...(Object.getOwnPropertyDescriptor(constructor, entityEnhancers)
+          ?.value ?? []),
+      ],
+    });
 
     return Memoed;
   };

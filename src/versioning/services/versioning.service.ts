@@ -1,5 +1,6 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { Document, Model, Types as MongooseTypes } from 'mongoose';
+import { Trackable } from 'src/utils/decorators/trackable.decorator';
 
 @Injectable({
   scope: Scope.TRANSIENT,
@@ -21,10 +22,17 @@ export class VersioningService<T> {
     return this.model.findById(id);
   }
 
-  public async saveVersion(item: Document, versionData: Record<string, any>) {
+  public async saveVersion(
+    item: Document & Trackable,
+    versionData: Record<string, any>,
+  ) {
     const version = new this.model({
       originalId: item._id,
       version: item,
+      creatorId: item.creatorId,
+      updaterId: item.updaterId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       ...versionData,
     });
     await version.save();

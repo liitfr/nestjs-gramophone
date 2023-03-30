@@ -22,7 +22,6 @@ export function SimpleEntityInputFactory(
     removeTrackable: true,
   },
 ) {
-  // console.log(isIdable(classRef));
   if (!isIdMandatory && checkIfIsIdable(classRef)) {
     const entityDescriptionValue = classRef[entityDescription] ?? 'Entity';
     @InputType()

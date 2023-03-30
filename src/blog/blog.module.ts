@@ -6,9 +6,11 @@ import { VersioningModule } from '../versioning/versioning.module';
 import { Author, AuthorSchema } from './models/author.model';
 import { Post, PostSchema } from './models/post.model';
 import { AuthorsResolver } from './resolvers/authors.resolver';
-import { AuthorsService } from './services/authors.service';
-import { PostsService } from './services/posts.service';
 import { PostsResolver } from './resolvers/posts.resolver';
+import { AuthorsRepository } from './repositories/abstract/authors.repository';
+import { PostsRepository } from './repositories/abstract/posts.repository';
+import { MongoAuthorsRepository } from './repositories/mongo/authors.repository';
+import { MongoPostsRepository } from './repositories/mongo/posts.repository';
 
 @Module({
   imports: [
@@ -18,7 +20,12 @@ import { PostsResolver } from './resolvers/posts.resolver';
     ]),
     VersioningModule.forRoot(),
   ],
-  providers: [AuthorsResolver, AuthorsService, PostsService, PostsResolver],
+  providers: [
+    AuthorsResolver,
+    { provide: AuthorsRepository, useClass: MongoAuthorsRepository },
+    { provide: PostsRepository, useClass: MongoPostsRepository },
+    PostsResolver,
+  ],
   exports: [],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

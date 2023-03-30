@@ -8,36 +8,37 @@ import {
 } from '@nestjs/graphql';
 import { Types as MongooseTypes } from 'mongoose';
 
+import { AddTrackableFields } from '../../utils/pipes/add-trackable-fields.pipe';
 import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
 
 import { Author } from '../models/author.model';
-import { AuthorsService } from '../services/authors.service';
 import { Post } from '../models/post.model';
-import { PostsService } from '../services/posts.service';
 import { CreatePostInput } from '../dto/create-post.input';
+import { AuthorsRepository } from '../repositories/abstract/authors.repository';
+import { PostsRepository } from '../repositories/abstract/posts.repository';
 
 @Resolver(() => Post)
 export class PostsResolver {
   constructor(
-    private authorsService: AuthorsService,
-    private postsService: PostsService,
+    private authorsRepository: AuthorsRepository,
+    private postsRepository: PostsRepository,
   ) {}
 
   @Query(() => Post)
   async post(
     @Args('id', { type: () => MongoObjectIdScalar }) id: MongooseTypes.ObjectId,
   ): Promise<Post> {
-    return this.postsService.findOneById(id);
+    return this.postsRepository.findById(id);
   }
 
   @ResolveField(() => Author, { name: 'author' })
   async author(@Parent() post: Post) {
     const { authorId } = post;
-    return this.authorsService.findOneById(authorId);
+    return this.authorsRepository.findById(authorId);
   }
 
   @Mutation(() => Post)
-  async createPost(@Args('post') post: CreatePostInput) {
-    return this.postsService.create(post);
+  async createPost(@Args('post', AddTrackableFields) post: CreatePostInput) {
+    return this.postsRepository.create(post);
   }
 }
