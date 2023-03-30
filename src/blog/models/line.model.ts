@@ -2,8 +2,8 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { entityDescription } from '../../utils/entity-decorator';
-import { Idable } from '../../utils/decorators/idable.decorator';
+import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
+import { Idable } from '../../utils/entity-enhancers/idable.decorator';
 
 export type LineDocument = HydratedDocument<Line>;
 

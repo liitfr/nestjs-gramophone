@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { repositoryDescription } from '../../utils/repository.util';
+import { repositoryDescription } from '../../utils/repositories/repository.util';
 
 import {
   CreatedModel,
@@ -21,7 +21,7 @@ export abstract class Repository<T> {
     throw new Error('Not implemented');
   }
 
-  async createMany(
+  public createMany(
     docs: object[],
     insertManyOptions?: unknown,
   ): Promise<CreatedModel[] | T[]> {
@@ -65,6 +65,6 @@ export abstract class Repository<T> {
   }
 
   public count(filter: unknown, options: unknown): Promise<number> {
-    return new Promise(() => 0);
+    throw new Error('Not implemented');
   }
 }

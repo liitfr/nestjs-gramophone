@@ -9,10 +9,10 @@ import {
   entityName,
   getEntityDescription,
   getEntityName,
-} from '../../utils/entity-decorator';
+} from '../../utils/entity-enhancers/enhancers.util';
 import { pluralizeEntityName } from '../../utils/pluralize-entity-name';
-import { Memoable } from '../../utils/decorators/memoable.decorator';
-import { Trackable } from '../../utils/decorators/trackable.decorator';
+import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
+import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
 
 export function modelFactory(Entity: Type<unknown>) {
   const entityDescriptionValue = getEntityDescription(Entity);

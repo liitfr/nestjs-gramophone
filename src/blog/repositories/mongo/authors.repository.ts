@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 import { Author, AuthorDocument } from '../../../blog/models/author.model';
 import { MongoRepository } from '../../../data/mongo/services/repository.service';
-import { repositoryDescription } from '../../../utils/repository.util';
+import { repositoryDescription } from '../../../utils/repositories/repository.util';
 
 import { AuthorsRepository } from '../abstract/authors.repository';
 

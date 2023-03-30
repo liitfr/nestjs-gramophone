@@ -1,7 +1,7 @@
 import { Field, InputType, IntersectionType } from '@nestjs/graphql';
 import { Type } from '@nestjs/common';
 
-import { entityDescription } from '../../utils/entity-decorator';
+import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
 import { SimpleEntityInputFactory } from '../../utils/dto/simple-entity-input.factory';
 
 import { VersionDataInput } from './version-data.input';

@@ -19,7 +19,7 @@ import {
 } from '../../abstracts/operations.abstract';
 import { DbSession } from '../../abstracts/db-session.abstract';
 import { Repository } from '../../abstracts/repository.abstract';
-import { repositoryDescription } from 'src/utils/repository.util';
+import { repositoryDescription } from 'src/utils/repositories/repository.util';
 
 interface Throwable {
   errorIfUnknown?: boolean | null;

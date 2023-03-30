@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 
-import { getEntityName } from '../../utils/entity-decorator';
+import { getEntityName } from '../../utils/entity-enhancers/enhancers.util';
 
 export const SaveVersion = (versionDataInput = 'versionData') => {
   const decorator = (

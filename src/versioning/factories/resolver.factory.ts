@@ -3,7 +3,7 @@ import { Types as MongooseTypes } from 'mongoose';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { MongoObjectIdScalar } from '../../utils/scalars/mongo-id.scalar';
-import { getEntityName } from '../../utils/entity-decorator';
+import { getEntityName } from '../../utils/entity-enhancers/enhancers.util';
 
 import { VersioningService } from '../services/versioning.service';
 

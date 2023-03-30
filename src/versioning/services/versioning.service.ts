@@ -1,6 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { Document, Model, Types as MongooseTypes } from 'mongoose';
-import { Trackable } from 'src/utils/decorators/trackable.decorator';
+
+import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
 
 @Injectable({
   scope: Scope.TRANSIENT,

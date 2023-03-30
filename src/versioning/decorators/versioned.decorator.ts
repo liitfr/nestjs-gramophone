@@ -1,5 +1,5 @@
 import { Type } from '@nestjs/common';
-import { checkIfIsTrackable } from 'src/utils/decorators/trackable.decorator';
+import { checkIfIsTrackable } from 'src/utils/entity-enhancers/trackable.decorator';
 
 export const versioners: {
   serviceName: string;

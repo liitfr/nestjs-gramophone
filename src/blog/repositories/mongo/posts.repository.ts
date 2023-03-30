@@ -5,7 +5,7 @@ import { Model, Types as MongooseTypes } from 'mongoose';
 import { Versioned } from '../../../versioning/decorators/versioned.decorator';
 import { SaveVersion } from '../../../versioning/decorators/save-version.decorator';
 import { MongoRepository } from '../../../data/mongo/services/repository.service';
-import { repositoryDescription } from '../../../utils/repository.util';
+import { repositoryDescription } from '../../../utils/repositories/repository.util';
 
 import { Post, PostDocument } from '../../models/post.model';
 import { CreatePostInput } from '../../dto/create-post.input';

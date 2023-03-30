@@ -13,7 +13,7 @@ import {
   entityName,
   getEntityDescription,
   getEntityName,
-} from '../entity-decorator';
+} from './enhancers.util';
 import { pluralizeEntityName } from '../pluralize-entity-name';
 import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
 

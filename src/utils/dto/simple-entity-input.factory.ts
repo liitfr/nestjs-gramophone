@@ -5,9 +5,9 @@ import { Types as MongooseTypes } from 'mongoose';
 import {
   Trackable,
   checkIfIsTrackable,
-} from '../decorators/trackable.decorator';
-import { Idable, checkIfIsIdable } from '../decorators/idable.decorator';
-import { entityDescription } from '../entity-decorator';
+} from '../entity-enhancers/trackable.decorator';
+import { Idable, checkIfIsIdable } from '../entity-enhancers/idable.decorator';
+import { entityDescription } from '../entity-enhancers/enhancers.util';
 import { MongoObjectIdScalar } from '../scalars/mongo-id.scalar';
 
 interface Options {
