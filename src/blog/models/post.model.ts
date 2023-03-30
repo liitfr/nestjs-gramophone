@@ -7,6 +7,7 @@ import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
 import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { Idable } from '../../utils/entity-enhancers/idable.decorator';
+import { Id } from '../../utils/id.type';
 
 export type PostDocument = HydratedDocument<Post>;
 
@@ -40,7 +41,7 @@ export class Post {
     autopopulate: false,
     required: true,
   })
-  authorId: MongooseTypes.ObjectId;
+  authorId: Id;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

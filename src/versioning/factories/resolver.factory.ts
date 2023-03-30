@@ -1,9 +1,9 @@
 import { Inject, Type } from '@nestjs/common';
-import { Types as MongooseTypes } from 'mongoose';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { getEntityName } from '../../utils/entity-enhancers/enhancers.util';
+import { Id } from '../../utils/id.type';
 
 import { VersioningService } from '../services/versioning.service';
 
@@ -25,7 +25,7 @@ export function resolverFactory(
     })
     public async findAllVersionsForOneOriginalId(
       @Args('originalId', { type: () => IdScalar })
-      originalId: MongooseTypes.ObjectId,
+      originalId: Id,
     ) {
       return this.versioningService.findAllVersionsForOneOriginalId(originalId);
     }
@@ -35,7 +35,7 @@ export function resolverFactory(
     })
     public async findOneById(
       @Args('id', { type: () => IdScalar })
-      id: MongooseTypes.ObjectId,
+      id: Id,
     ) {
       return this.versioningService.findOneById(id);
     }

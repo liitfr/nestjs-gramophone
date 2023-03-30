@@ -9,7 +9,7 @@ import {
   getEntityDescription,
   getEntityName,
 } from './enhancers.util';
-import { pluralizeEntityName } from '../pluralize-entity-name';
+import { generateCollectionName } from '../string.util';
 import { Type } from '@nestjs/common';
 
 const IS_MEMOABLE = 'IS_MEMOABLE';
@@ -30,7 +30,7 @@ export function Memoable() {
     const entityDescriptionValue = getEntityDescription(constructor);
 
     @ObjectType(entityNameValue)
-    @Schema({ collection: pluralizeEntityName(entityNameValue) })
+    @Schema({ collection: generateCollectionName(entityNameValue) })
     class Memoed extends constructor implements EntityDecorator, Memoable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;

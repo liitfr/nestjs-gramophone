@@ -1,6 +1,5 @@
 import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
 import { Type } from '@nestjs/common';
-import { Types as MongooseTypes } from 'mongoose';
 
 import {
   Trackable,
@@ -9,6 +8,7 @@ import {
 import { Idable, checkIfIsIdable } from '../entity-enhancers/idable.decorator';
 import { entityDescription } from '../entity-enhancers/enhancers.util';
 import { IdScalar } from '../scalars/id.scalar';
+import { Id } from '../id.type';
 
 interface Options {
   isIdMandatory?: boolean;
@@ -32,7 +32,7 @@ export function SimpleEntityInputFactory(
           `${entityDescriptionValue}'s optional id` ??
           'Optional Reference Identifier',
       })
-      readonly _id?: MongooseTypes.ObjectId;
+      readonly _id?: Id;
     }
 
     if (removeTrackable && checkIfIsTrackable(classRef)) {

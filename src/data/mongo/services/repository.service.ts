@@ -10,7 +10,10 @@ import {
   UpdateWithAggregationPipeline,
   InsertManyOptions,
 } from 'mongoose';
-import { Document, Types as MongooseTypes } from 'mongoose';
+import { Document } from 'mongoose';
+
+import { Id } from '../../../utils/id.type';
+import { repositoryDescription } from '../../../utils/repositories/repository.util';
 
 import {
   CreatedModel,
@@ -19,7 +22,6 @@ import {
 } from '../../abstracts/operations.abstract';
 import { DbSession } from '../../abstracts/db-session.abstract';
 import { Repository } from '../../abstracts/repository.abstract';
-import { repositoryDescription } from 'src/utils/repositories/repository.util';
 
 interface Throwable {
   errorIfUnknown?: boolean | null;
@@ -97,7 +99,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async findById(
-    id: MongooseTypes.ObjectId,
+    id: Id,
     options?: QueryOptions<D> & Throwable,
   ): Promise<D | null> {
     const result = await this.model

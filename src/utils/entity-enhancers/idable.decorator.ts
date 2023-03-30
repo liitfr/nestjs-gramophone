@@ -1,6 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Schema } from '@nestjs/mongoose';
-import { Types as MongooseTypes } from 'mongoose';
 import { Type } from '@nestjs/common';
 
 import {
@@ -11,13 +10,14 @@ import {
   getEntityDescription,
   getEntityName,
 } from './enhancers.util';
-import { pluralizeEntityName } from '../pluralize-entity-name';
+import { generateCollectionName } from '../string.util';
 import { IdScalar } from '../scalars/id.scalar';
+import { Id } from '../id.type';
 
 const IS_IDABLE = 'IS_IDABLE';
 
 export interface Idable {
-  _id: MongooseTypes.ObjectId;
+  _id: Id;
 }
 
 export const checkIfIsIdable = (classRef: Type): classRef is Type<Idable> =>
@@ -32,7 +32,7 @@ export function Idable() {
     const entityDescriptionValue = getEntityDescription(constructor);
 
     @ObjectType(entityNameValue)
-    @Schema({ collection: pluralizeEntityName(entityNameValue) })
+    @Schema({ collection: generateCollectionName(entityNameValue) })
     class Ided extends constructor implements EntityDecorator, Idable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
@@ -42,7 +42,7 @@ export function Idable() {
         nullable: false,
         description: `${entityDescriptionValue}'s id`,
       })
-      _id: MongooseTypes.ObjectId;
+      _id: Id;
     }
 
     Object.defineProperty(Ided, 'name', { value: constructor.name });

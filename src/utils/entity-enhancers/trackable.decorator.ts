@@ -14,14 +14,15 @@ import {
   getEntityDescription,
   getEntityName,
 } from './enhancers.util';
-import { pluralizeEntityName } from '../pluralize-entity-name';
+import { generateCollectionName } from '../string.util';
 import { IdScalar } from '../scalars/id.scalar';
+import { Id } from '../id.type';
 
 const IS_TRACKABLE = 'IS_TRACKABLE';
 
 export interface Trackable {
-  creatorId: MongooseTypes.ObjectId;
-  updaterId: MongooseTypes.ObjectId;
+  creatorId: Id;
+  updaterId: Id;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,7 +42,7 @@ export function Trackable() {
     const entityDescriptionValue = getEntityDescription(constructor);
 
     @ObjectType(entityNameValue)
-    @Schema({ collection: pluralizeEntityName(entityNameValue) })
+    @Schema({ collection: generateCollectionName(entityNameValue) })
     class Tracked extends constructor implements EntityDecorator, Trackable {
       static [entityName] = entityNameValue;
       static [entityDescription] = entityDescriptionValue;
@@ -58,7 +59,7 @@ export function Trackable() {
         autopopulate: false,
         required: true,
       })
-      creatorId: MongooseTypes.ObjectId;
+      creatorId: Id;
 
       @Field(() => IdScalar, {
         nullable: false,
@@ -71,7 +72,7 @@ export function Trackable() {
         autopopulate: false,
         required: true,
       })
-      updaterId: MongooseTypes.ObjectId;
+      updaterId: Id;
 
       @Field(() => GraphQLISODateTime, {
         nullable: false,

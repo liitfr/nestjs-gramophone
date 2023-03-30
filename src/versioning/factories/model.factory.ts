@@ -10,9 +10,10 @@ import {
   getEntityDescription,
   getEntityName,
 } from '../../utils/entity-enhancers/enhancers.util';
-import { pluralizeEntityName } from '../../utils/pluralize-entity-name';
+import { generateCollectionName } from '../../utils/string.util';
 import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
 import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
+import { Id } from '../../utils/id.type';
 
 export function modelFactory(Entity: Type<unknown>) {
   const entityDescriptionValue = getEntityDescription(Entity);
@@ -27,7 +28,7 @@ export function modelFactory(Entity: Type<unknown>) {
   @Memoable()
   @ObjectType(newEntityName)
   @Schema({
-    collection: pluralizeEntityName(newEntityName),
+    collection: generateCollectionName(newEntityName),
   })
   class EntityVersion {
     static [entityName] = newEntityName;
@@ -37,7 +38,7 @@ export function modelFactory(Entity: Type<unknown>) {
       nullable: false,
       description: `${newEntityDescription}\'s id`,
     })
-    _id: MongooseTypes.ObjectId;
+    _id: Id;
 
     @Field(() => IdScalar, {
       nullable: false,
@@ -49,7 +50,7 @@ export function modelFactory(Entity: Type<unknown>) {
       autopopulate: false,
       required: true,
     })
-    originalId: MongooseTypes.ObjectId;
+    originalId: Id;
 
     @Field(() => Entity, {
       nullable: false,

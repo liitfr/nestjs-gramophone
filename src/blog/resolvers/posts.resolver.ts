@@ -6,10 +6,10 @@ import {
   Query,
   Mutation,
 } from '@nestjs/graphql';
-import { Types as MongooseTypes } from 'mongoose';
 
 import { AddTrackableFields } from '../../utils/pipes/add-trackable-fields.pipe';
 import { IdScalar } from '../../utils/scalars/id.scalar';
+import { Id } from '../../utils/id.type';
 
 import { Author } from '../models/author.model';
 import { Post } from '../models/post.model';
@@ -25,9 +25,7 @@ export class PostsResolver {
   ) {}
 
   @Query(() => Post)
-  async post(
-    @Args('id', { type: () => IdScalar }) id: MongooseTypes.ObjectId,
-  ): Promise<Post> {
+  async post(@Args('id', { type: () => IdScalar }) id: Id): Promise<Post> {
     return this.postsRepository.findById(id);
   }
 

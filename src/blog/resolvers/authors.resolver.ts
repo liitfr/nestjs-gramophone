@@ -6,9 +6,9 @@ import {
   Query,
   Mutation,
 } from '@nestjs/graphql';
-import { Types as MongooseTypes } from 'mongoose';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
+import { Id } from '../../utils/id.type';
 
 import { Author } from '../models/author.model';
 import { Post } from '../models/post.model';
@@ -24,9 +24,7 @@ export class AuthorsResolver {
   ) {}
 
   @Query(() => Author)
-  async author(
-    @Args('id', { type: () => IdScalar }) id: MongooseTypes.ObjectId,
-  ): Promise<Author> {
+  async author(@Args('id', { type: () => IdScalar }) id: Id): Promise<Author> {
     return this.authorsService.findById(id);
   }
 
