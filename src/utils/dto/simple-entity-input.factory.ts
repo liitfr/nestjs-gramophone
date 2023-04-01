@@ -5,7 +5,7 @@ import { Trackable, checkIfIsTrackable } from '../entities/trackable.decorator';
 import { Idable, checkIfIsIdable } from '../entities/idable.decorator';
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
-import { ENTITY_METADATA } from '../entities/entity.util';
+import { ENTITY_METADATA, getEntityMetadata } from '../entities/entity.util';
 
 interface Options {
   isIdMandatory?: boolean;
@@ -20,16 +20,13 @@ export function SimpleEntityInputFactory(
   },
 ) {
   if (!isIdMandatory && checkIfIsIdable(classRef)) {
-    const entityDescription = Reflect.getMetadata(
-      ENTITY_METADATA,
-      classRef,
-    )?.entityDescription;
+    const entityMetadata = getEntityMetadata(classRef);
 
-    if (!entityDescription) {
-      throw new Error(
-        `Entity ${classRef.name} is not decorated with @Entity()`,
-      );
+    if (!entityMetadata) {
+      throw new Error(`Entity ${classRef.name} has no metadata.`);
     }
+
+    const { entityDescription } = entityMetadata;
 
     @InputType()
     class ClassOptionalId {

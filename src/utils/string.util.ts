@@ -82,3 +82,7 @@ export function pluralize(str) {
   }
   return str;
 }
+
+export function lowerCaseFirstLetter(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}

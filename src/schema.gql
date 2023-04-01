@@ -144,6 +144,11 @@ type Post {
   title: String!
 
   """
+  Post's type id
+  """
+  typeId: Id!
+
+  """
   Post's updated at
   """
   updatedAt: DateTime!
@@ -183,6 +188,11 @@ input PostInput {
   title: String!
 
   """
+  Post's type id
+  """
+  typeId: Id!
+
+  """
   Post's version data
   """
   versionData: VersionDataInput = {
@@ -217,6 +227,11 @@ input PostPartialInput {
   """
   memo: String
   title: String
+
+  """
+  Post's type id
+  """
+  typeId: Id
 
   """
   Post's version data

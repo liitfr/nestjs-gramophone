@@ -3,11 +3,20 @@ import { addSpaceToPascalCase } from '../string.util';
 
 export const ENTITY_METADATA = Symbol('entityMetadata');
 
+export interface EntityReference {
+  Reference: Type<unknown>;
+  nullable?: boolean;
+  resolve?: boolean;
+  partitionQueries?: boolean;
+  resolvedName?: string;
+  idName?: string;
+}
+
 export interface EntityMetadata {
   entityName?: string;
   entityDescription?: string;
   entityEnhancers?: string[];
-  entityReferences?: string[];
+  entityReferences?: EntityReference[];
 }
 
 export const enhancerCheckerFactory =

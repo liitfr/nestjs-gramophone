@@ -2,14 +2,17 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types as MongooseTypes } from 'mongoose';
 
-import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
-import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
+import { Trackable } from '../../utils/entities/trackable.decorator';
+import { Memoable } from '../../utils/entities/memoable.decorator';
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import { Idable } from '../../utils/entity-enhancers/idable.decorator';
+import { Idable } from '../../utils/entities/idable.decorator';
 import { Id } from '../../utils/id.type';
+import { Type } from '../../references/type/models/type.model';
+import { AddReferences } from '../../references/decorators/add-references.decorator';
 
 export type PostDocument = HydratedDocument<Post>;
 
+@AddReferences([Type])
 @Idable()
 @Memoable()
 @Trackable()

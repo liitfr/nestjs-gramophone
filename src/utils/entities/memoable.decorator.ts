@@ -21,11 +21,11 @@ export const checkIfIsMemoable = enhancerCheckerFactory<Memoable>(IS_MEMOABLE);
 export function Memoable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const originMetadata = getEntityMetadata(constructor);
-    const { entityName, entityDescription, entityEnhancers } = originMetadata;
+    const originalMetadata = getEntityMetadata(constructor);
+    const { entityName, entityDescription, entityEnhancers } = originalMetadata;
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-      ...originMetadata,
+      ...originalMetadata,
       entityEnhancers: [...(entityEnhancers || []), IS_MEMOABLE],
     })
     @ObjectType(entityName)

@@ -13,6 +13,7 @@ import { generateCollectionName } from '../../utils/string.util';
 import { Memoable } from '../../utils/entities/memoable.decorator';
 import { Trackable } from '../../utils/entities/trackable.decorator';
 import { Id } from '../../utils/id.type';
+import { Idable } from '../../utils/entities/idable.decorator';
 
 export function modelFactory(Entity: Type<unknown>) {
   const originalMetadata = getEntityMetadata(Entity);
@@ -23,10 +24,10 @@ export function modelFactory(Entity: Type<unknown>) {
   const newEntityName = `${entityName}Version`;
   const newEntityDescription = `${entityDescription} Version`;
 
+  @Idable()
   @Trackable()
   @Memoable()
   @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-    ...originalMetadata,
     entityName: newEntityName,
     entityDescription: newEntityDescription,
   })
@@ -37,13 +38,7 @@ export function modelFactory(Entity: Type<unknown>) {
   class EntityVersion {
     @Field(() => IdScalar, {
       nullable: false,
-      description: `${newEntityDescription}\'s id`,
-    })
-    _id: Id;
-
-    @Field(() => IdScalar, {
-      nullable: false,
-      description: `${newEntityDescription}\'s original id`,
+      description: `${newEntityDescription}'s original id`,
     })
     @Prop({
       type: MongooseSchema.Types.ObjectId,
@@ -55,7 +50,7 @@ export function modelFactory(Entity: Type<unknown>) {
 
     @Field(() => Entity, {
       nullable: false,
-      description: `${newEntityDescription}\'s version`,
+      description: `${newEntityDescription}'s version`,
     })
     @Prop({ type: EntitySchema, required: true })
     version: typeof Entity;
