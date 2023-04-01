@@ -2,7 +2,7 @@ import { Inject, Type } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import { getEntityMetadata } from '../../utils/entity-enhancers/entity.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { Id } from '../../utils/id.type';
 
 import { VersioningService } from '../services/versioning.service';

@@ -7,6 +7,7 @@ export interface EntityMetadata {
   entityName?: string;
   entityDescription?: string;
   entityEnhancers?: string[];
+  entityReferences?: string[];
 }
 
 export const enhancerCheckerFactory =
@@ -37,6 +38,7 @@ export const getEntityMetadata = (classRef: Type): EntityMetadata => {
     entityName: classRef.name,
     entityDescription: addSpaceToPascalCase(classRef.name),
     entityEnhancers: [],
+    entityReferences: [],
     ...entityMetadata,
   };
 };

@@ -2,7 +2,7 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Provider } from '@nestjs/common';
 import { Model } from 'mongoose';
 
-import { getEntityMetadata } from '../../utils/entity-enhancers/entity.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
 
 import { versioners } from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';

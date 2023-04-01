@@ -8,14 +8,15 @@ import {
   ENTITY_METADATA,
   EntityMetadata,
   getEntityMetadata,
-} from '../../utils/entity-enhancers/entity.util';
+} from '../../utils/entities/entity.util';
 import { generateCollectionName } from '../../utils/string.util';
-import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
-import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
+import { Memoable } from '../../utils/entities/memoable.decorator';
+import { Trackable } from '../../utils/entities/trackable.decorator';
 import { Id } from '../../utils/id.type';
 
 export function modelFactory(Entity: Type<unknown>) {
-  const { entityName, entityDescription } = getEntityMetadata(Entity);
+  const originalMetadata = getEntityMetadata(Entity);
+  const { entityName, entityDescription } = originalMetadata;
 
   const EntitySchema = SchemaFactory.createForClass(Entity);
 
@@ -25,6 +26,7 @@ export function modelFactory(Entity: Type<unknown>) {
   @Trackable()
   @Memoable()
   @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+    ...originalMetadata,
     entityName: newEntityName,
     entityDescription: newEntityDescription,
   })

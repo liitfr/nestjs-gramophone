@@ -11,7 +11,7 @@ import { Type } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 
-import { getEntityMetadata } from '../entity-enhancers/entity.util';
+import { getEntityMetadata } from '../entities/entity.util';
 import { SimpleService } from '../services/simple.service';
 import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';

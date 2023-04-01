@@ -1,14 +1,11 @@
 import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
 import { Type } from '@nestjs/common';
 
-import {
-  Trackable,
-  checkIfIsTrackable,
-} from '../entity-enhancers/trackable.decorator';
-import { Idable, checkIfIsIdable } from '../entity-enhancers/idable.decorator';
+import { Trackable, checkIfIsTrackable } from '../entities/trackable.decorator';
+import { Idable, checkIfIsIdable } from '../entities/idable.decorator';
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
-import { ENTITY_METADATA } from '../entity-enhancers/entity.util';
+import { ENTITY_METADATA } from '../entities/entity.util';
 
 interface Options {
   isIdMandatory?: boolean;

@@ -19,13 +19,6 @@ input AuthorInput {
   _id: Id
   firstName: String!
   lastName: String!
-
-  """
-  Author's version data
-  """
-  versionData: VersionDataInput = {
-    automaticMemo: "Memo automatique généré via GraphQL"
-  }
 }
 
 input AuthorPartialInput {
@@ -35,13 +28,6 @@ input AuthorPartialInput {
   _id: Id
   firstName: String
   lastName: String
-
-  """
-  Author's version data
-  """
-  versionData: VersionDataInput = {
-    automaticMemo: "Memo automatique généré via GraphQL"
-  }
 }
 
 """

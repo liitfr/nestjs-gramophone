@@ -25,8 +25,7 @@ export function Memoable() {
     const { entityName, entityDescription, entityEnhancers } = originMetadata;
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-      entityName,
-      entityDescription,
+      ...originMetadata,
       entityEnhancers: [...(entityEnhancers || []), IS_MEMOABLE],
     })
     @ObjectType(entityName)
