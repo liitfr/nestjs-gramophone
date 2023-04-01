@@ -5,4 +5,4 @@ import { SimpleVersionedEntityInputFactory } from '../../versioning/dto/simple-v
 import { Post } from '../models/post.model';
 
 @InputType()
-export class CreatePostInput extends SimpleVersionedEntityInputFactory(Post) {}
+export class PostInput extends SimpleVersionedEntityInputFactory(Post) {}

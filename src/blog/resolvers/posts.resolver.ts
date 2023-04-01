@@ -13,7 +13,7 @@ import { Id } from '../../utils/id.type';
 
 import { Author } from '../models/author.model';
 import { Post } from '../models/post.model';
-import { CreatePostInput } from '../dto/create-post.input';
+import { PostInput } from '../dto/post.input';
 import { AuthorsRepository } from '../repositories/abstract/authors.repository';
 import { PostsRepository } from '../repositories/abstract/posts.repository';
 
@@ -36,7 +36,7 @@ export class PostsResolver {
   }
 
   @Mutation(() => Post)
-  async createPost(@Args('post', AddTrackableFields) post: CreatePostInput) {
+  async createPost(@Args('post', AddTrackableFields) post: PostInput) {
     return this.postsRepository.create(post);
   }
 }

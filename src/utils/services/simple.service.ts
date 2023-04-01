@@ -42,25 +42,33 @@ export abstract class SimpleService<D> implements Repository<D> {
 
   public updateOne(
     filter: unknown,
-    updated: unknown,
+    update: unknown,
     options?: unknown,
   ): Promise<UpdatedModel> {
-    return this.repository.updateOne(filter, updated, options);
+    return this.repository.updateOne(filter, update, options);
   }
 
   public updateMany(
     filter: unknown,
-    updated: unknown,
+    update: unknown,
     options?: unknown,
   ): Promise<UpdatedModel> {
-    return this.repository.updateMany(filter, updated, options);
+    return this.repository.updateMany(filter, update, options);
+  }
+
+  public findOneAndUpdate(
+    filter: unknown,
+    update: unknown,
+    options?: unknown,
+  ): Promise<D | null> {
+    return this.repository.findOneAndUpdate(filter, update, options);
   }
 
   public countAll(): Promise<number> {
     return this.repository.countAll();
   }
 
-  public count(filter: unknown, options: unknown): Promise<number> {
+  public count(filter: unknown, options?: unknown): Promise<number> {
     return this.repository.count(filter, options);
   }
 }

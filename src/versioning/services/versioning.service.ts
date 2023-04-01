@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { Document, Model, Types as MongooseTypes } from 'mongoose';
+import { Document, Model } from 'mongoose';
 
 import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
 import { Id } from '../../utils/id.type';

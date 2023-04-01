@@ -14,6 +14,7 @@ import { Document } from 'mongoose';
 
 import { Id } from '../../../utils/id.type';
 import { repositoryDescription } from '../../../utils/repositories/repository.util';
+import { SaveVersionIfEnabled } from '../../../versioning/decorators/save-version-if-enabled.decorator';
 
 import {
   CreatedModel,
@@ -45,6 +46,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return this[repositoryDescription];
   }
 
+  @SaveVersionIfEnabled()
   async create(
     doc: object,
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
@@ -60,6 +62,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       : savedResult;
   }
 
+  @SaveVersionIfEnabled()
   async createMany(
     docs: object[],
     insertManyOptions?: InsertManyOptions,
@@ -123,6 +126,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return await this.model.find().session(this.dbSession.get());
   }
 
+  @SaveVersionIfEnabled()
   async remove(filter: FilterQuery<D>): Promise<RemovedModel> {
     const { deletedCount } = await this.model
       .deleteMany(filter)
@@ -130,24 +134,49 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return { deletedCount, deleted: !!deletedCount };
   }
 
+  @SaveVersionIfEnabled()
   async updateOne(
     filter: FilterQuery<D>,
-    updated: UpdateWithAggregationPipeline | UpdateQuery<D>,
+    update: UpdateWithAggregationPipeline | UpdateQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
     return await this.model
-      .updateOne(filter, updated, { new: true, ...options })
+      .updateOne(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
   }
 
+  @SaveVersionIfEnabled()
   async updateMany(
     filter: FilterQuery<D>,
-    updated: UpdateWithAggregationPipeline | UpdateQuery<D>,
+    update: UpdateWithAggregationPipeline | UpdateQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
     return await this.model
-      .updateMany(filter, updated, { new: true, ...options })
+      .updateMany(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
+  }
+
+  @SaveVersionIfEnabled()
+  public async findOneAndUpdate(
+    filter: FilterQuery<D>,
+    update: UpdateQuery<D>,
+    options?: QueryOptions<D> & Throwable,
+  ): Promise<D | null> {
+    const result = await this.model.findOneAndUpdate(filter, update, {
+      new: true,
+      ...options,
+    });
+    if (mustThrowError(options) && !result) {
+      throw new UserInputError('No item with this id.', {
+        service: 'repository',
+        method: 'findOneAndUpdate',
+        entity: this.getEntityDescription(),
+        options,
+        userFriendly:
+          'Aucun élément ne correspond à cet identifiant. Veuillez réessayer',
+      });
+    }
+    return result;
   }
 
   async countAll(): Promise<number> {
@@ -156,7 +185,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
 
   async count(
     filter: FilterQuery<D>,
-    options: QueryOptions<D>,
+    options?: QueryOptions<D>,
   ): Promise<number> {
     return await this.model
       .countDocuments({ filter, options })

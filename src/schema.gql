@@ -12,7 +12,7 @@ type Author {
   posts: [Post!]!
 }
 
-input CreateAuthorInput {
+input AuthorInput {
   """
   Author's optional id
   """
@@ -28,36 +28,16 @@ input CreateAuthorInput {
   }
 }
 
-input CreatePostInput {
+input AuthorPartialInput {
   """
-  Post's optional id
+  Author's optional id
   """
   _id: Id
+  firstName: String
+  lastName: String
 
   """
-  ¨Post's author id
-  """
-  authorId: Id!
-
-  """
-  Post's automatic memo
-  """
-  automaticMemo: String = "Memo automatique généré via GraphQL"
-  content: String!
-
-  """
-  Post's internal memo
-  """
-  internalMemo: String
-
-  """
-  Post's memo
-  """
-  memo: String
-  title: String!
-
-  """
-  Post's version data
+  Author's version data
   """
   versionData: VersionDataInput = {
     automaticMemo: "Memo automatique généré via GraphQL"
@@ -75,8 +55,40 @@ Id scalar type
 scalar Id
 
 type Mutation {
-  createAuthor(author: CreateAuthorInput!): Author!
-  createPost(post: CreatePostInput!): Post!
+  """
+  Author : Create mutation
+  """
+  createAuthor(author: AuthorInput!): Author!
+  createPost(post: PostInput!): Post!
+
+  """
+  Author : Find one and update mutation
+  """
+  findOneAndUpdateAuthor(
+    filter: AuthorPartialInput!
+    update: AuthorPartialInput!
+  ): Author!
+
+  """
+  Author : Remove mutation
+  """
+  removeAuthors(filter: AuthorPartialInput!): Author!
+
+  """
+  Author : Update many mutation
+  """
+  updateManyAuthors(
+    filter: AuthorPartialInput!
+    update: AuthorPartialInput!
+  ): Author!
+
+  """
+  Author : Update one mutation
+  """
+  updateOneAuthor(
+    filter: AuthorPartialInput!
+    update: AuthorPartialInput!
+  ): Author!
 }
 
 type Post {
@@ -127,6 +139,42 @@ type Post {
   Post's updater id
   """
   updaterId: Id!
+}
+
+input PostInput {
+  """
+  Post's optional id
+  """
+  _id: Id
+
+  """
+  ¨Post's author id
+  """
+  authorId: Id!
+
+  """
+  Post's automatic memo
+  """
+  automaticMemo: String = "Memo automatique généré via GraphQL"
+  content: String!
+
+  """
+  Post's internal memo
+  """
+  internalMemo: String
+
+  """
+  Post's memo
+  """
+  memo: String
+  title: String!
+
+  """
+  Post's version data
+  """
+  versionData: VersionDataInput = {
+    automaticMemo: "Memo automatique généré via GraphQL"
+  }
 }
 
 type PostVersion {
@@ -182,9 +230,32 @@ type PostVersion {
 }
 
 type Query {
-  author(id: Id!): Author!
+  """
+  Author : Count all query
+  """
+  countAllAuthors: Int!
+
+  """
+  Author : Count some query
+  """
+  countSomeAuthors(filter: AuthorPartialInput!): Int!
   findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
   findOnePostVersionById(id: Id!): PostVersion!
+
+  """
+  Author : Get all query
+  """
+  getAllAuthors: [Author!]!
+
+  """
+  Author : Get one query
+  """
+  getOneAuthor(id: Id!): Author!
+
+  """
+  Author : Get some query
+  """
+  getSomeAuthors(filter: AuthorPartialInput!): [Author!]!
   post(id: Id!): Post!
 }
 

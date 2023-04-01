@@ -5,6 +5,4 @@ import { SimpleVersionedEntityInputFactory } from '../../versioning/dto/simple-v
 import { Author } from '../models/author.model';
 
 @InputType()
-export class CreateAuthorInput extends SimpleVersionedEntityInputFactory(
-  Author,
-) {}
+export class AuthorInput extends SimpleVersionedEntityInputFactory(Author) {}

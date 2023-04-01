@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 import { repositoryDescription } from '../../utils/repositories/repository.util';
 
+import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
+
 import {
   CreatedModel,
   RemovedModel,
@@ -17,10 +19,12 @@ export abstract class Repository<D> {
 
   static [repositoryDescription] = 'Abstract Repository';
 
+  @SaveVersionIfEnabled()
   public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
     throw new Error('Not implemented');
   }
 
+  @SaveVersionIfEnabled()
   public createMany(
     docs: object[],
     insertManyOptions?: unknown,
@@ -40,23 +44,35 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
+  @SaveVersionIfEnabled()
   public remove(filter: unknown): Promise<RemovedModel> {
     throw new Error('Not implemented');
   }
 
+  @SaveVersionIfEnabled()
   public updateOne(
     filter: unknown,
-    updated: unknown,
+    update: unknown,
     options?: unknown,
   ): Promise<UpdatedModel> {
     throw new Error('Not implemented');
   }
 
+  @SaveVersionIfEnabled()
   public updateMany(
     filter: unknown,
-    updated: unknown,
+    update: unknown,
     options?: unknown,
   ): Promise<UpdatedModel> {
+    throw new Error('Not implemented');
+  }
+
+  @SaveVersionIfEnabled()
+  public findOneAndUpdate(
+    filter: unknown,
+    udpate: unknown,
+    options?: unknown,
+  ): Promise<D | null> {
     throw new Error('Not implemented');
   }
 
@@ -64,7 +80,7 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public count(filter: unknown, options: unknown): Promise<number> {
+  public count(filter: unknown, options?: unknown): Promise<number> {
     throw new Error('Not implemented');
   }
 }

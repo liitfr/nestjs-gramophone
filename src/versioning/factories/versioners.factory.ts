@@ -21,14 +21,14 @@ function versioningServiceFactory(
 export const createVersioners = () => {
   const models = [];
   const providers: Provider<VersioningService<unknown>>[] = [VersioningService];
-  for (const { serviceName, Entity } of versioners) {
+  for (const { repositoryName, Entity } of versioners) {
     const { EntityVersion, EntityVersionSchema } = modelFactory(Entity);
     const entityVersionName = getEntityName(EntityVersion);
     models.push({
       name: entityVersionName,
       schema: EntityVersionSchema,
     });
-    const providerName = `VersioningServiceFor${serviceName}`;
+    const providerName = `VersioningServiceFor${repositoryName}`;
     providers.push({
       provide: providerName,
       useFactory: versioningServiceFactory,
