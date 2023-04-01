@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 
 import { BlogModule } from '../blog/blog.module';
+import { ReferencesModule } from '../references/references.module';
 import { DataServicesModule } from '../data/data-services.module';
 
 @Module({
@@ -21,6 +22,7 @@ import { DataServicesModule } from '../data/data-services.module';
       { dbName: 'poc' },
     ),
     DataServicesModule,
+    ReferencesModule,
     BlogModule,
   ],
   providers: [],

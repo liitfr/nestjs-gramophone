@@ -304,6 +304,11 @@ type Query {
   countAllPosts: Int!
 
   """
+  Type : Count all query
+  """
+  countAllTypes: Int!
+
+  """
   Author : Count some query
   """
   countSomeAuthors(filter: AuthorPartialInput!): Int!
@@ -312,6 +317,11 @@ type Query {
   Post : Count some query
   """
   countSomePosts(filter: PostPartialInput!): Int!
+
+  """
+  Type : Count some query
+  """
+  countSomeTypes(filter: TypePartialInput!): Int!
   findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
   findOnePostVersionById(id: Id!): PostVersion!
 
@@ -326,6 +336,11 @@ type Query {
   getAllPosts: [Post!]!
 
   """
+  Type : Get all query
+  """
+  getAllTypes: [Type!]!
+
+  """
   Author : Get one query
   """
   getOneAuthor(id: Id!): Author!
@@ -336,6 +351,11 @@ type Query {
   getOnePost(id: Id!): Post!
 
   """
+  Type : Get one query
+  """
+  getOneType(id: Id!): Type!
+
+  """
   Author : Get some query
   """
   getSomeAuthors(filter: AuthorPartialInput!): [Author!]!
@@ -344,6 +364,27 @@ type Query {
   Post : Get some query
   """
   getSomePosts(filter: PostPartialInput!): [Post!]!
+
+  """
+  Type : Get some query
+  """
+  getSomeTypes(filter: TypePartialInput!): [Type!]!
+}
+
+type Type {
+  """
+  Type's id
+  """
+  _id: Id!
+  label: String!
+}
+
+input TypePartialInput {
+  """
+  Type's optional id
+  """
+  _id: Id
+  label: String
 }
 
 input VersionDataInput {

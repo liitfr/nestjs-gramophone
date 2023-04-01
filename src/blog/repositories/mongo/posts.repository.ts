@@ -12,7 +12,7 @@ import { PostsRepository } from '../abstract/posts.repository';
 
 @Versioned(Post)
 @Injectable()
-export class MongoPostsRepository
+export class PostsMongoRepository
   extends MongoRepository<PostDocument>
   implements PostsRepository
 {

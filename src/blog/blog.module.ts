@@ -9,8 +9,8 @@ import { AuthorsResolver } from './resolvers/authors.resolver';
 import { PostsResolver } from './resolvers/posts.resolver';
 import { AuthorsRepository } from './repositories/abstract/authors.repository';
 import { PostsRepository } from './repositories/abstract/posts.repository';
-import { MongoAuthorsRepository } from './repositories/mongo/authors.repository';
-import { MongoPostsRepository } from './repositories/mongo/posts.repository';
+import { AuthorsMongoRepository } from './repositories/mongo/authors.repository';
+import { PostsMongoRepository } from './repositories/mongo/posts.repository';
 import { PostsService } from './services/posts.service';
 import { AuthorsService } from './services/authors.service';
 
@@ -24,8 +24,8 @@ import { AuthorsService } from './services/authors.service';
   ],
   providers: [
     AuthorsResolver,
-    { provide: AuthorsRepository, useClass: MongoAuthorsRepository },
-    { provide: PostsRepository, useClass: MongoPostsRepository },
+    { provide: AuthorsRepository, useClass: AuthorsMongoRepository },
+    { provide: PostsRepository, useClass: PostsMongoRepository },
     PostsService,
     AuthorsService,
     PostsResolver,

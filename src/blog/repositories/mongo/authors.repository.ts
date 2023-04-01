@@ -9,7 +9,7 @@ import { repositoryDescription } from '../../../utils/repositories/repository.ut
 import { AuthorsRepository } from '../abstract/authors.repository';
 
 @Injectable()
-export class MongoAuthorsRepository
+export class AuthorsMongoRepository
   extends MongoRepository<AuthorDocument>
   implements AuthorsRepository
 {
