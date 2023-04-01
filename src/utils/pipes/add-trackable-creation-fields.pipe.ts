@@ -2,7 +2,7 @@ import { PipeTransform, Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 
 @Injectable()
-export class AddTrackableFields implements PipeTransform<any> {
+export class AddTrackableCreationFields implements PipeTransform<any> {
   async transform(value: any) {
     return {
       creatorId: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),

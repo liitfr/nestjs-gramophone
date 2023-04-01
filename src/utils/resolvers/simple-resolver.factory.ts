@@ -18,6 +18,8 @@ import {
 import { SimpleService } from '../services/simple.service';
 import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
+import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
+import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
 
 export function SimpleResolverFactory(
   Entity: Type<unknown>,
@@ -88,7 +90,13 @@ export function SimpleResolverFactory(
       name: `create${pascalCase(entityNameValue)}`,
     })
     async create(
-      @Args(camelCase(entityNameValue), { type: () => Input })
+      @Args(
+        camelCase(entityNameValue),
+        {
+          type: () => Input,
+        },
+        AddTrackableCreationFields,
+      )
       doc: typeof Input,
     ) {
       return this.simpleService.create(doc);
@@ -101,7 +109,8 @@ export function SimpleResolverFactory(
     })
     async updateOne(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-      @Args('update', { type: () => PartialInput }) update: PartialInput,
+      @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+      update: PartialInput,
     ) {
       return this.simpleService.updateOne(filter, update);
     }
@@ -113,7 +122,8 @@ export function SimpleResolverFactory(
     })
     async updateMany(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-      @Args('update', { type: () => PartialInput }) update: PartialInput,
+      @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+      update: PartialInput,
     ) {
       return this.simpleService.updateMany(filter, update);
     }
@@ -125,7 +135,8 @@ export function SimpleResolverFactory(
     })
     async findOneAndUpdte(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-      @Args('update', { type: () => PartialInput }) update: PartialInput,
+      @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+      update: PartialInput,
     ) {
       return this.simpleService.findOneAndUpdate(filter, update);
     }

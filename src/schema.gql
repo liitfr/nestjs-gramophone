@@ -59,6 +59,10 @@ type Mutation {
   Author : Create mutation
   """
   createAuthor(author: AuthorInput!): Author!
+
+  """
+  Post : Create mutation
+  """
   createPost(post: PostInput!): Post!
 
   """
@@ -70,9 +74,22 @@ type Mutation {
   ): Author!
 
   """
+  Post : Find one and update mutation
+  """
+  findOneAndUpdatePost(
+    filter: PostPartialInput!
+    update: PostPartialInput!
+  ): Post!
+
+  """
   Author : Remove mutation
   """
   removeAuthors(filter: AuthorPartialInput!): Author!
+
+  """
+  Post : Remove mutation
+  """
+  removePosts(filter: PostPartialInput!): Post!
 
   """
   Author : Update many mutation
@@ -83,12 +100,22 @@ type Mutation {
   ): Author!
 
   """
+  Post : Update many mutation
+  """
+  updateManyPosts(filter: PostPartialInput!, update: PostPartialInput!): Post!
+
+  """
   Author : Update one mutation
   """
   updateOneAuthor(
     filter: AuthorPartialInput!
     update: AuthorPartialInput!
   ): Author!
+
+  """
+  Post : Update one mutation
+  """
+  updateOnePost(filter: PostPartialInput!, update: PostPartialInput!): Post!
 }
 
 type Post {
@@ -177,6 +204,42 @@ input PostInput {
   }
 }
 
+input PostPartialInput {
+  """
+  Post's optional id
+  """
+  _id: Id
+
+  """
+  ¨Post's author id
+  """
+  authorId: Id
+
+  """
+  Post's automatic memo
+  """
+  automaticMemo: String = "Memo automatique généré via GraphQL"
+  content: String
+
+  """
+  Post's internal memo
+  """
+  internalMemo: String
+
+  """
+  Post's memo
+  """
+  memo: String
+  title: String
+
+  """
+  Post's version data
+  """
+  versionData: VersionDataInput = {
+    automaticMemo: "Memo automatique généré via GraphQL"
+  }
+}
+
 type PostVersion {
   """
   Post Version's id
@@ -236,9 +299,19 @@ type Query {
   countAllAuthors: Int!
 
   """
+  Post : Count all query
+  """
+  countAllPosts: Int!
+
+  """
   Author : Count some query
   """
   countSomeAuthors(filter: AuthorPartialInput!): Int!
+
+  """
+  Post : Count some query
+  """
+  countSomePosts(filter: PostPartialInput!): Int!
   findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
   findOnePostVersionById(id: Id!): PostVersion!
 
@@ -248,15 +321,29 @@ type Query {
   getAllAuthors: [Author!]!
 
   """
+  Post : Get all query
+  """
+  getAllPosts: [Post!]!
+
+  """
   Author : Get one query
   """
   getOneAuthor(id: Id!): Author!
 
   """
+  Post : Get one query
+  """
+  getOnePost(id: Id!): Post!
+
+  """
   Author : Get some query
   """
   getSomeAuthors(filter: AuthorPartialInput!): [Author!]!
-  post(id: Id!): Post!
+
+  """
+  Post : Get some query
+  """
+  getSomePosts(filter: PostPartialInput!): [Post!]!
 }
 
 input VersionDataInput {

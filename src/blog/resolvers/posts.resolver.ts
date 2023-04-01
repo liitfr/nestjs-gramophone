@@ -1,42 +1,30 @@
-import {
-  Args,
-  Parent,
-  ResolveField,
-  Resolver,
-  Query,
-  Mutation,
-} from '@nestjs/graphql';
+import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
-import { AddTrackableFields } from '../../utils/pipes/add-trackable-fields.pipe';
-import { IdScalar } from '../../utils/scalars/id.scalar';
-import { Id } from '../../utils/id.type';
+import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
+import { resolverDescription } from '../../utils/resolvers/resolver.util';
 
 import { Author } from '../models/author.model';
-import { Post } from '../models/post.model';
+import { Post, PostDocument } from '../models/post.model';
+import { AuthorsService } from '../services/authors.service';
+import { PostsService } from '../services/posts.service';
 import { PostInput } from '../dto/post.input';
-import { AuthorsRepository } from '../repositories/abstract/authors.repository';
-import { PostsRepository } from '../repositories/abstract/posts.repository';
+
+const SimplePostResolver = SimpleResolverFactory(Post, PostInput);
 
 @Resolver(() => Post)
-export class PostsResolver {
+export class PostsResolver extends SimplePostResolver<PostDocument> {
   constructor(
-    private authorsRepository: AuthorsRepository,
-    private postsRepository: PostsRepository,
-  ) {}
-
-  @Query(() => Post)
-  async post(@Args('id', { type: () => IdScalar }) id: Id): Promise<Post> {
-    return this.postsRepository.findById(id);
+    simpleService: PostsService,
+    private authorsService: AuthorsService,
+  ) {
+    super(simpleService);
   }
+
+  static [resolverDescription]: 'Posts Resolver';
 
   @ResolveField(() => Author, { name: 'author' })
   async author(@Parent() post: Post) {
     const { authorId } = post;
-    return this.authorsRepository.findById(authorId);
-  }
-
-  @Mutation(() => Post)
-  async createPost(@Args('post', AddTrackableFields) post: PostInput) {
-    return this.postsRepository.create(post);
+    return this.authorsService.findById(authorId);
   }
 }
