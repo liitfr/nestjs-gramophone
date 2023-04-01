@@ -33,7 +33,7 @@ export class Post {
 
   @Field(() => IdScalar, {
     nullable: false,
-    description: "¨Post's author id",
+    description: "Post's author id",
   })
   @Prop({
     type: MongooseTypes.ObjectId,
