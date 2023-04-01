@@ -2,7 +2,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
 import { Idable } from '../../utils/entity-enhancers/idable.decorator';
 
 export type AuthorDocument = HydratedDocument<Author>;
@@ -11,8 +10,6 @@ export type AuthorDocument = HydratedDocument<Author>;
 @ObjectType()
 @Schema()
 export class Author {
-  static [entityDescription] = 'Author';
-
   @Field({ nullable: false })
   @Prop()
   firstName: string;

@@ -1,8 +1,9 @@
 import { get } from 'lodash';
 
-export const VERSION_DATA_INPUT = '[0].versionData';
+export const VERSION_DATA_FIELDNAME = 'versionData';
+export const VERSION_DATA_PATH = `[0].${VERSION_DATA_FIELDNAME}`;
 
-export const SaveVersionIfEnabled = (versionDataPath = VERSION_DATA_INPUT) => {
+export const SaveVersionIfEnabled = (versionDataPath = VERSION_DATA_PATH) => {
   return function decorator(
     target: any,
     _propertyKey: string,

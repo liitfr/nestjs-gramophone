@@ -6,9 +6,9 @@ import {
   checkIfIsTrackable,
 } from '../entity-enhancers/trackable.decorator';
 import { Idable, checkIfIsIdable } from '../entity-enhancers/idable.decorator';
-import { entityDescription } from '../entity-enhancers/enhancers.util';
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
+import { ENTITY_METADATA } from '../entity-enhancers/entity.util';
 
 interface Options {
   isIdMandatory?: boolean;
@@ -16,20 +16,30 @@ interface Options {
 }
 
 export function SimpleEntityInputFactory(
-  classRef: Type<Idable | Trackable | any> & { [entityDescription]?: string },
+  classRef: Type<Idable | Trackable | any>,
   { isIdMandatory = false, removeTrackable = true }: Options = {
     isIdMandatory: false,
     removeTrackable: true,
   },
 ) {
   if (!isIdMandatory && checkIfIsIdable(classRef)) {
-    const entityDescriptionValue = classRef[entityDescription] ?? 'Entity';
+    const entityDescription = Reflect.getMetadata(
+      ENTITY_METADATA,
+      classRef,
+    )?.entityDescription;
+
+    if (!entityDescription) {
+      throw new Error(
+        `Entity ${classRef.name} is not decorated with @Entity()`,
+      );
+    }
+
     @InputType()
     class ClassOptionalId {
       @Field(() => IdScalar, {
         nullable: true,
         description:
-          `${entityDescriptionValue}'s optional id` ??
+          `${entityDescription}'s optional id` ??
           'Optional Reference Identifier',
       })
       readonly _id?: Id;

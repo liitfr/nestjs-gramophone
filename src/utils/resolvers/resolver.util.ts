@@ -1,28 +1,21 @@
-export const resolverDescription = Symbol('resolverDescription');
-export const resolverName = Symbol('resolverName');
+import { Type } from '@nestjs/common';
+import { addSpaceToPascalCase } from '../string.util';
 
-export abstract class ResolverDecorator {
-  static [resolverName]: string;
-  static [resolverDescription]?: string;
+export const RESOLVER_METADATA = Symbol('resolverMetadata');
+
+export interface ResolverMetadata {
+  resolverName?: string;
+  resolverDescription?: string;
 }
 
-export const isResolverDecorator = (object: any): object is ResolverDecorator =>
-  !!Object.getOwnPropertyDescriptor(object, resolverName);
+export const isResolverDecorated = (classRef: Type): boolean =>
+  !!Reflect.getMetadata(RESOLVER_METADATA, classRef);
 
-export const getResolverName = (object: any): string => {
-  if (isResolverDecorator(object)) {
-    const resolverNameValue = Object.getOwnPropertyDescriptor(
-      object,
-      resolverName,
-    )?.value;
-    if (!resolverNameValue) {
-      throw new Error('Resolver name is not defined');
-    }
-    return resolverNameValue;
-  }
-
-  return object.name;
+export const getResolverMetadata = (classRef: Type): ResolverMetadata => {
+  const resolverMetadata = Reflect.getMetadata(RESOLVER_METADATA, classRef);
+  return {
+    resolverName: classRef.name,
+    resolverDescription: addSpaceToPascalCase(classRef.name),
+    ...resolverMetadata,
+  };
 };
-
-export const getResolverDescription = (object: any): string =>
-  object[resolverDescription] ?? getResolverName(object);

@@ -8,6 +8,9 @@ export { camelCase };
 export const pascalCase = (str: string) =>
   startCase(camelCase(str)).replace(/ /g, '');
 
+export const addSpaceToPascalCase = (str: string) =>
+  str.replace(/([A-Z])/g, ' $1').trim();
+
 const pluralization = [
   [/human$/gi, 'humans'],
   [/(m)an$/gi, '$1en'],

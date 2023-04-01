@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'src/data/abstracts/repository.abstract';
-import { serviceDescription } from './service.util';
+
+import { Repository } from '../../data/abstracts/repository.abstract';
 import {
   CreatedModel,
   RemovedModel,
   UpdatedModel,
-} from 'src/data/abstracts/operations.abstract';
+} from '../../data/abstracts/operations.abstract';
 
 @Injectable()
 export abstract class SimpleService<D> implements Repository<D> {
   constructor(private readonly repository: Repository<D>) {}
-
-  static [serviceDescription] = 'Simple Service';
 
   public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
     return this.repository.create(doc, saveOptions);

@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { repositoryDescription } from '../../utils/repositories/repository.util';
-
 import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
 
 import {
@@ -16,8 +14,6 @@ export abstract class Repository<D> {
   constructor(entity: any) {
     throw new Error('Not implemented');
   }
-
-  static [repositoryDescription] = 'Abstract Repository';
 
   @SaveVersionIfEnabled()
   public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {

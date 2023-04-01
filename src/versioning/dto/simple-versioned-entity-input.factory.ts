@@ -1,13 +1,19 @@
 import { Field, InputType, IntersectionType } from '@nestjs/graphql';
 import { Type } from '@nestjs/common';
 
-import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
+import { getEntityMetadata } from '../../utils/entity-enhancers/entity.util';
 import { SimpleEntityInputFactory } from '../../utils/dto/simple-entity-input.factory';
+
+import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.decorator';
 
 import { VersionDataInput } from './version-data.input';
 
 export function SimpleVersionedEntityInputFactory<T>(classRef: Type<T>) {
-  const entityDescriptionValue = classRef[entityDescription];
+  const entityDescription = getEntityMetadata(classRef)?.entityDescription;
+
+  if (!entityDescription) {
+    throw new Error('Entity ' + classRef.name + ' : description not found');
+  }
 
   @InputType()
   class WithVersionDataInput {
@@ -16,9 +22,9 @@ export function SimpleVersionedEntityInputFactory<T>(classRef: Type<T>) {
       defaultValue: {
         automaticMemo: 'Memo automatique généré via GraphQL',
       },
-      description: `${entityDescriptionValue}\'s version data`,
+      description: `${entityDescription}'s version data`,
     })
-    versionData?: VersionDataInput;
+    [VERSION_DATA_FIELDNAME]?: VersionDataInput;
   }
 
   return IntersectionType(

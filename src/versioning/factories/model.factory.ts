@@ -1,39 +1,38 @@
-import { Type } from '@nestjs/common';
+import { SetMetadata, Type } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema, Types as MongooseTypes } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import {
-  entityDescription,
-  entityName,
-  getEntityDescription,
-  getEntityName,
-} from '../../utils/entity-enhancers/enhancers.util';
+  ENTITY_METADATA,
+  EntityMetadata,
+  getEntityMetadata,
+} from '../../utils/entity-enhancers/entity.util';
 import { generateCollectionName } from '../../utils/string.util';
 import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
 import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
 import { Id } from '../../utils/id.type';
 
 export function modelFactory(Entity: Type<unknown>) {
-  const entityDescriptionValue = getEntityDescription(Entity);
-  const entityNameValue = getEntityName(Entity);
+  const { entityName, entityDescription } = getEntityMetadata(Entity);
 
   const EntitySchema = SchemaFactory.createForClass(Entity);
 
-  const newEntityName = `${entityNameValue}Version`;
-  const newEntityDescription = `${entityDescriptionValue} Version`;
+  const newEntityName = `${entityName}Version`;
+  const newEntityDescription = `${entityDescription} Version`;
 
   @Trackable()
   @Memoable()
+  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+    entityName: newEntityName,
+    entityDescription: newEntityDescription,
+  })
   @ObjectType(newEntityName)
   @Schema({
     collection: generateCollectionName(newEntityName),
   })
   class EntityVersion {
-    static [entityName] = newEntityName;
-    static [entityDescription] = newEntityDescription;
-
     @Field(() => IdScalar, {
       nullable: false,
       description: `${newEntityDescription}\'s id`,
@@ -46,7 +45,7 @@ export function modelFactory(Entity: Type<unknown>) {
     })
     @Prop({
       type: MongooseSchema.Types.ObjectId,
-      ref: entityNameValue,
+      ref: entityName,
       autopopulate: false,
       required: true,
     })

@@ -1,30 +1,22 @@
-export const repositoryDescription = Symbol('repositoryDescription');
-export const repositoryName = Symbol('repositoryName');
+import { Type } from '@nestjs/common';
 
-export abstract class RepositoryDecorator {
-  static [repositoryName]: string;
-  static [repositoryDescription]?: string;
+import { addSpaceToPascalCase } from '../string.util';
+
+export const REPOSITORY_METADATA = Symbol('repositoryMetadata');
+
+export interface RepositoryMetadata {
+  repositoryName?: string;
+  repositoryDescription?: string;
 }
 
-export const isRepositoryDecorator = (
-  object: any,
-): object is RepositoryDecorator =>
-  !!Object.getOwnPropertyDescriptor(object, repositoryName);
+export const isRepositoryDecorated = (classRef: Type): boolean =>
+  !!Reflect.getMetadata(REPOSITORY_METADATA, classRef);
 
-export const getRepositoryName = (object: any): string => {
-  if (isRepositoryDecorator(object)) {
-    const repositoryNameValue = Object.getOwnPropertyDescriptor(
-      object,
-      repositoryName,
-    )?.value;
-    if (!repositoryNameValue) {
-      throw new Error('Repository name is not defined');
-    }
-    return repositoryNameValue;
-  }
-
-  return object.name;
+export const getRepositoryMetadata = (classRef: Type): RepositoryMetadata => {
+  const repositoryMetadata = Reflect.getMetadata(REPOSITORY_METADATA, classRef);
+  return {
+    repositoryName: classRef.name,
+    repositoryDescription: addSpaceToPascalCase(classRef.name),
+    ...repositoryMetadata,
+  };
 };
-
-export const getRepositoryDescription = (object: any): string =>
-  object[repositoryDescription] ?? getRepositoryName(object);

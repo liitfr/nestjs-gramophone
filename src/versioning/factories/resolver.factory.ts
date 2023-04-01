@@ -2,7 +2,7 @@ import { Inject, Type } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import { getEntityName } from '../../utils/entity-enhancers/enhancers.util';
+import { getEntityMetadata } from '../../utils/entity-enhancers/entity.util';
 import { Id } from '../../utils/id.type';
 
 import { VersioningService } from '../services/versioning.service';
@@ -11,7 +11,13 @@ export function resolverFactory(
   EntityVersion: Type<unknown>,
   providerName: string,
 ) {
-  const entityVersionNameValue = getEntityName(EntityVersion);
+  const entityVersionNameValue = getEntityMetadata(EntityVersion)?.entityName;
+
+  if (!entityVersionNameValue) {
+    throw new Error(
+      'EntityVersion ' + EntityVersion.name + ' : name not found',
+    );
+  }
 
   @Resolver(() => EntityVersion)
   class EntityVersionResolver {

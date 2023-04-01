@@ -4,7 +4,6 @@ import { HydratedDocument, Types as MongooseTypes } from 'mongoose';
 
 import { Trackable } from '../../utils/entity-enhancers/trackable.decorator';
 import { Memoable } from '../../utils/entity-enhancers/memoable.decorator';
-import { entityDescription } from '../../utils/entity-enhancers/enhancers.util';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { Idable } from '../../utils/entity-enhancers/idable.decorator';
 import { Id } from '../../utils/id.type';
@@ -17,8 +16,6 @@ export type PostDocument = HydratedDocument<Post>;
 @ObjectType()
 @Schema()
 export class Post {
-  static [entityDescription] = 'Post';
-
   @Field({ nullable: false })
   @Prop()
   title: string;

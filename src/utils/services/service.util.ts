@@ -1,28 +1,22 @@
-export const serviceDescription = Symbol('serviceDescription');
-export const serviceName = Symbol('serviceName');
+import { Type } from '@nestjs/common';
 
-export abstract class ServiceDecorator {
-  static [serviceName]: string;
-  static [serviceDescription]?: string;
+import { addSpaceToPascalCase } from '../string.util';
+
+export const SERVICE_METADATA = Symbol('serviceMetadata');
+
+export interface ServiceMetadata {
+  serviceName?: string;
+  serviceDescription?: string;
 }
 
-export const isServiceDecorator = (object: any): object is ServiceDecorator =>
-  !!Object.getOwnPropertyDescriptor(object, serviceName);
+export const isServiceDecorated = (classRef: Type) =>
+  !!Reflect.getMetadata(SERVICE_METADATA, classRef);
 
-export const getServiceName = (object: any): string => {
-  if (isServiceDecorator(object)) {
-    const serviceNameValue = Object.getOwnPropertyDescriptor(
-      object,
-      serviceName,
-    )?.value;
-    if (!serviceNameValue) {
-      throw new Error('Service name is not defined');
-    }
-    return serviceNameValue;
-  }
-
-  return object.name;
+export const getServiceMetadata = (classRef: Type): ServiceMetadata => {
+  const serviceMetadata = Reflect.getMetadata(SERVICE_METADATA, classRef);
+  return {
+    serviceName: classRef.name,
+    serviceDescription: addSpaceToPascalCase(classRef.name),
+    ...serviceMetadata,
+  };
 };
-
-export const getServiceDescription = (object: any): string =>
-  object[serviceDescription] ?? getServiceName(object);

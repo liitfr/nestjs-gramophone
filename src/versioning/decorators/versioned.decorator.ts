@@ -1,7 +1,7 @@
 import { Inject, Injectable, Type } from '@nestjs/common';
 
 import { checkIfIsTrackable } from '../../utils/entity-enhancers/trackable.decorator';
-import { getRepositoryName } from '../../utils/repositories/repository.util';
+import { getRepositoryMetadata } from '../../utils/repositories/repository.util';
 
 import { VersioningService } from '../services/versioning.service';
 
@@ -12,19 +12,21 @@ export const versioners: {
 
 export function Versioned(Entity: Type<unknown>) {
   if (!checkIfIsTrackable(Entity)) {
-    throw new Error('Entity must be trackable to be versioned');
+    throw new Error(
+      `Entity` + Entity.name + ' must be trackable to be versioned',
+    );
   }
 
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const repositoryNameValue = getRepositoryName(constructor);
+    const { repositoryName } = getRepositoryMetadata(constructor);
 
-    if (!versioners.find((v) => v.repositoryName === repositoryNameValue)) {
-      versioners.push({ repositoryName: repositoryNameValue, Entity });
+    if (!versioners.find((v) => v.repositoryName === repositoryName)) {
+      versioners.push({ repositoryName: repositoryName, Entity });
     }
 
     @Injectable()
     class VersionedRepository extends constructor {
-      @Inject(`VersioningServiceFor${repositoryNameValue}`)
+      @Inject(`VersioningServiceFor${repositoryName}`)
       versionerService: VersioningService<unknown>;
     }
 

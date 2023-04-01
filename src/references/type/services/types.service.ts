@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { SimpleService } from '../../../utils/services/simple.service';
-import { serviceDescription } from '../../../utils/services/service.util';
 
 import { TypesRepository } from '../repositories/abstract/types.repository';
 import { TypeDocument } from '../models/type.model';
@@ -14,6 +13,4 @@ export class TypesService extends SimpleService<TypeDocument> {
   ) {
     super(typesRepository);
   }
-
-  static [serviceDescription] = 'Types Service';
 }

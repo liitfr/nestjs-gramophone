@@ -11,10 +11,7 @@ import { Type } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 
-import {
-  getEntityDescription,
-  getEntityName,
-} from '../entity-enhancers/enhancers.util';
+import { getEntityMetadata } from '../entity-enhancers/entity.util';
 import { SimpleService } from '../services/simple.service';
 import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
@@ -32,10 +29,9 @@ export function SimpleResolverFactory(
     noMutation: false,
   },
 ) {
-  const entityDescriptionValue = getEntityDescription(Entity);
-  const entityNameValue = getEntityName(Entity);
+  const { entityName, entityDescription } = getEntityMetadata(Entity);
 
-  @InputType(`${entityNameValue}PartialInput`)
+  @InputType(`${entityName}PartialInput`)
   class PartialInput extends PartialType(Input) {}
 
   @Resolver(() => Entity)
@@ -44,8 +40,8 @@ export function SimpleResolverFactory(
 
     @Query(() => Entity, {
       nullable: false,
-      description: `${entityDescriptionValue} : Get one query`,
-      name: `getOne${pascalCase(entityNameValue)}`,
+      description: `${entityDescription} : Get one query`,
+      name: `getOne${pascalCase(entityName)}`,
     })
     async getOne(@Args('id', { type: () => IdScalar }) id: Id): Promise<D> {
       return this.simpleService.findById(id);
@@ -53,8 +49,8 @@ export function SimpleResolverFactory(
 
     @Query(() => [Entity], {
       nullable: false,
-      description: `${entityDescriptionValue} : Get all query`,
-      name: `getAll${pluralize(pascalCase(entityNameValue))}`,
+      description: `${entityDescription} : Get all query`,
+      name: `getAll${pluralize(pascalCase(entityName))}`,
     })
     async getAll(): Promise<D[]> {
       return this.simpleService.findAll();
@@ -62,8 +58,8 @@ export function SimpleResolverFactory(
 
     @Query(() => [Entity], {
       nullable: false,
-      description: `${entityDescriptionValue} : Get some query`,
-      name: `getSome${pluralize(pascalCase(entityNameValue))}`,
+      description: `${entityDescription} : Get some query`,
+      name: `getSome${pluralize(pascalCase(entityName))}`,
     })
     async getSome(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -73,8 +69,8 @@ export function SimpleResolverFactory(
 
     @Query(() => Int, {
       nullable: false,
-      description: `${entityDescriptionValue} : Count all query`,
-      name: `countAll${pluralize(pascalCase(entityNameValue))}`,
+      description: `${entityDescription} : Count all query`,
+      name: `countAll${pluralize(pascalCase(entityName))}`,
     })
     async countAll(): Promise<number> {
       return this.simpleService.countAll();
@@ -82,8 +78,8 @@ export function SimpleResolverFactory(
 
     @Query(() => Int, {
       nullable: false,
-      description: `${entityDescriptionValue} : Count some query`,
-      name: `countSome${pluralize(pascalCase(entityNameValue))}`,
+      description: `${entityDescription} : Count some query`,
+      name: `countSome${pluralize(pascalCase(entityName))}`,
     })
     async countSome(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -103,12 +99,12 @@ export function SimpleResolverFactory(
 
       @Mutation(() => Entity, {
         nullable: false,
-        description: `${entityDescriptionValue} : Create mutation`,
-        name: `create${pascalCase(entityNameValue)}`,
+        description: `${entityDescription} : Create mutation`,
+        name: `create${pascalCase(entityName)}`,
       })
       async create(
         @Args(
-          camelCase(entityNameValue),
+          camelCase(entityName),
           {
             type: () => Input,
           },
@@ -121,8 +117,8 @@ export function SimpleResolverFactory(
 
       @Mutation(() => Entity, {
         nullable: false,
-        description: `${entityDescriptionValue} : Update one mutation`,
-        name: `updateOne${pascalCase(entityNameValue)}`,
+        description: `${entityDescription} : Update one mutation`,
+        name: `updateOne${pascalCase(entityName)}`,
       })
       async updateOne(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -134,8 +130,8 @@ export function SimpleResolverFactory(
 
       @Mutation(() => Entity, {
         nullable: false,
-        description: `${entityDescriptionValue} : Update many mutation`,
-        name: `updateMany${pluralize(pascalCase(entityNameValue))}`,
+        description: `${entityDescription} : Update many mutation`,
+        name: `updateMany${pluralize(pascalCase(entityName))}`,
       })
       async updateMany(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -147,8 +143,8 @@ export function SimpleResolverFactory(
 
       @Mutation(() => Entity, {
         nullable: false,
-        description: `${entityDescriptionValue} : Find one and update mutation`,
-        name: `findOneAndUpdate${pascalCase(entityNameValue)}`,
+        description: `${entityDescription} : Find one and update mutation`,
+        name: `findOneAndUpdate${pascalCase(entityName)}`,
       })
       async findOneAndUpdte(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -160,8 +156,8 @@ export function SimpleResolverFactory(
 
       @Mutation(() => Entity, {
         nullable: false,
-        description: `${entityDescriptionValue} : Remove mutation`,
-        name: `remove${pluralize(pascalCase(entityNameValue))}`,
+        description: `${entityDescription} : Remove mutation`,
+        name: `remove${pluralize(pascalCase(entityName))}`,
       })
       async remove(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,

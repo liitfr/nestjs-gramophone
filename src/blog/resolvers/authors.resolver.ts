@@ -1,7 +1,6 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
-import { resolverDescription } from '../../utils/resolvers/resolver.util';
 
 import { Author, AuthorDocument } from '../models/author.model';
 import { Post } from '../models/post.model';
@@ -19,8 +18,6 @@ export class AuthorsResolver extends SimpleAuthorResolver<AuthorDocument> {
   ) {
     super(simpleService);
   }
-
-  static [resolverDescription]: 'Authors Resolver';
 
   @ResolveField(() => [Post], { name: 'posts' })
   async posts(@Parent() author: Author) {

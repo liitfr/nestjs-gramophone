@@ -126,7 +126,7 @@ type Post {
   author: Author!
 
   """
-  ¨Post's author id
+  Post's author id
   """
   authorId: Id!
 
@@ -175,7 +175,7 @@ input PostInput {
   _id: Id
 
   """
-  ¨Post's author id
+  Post's author id
   """
   authorId: Id!
 
@@ -211,7 +211,7 @@ input PostPartialInput {
   _id: Id
 
   """
-  ¨Post's author id
+  Post's author id
   """
   authorId: Id
 

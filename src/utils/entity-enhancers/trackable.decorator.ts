@@ -1,24 +1,20 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
-import mongoose, {
-  Schema as MongooseSchema,
-  Types as MongooseTypes,
-} from 'mongoose';
+import mongoose, { Schema as MongooseSchema } from 'mongoose';
+import { SetMetadata } from '@nestjs/common';
 
-import { Type } from '@nestjs/common';
-import {
-  EntityDecorator,
-  entityDescription,
-  entityEnhancers,
-  entityName,
-  getEntityDescription,
-  getEntityName,
-} from './enhancers.util';
 import { generateCollectionName } from '../string.util';
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
 
-const IS_TRACKABLE = 'IS_TRACKABLE';
+import {
+  ENTITY_METADATA,
+  EntityMetadata,
+  enhancerCheckerFactory,
+  getEntityMetadata,
+} from './entity.util';
+
+const IS_TRACKABLE = 'isTrackable';
 
 export interface Trackable {
   creatorId: Id;
@@ -27,30 +23,25 @@ export interface Trackable {
   updatedAt: Date;
 }
 
-export const checkIfIsTrackable = (
-  classRef: Type,
-): classRef is Type<Trackable> => {
-  return (
-    Object.getOwnPropertyDescriptor(classRef, entityEnhancers)?.value ?? []
-  ).includes(IS_TRACKABLE);
-};
+export const checkIfIsTrackable =
+  enhancerCheckerFactory<Trackable>(IS_TRACKABLE);
 
 export function Trackable() {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const entityNameValue = getEntityName(constructor);
-    const entityDescriptionValue = getEntityDescription(constructor);
+    const originMetadata = getEntityMetadata(constructor);
+    const { entityName, entityDescription, entityEnhancers } = originMetadata;
 
-    @ObjectType(entityNameValue)
-    @Schema({ collection: generateCollectionName(entityNameValue) })
-    class Tracked extends constructor implements EntityDecorator, Trackable {
-      static [entityName] = entityNameValue;
-      static [entityDescription] = entityDescriptionValue;
-      static [entityEnhancers] = [];
-
+    @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+      ...originMetadata,
+      entityEnhancers: [...(entityEnhancers || []), IS_TRACKABLE],
+    })
+    @ObjectType(entityName)
+    @Schema({ collection: generateCollectionName(entityName) })
+    class Tracked extends constructor implements Trackable {
       @Field(() => IdScalar, {
         nullable: false,
-        description: `${entityDescriptionValue}'s creator id`,
+        description: `${entityDescription}'s creator id`,
         defaultValue: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),
       })
       @Prop({
@@ -63,7 +54,7 @@ export function Trackable() {
 
       @Field(() => IdScalar, {
         nullable: false,
-        description: `${entityDescriptionValue}'s updater id`,
+        description: `${entityDescription}'s updater id`,
         defaultValue: new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5'),
       })
       @Prop({
@@ -76,7 +67,7 @@ export function Trackable() {
 
       @Field(() => GraphQLISODateTime, {
         nullable: false,
-        description: `${entityDescriptionValue}'s created at`,
+        description: `${entityDescription}'s created at`,
         defaultValue: new Date(),
       })
       @Prop({
@@ -88,7 +79,7 @@ export function Trackable() {
 
       @Field(() => GraphQLISODateTime, {
         nullable: false,
-        description: `${entityDescriptionValue}'s updated at`,
+        description: `${entityDescription}'s updated at`,
         defaultValue: new Date(),
       })
       @Prop({
@@ -100,13 +91,6 @@ export function Trackable() {
     }
 
     Object.defineProperty(Tracked, 'name', { value: constructor.name });
-    Object.defineProperty(Tracked, entityEnhancers, {
-      value: [
-        IS_TRACKABLE,
-        ...(Object.getOwnPropertyDescriptor(constructor, entityEnhancers)
-          ?.value ?? []),
-      ],
-    });
 
     return Tracked;
   };

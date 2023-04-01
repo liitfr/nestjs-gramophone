@@ -2,7 +2,7 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Provider } from '@nestjs/common';
 import { Model } from 'mongoose';
 
-import { getEntityName } from '../../utils/entity-enhancers/enhancers.util';
+import { getEntityMetadata } from '../../utils/entity-enhancers/entity.util';
 
 import { versioners } from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';
@@ -23,12 +23,22 @@ export const createVersioners = () => {
   const providers: Provider<VersioningService<unknown>>[] = [VersioningService];
   for (const { repositoryName, Entity } of versioners) {
     const { EntityVersion, EntityVersionSchema } = modelFactory(Entity);
-    const entityVersionName = getEntityName(EntityVersion);
+
+    const entityVersionName = getEntityMetadata(EntityVersion)?.entityName;
+
+    if (!entityVersionName) {
+      throw new Error(
+        'EntityVersion ' + EntityVersion.name + ' : name not found',
+      );
+    }
+
     models.push({
       name: entityVersionName,
       schema: EntityVersionSchema,
     });
+
     const providerName = `VersioningServiceFor${repositoryName}`;
+
     providers.push({
       provide: providerName,
       useFactory: versioningServiceFactory,

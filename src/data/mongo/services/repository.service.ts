@@ -13,7 +13,6 @@ import {
 import { Document } from 'mongoose';
 
 import { Id } from '../../../utils/id.type';
-import { repositoryDescription } from '../../../utils/repositories/repository.util';
 import { SaveVersionIfEnabled } from '../../../versioning/decorators/save-version-if-enabled.decorator';
 
 import {
@@ -39,12 +38,6 @@ export class MongoRepository<D extends Document> implements Repository<D> {
 
   @Inject(DbSession)
   private readonly dbSession: DbSession<mongoose.ClientSession>;
-
-  static [repositoryDescription] = 'Mongo Repository';
-
-  getEntityDescription(): string {
-    return this[repositoryDescription];
-  }
 
   @SaveVersionIfEnabled()
   async create(
@@ -90,7 +83,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       throw new UserInputError('No result with these filters.', {
         service: 'repository',
         method: 'find',
-        entity: this.getEntityDescription(),
+        model: this.model.name,
         filter,
         options,
         userFriendly:
@@ -112,7 +105,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       throw new UserInputError('No result with this id.', {
         service: 'repository',
         method: 'findById',
-        entity: this.getEntityDescription(),
+        model: this.model.name,
         options,
         userFriendly:
           'Aucun résultat ne correspond à cet identifiant. Veuillez réessayer',
@@ -170,7 +163,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       throw new UserInputError('No item with this id.', {
         service: 'repository',
         method: 'findOneAndUpdate',
-        entity: this.getEntityDescription(),
+        model: this.model.name,
         options,
         userFriendly:
           'Aucun élément ne correspond à cet identifiant. Veuillez réessayer',
