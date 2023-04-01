@@ -21,9 +21,16 @@ import { Id } from '../id.type';
 import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
 import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
 
+interface Options {
+  noMutation?: boolean;
+}
+
 export function SimpleResolverFactory(
   Entity: Type<unknown>,
   Input: Type<unknown>,
+  options: Options = {
+    noMutation: false,
+  },
 ) {
   const entityDescriptionValue = getEntityDescription(Entity);
   const entityNameValue = getEntityName(Entity);
@@ -32,7 +39,7 @@ export function SimpleResolverFactory(
   class PartialInput extends PartialType(Input) {}
 
   @Resolver(() => Entity)
-  abstract class SimpleResolver<D> {
+  abstract class ResolverWithAutoGetters<D> {
     constructor(readonly simpleService: SimpleService<D>) {}
 
     @Query(() => Entity, {
@@ -83,75 +90,88 @@ export function SimpleResolverFactory(
     ): Promise<number> {
       return this.simpleService.count(filter);
     }
-
-    @Mutation(() => Entity, {
-      nullable: false,
-      description: `${entityDescriptionValue} : Create mutation`,
-      name: `create${pascalCase(entityNameValue)}`,
-    })
-    async create(
-      @Args(
-        camelCase(entityNameValue),
-        {
-          type: () => Input,
-        },
-        AddTrackableCreationFields,
-      )
-      doc: typeof Input,
-    ) {
-      return this.simpleService.create(doc);
-    }
-
-    @Mutation(() => Entity, {
-      nullable: false,
-      description: `${entityDescriptionValue} : Update one mutation`,
-      name: `updateOne${pascalCase(entityNameValue)}`,
-    })
-    async updateOne(
-      @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-      @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
-      update: PartialInput,
-    ) {
-      return this.simpleService.updateOne(filter, update);
-    }
-
-    @Mutation(() => Entity, {
-      nullable: false,
-      description: `${entityDescriptionValue} : Update many mutation`,
-      name: `updateMany${pluralize(pascalCase(entityNameValue))}`,
-    })
-    async updateMany(
-      @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-      @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
-      update: PartialInput,
-    ) {
-      return this.simpleService.updateMany(filter, update);
-    }
-
-    @Mutation(() => Entity, {
-      nullable: false,
-      description: `${entityDescriptionValue} : Find one and update mutation`,
-      name: `findOneAndUpdate${pascalCase(entityNameValue)}`,
-    })
-    async findOneAndUpdte(
-      @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-      @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
-      update: PartialInput,
-    ) {
-      return this.simpleService.findOneAndUpdate(filter, update);
-    }
-
-    @Mutation(() => Entity, {
-      nullable: false,
-      description: `${entityDescriptionValue} : Remove mutation`,
-      name: `remove${pluralize(pascalCase(entityNameValue))}`,
-    })
-    async remove(
-      @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-    ) {
-      return this.simpleService.remove(filter);
-    }
   }
 
-  return SimpleResolver;
+  if (!options.noMutation) {
+    @Resolver(() => Entity)
+    abstract class ResolverWithAutoSetters<
+      D,
+    > extends ResolverWithAutoGetters<D> {
+      constructor(readonly simpleService: SimpleService<D>) {
+        super(simpleService);
+      }
+
+      @Mutation(() => Entity, {
+        nullable: false,
+        description: `${entityDescriptionValue} : Create mutation`,
+        name: `create${pascalCase(entityNameValue)}`,
+      })
+      async create(
+        @Args(
+          camelCase(entityNameValue),
+          {
+            type: () => Input,
+          },
+          AddTrackableCreationFields,
+        )
+        doc: typeof Input,
+      ) {
+        return this.simpleService.create(doc);
+      }
+
+      @Mutation(() => Entity, {
+        nullable: false,
+        description: `${entityDescriptionValue} : Update one mutation`,
+        name: `updateOne${pascalCase(entityNameValue)}`,
+      })
+      async updateOne(
+        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+        update: PartialInput,
+      ) {
+        return this.simpleService.updateOne(filter, update);
+      }
+
+      @Mutation(() => Entity, {
+        nullable: false,
+        description: `${entityDescriptionValue} : Update many mutation`,
+        name: `updateMany${pluralize(pascalCase(entityNameValue))}`,
+      })
+      async updateMany(
+        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+        update: PartialInput,
+      ) {
+        return this.simpleService.updateMany(filter, update);
+      }
+
+      @Mutation(() => Entity, {
+        nullable: false,
+        description: `${entityDescriptionValue} : Find one and update mutation`,
+        name: `findOneAndUpdate${pascalCase(entityNameValue)}`,
+      })
+      async findOneAndUpdte(
+        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+        update: PartialInput,
+      ) {
+        return this.simpleService.findOneAndUpdate(filter, update);
+      }
+
+      @Mutation(() => Entity, {
+        nullable: false,
+        description: `${entityDescriptionValue} : Remove mutation`,
+        name: `remove${pluralize(pascalCase(entityNameValue))}`,
+      })
+      async remove(
+        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+      ) {
+        return this.simpleService.remove(filter);
+      }
+    }
+
+    return ResolverWithAutoSetters;
+  }
+
+  return ResolverWithAutoGetters;
 }
