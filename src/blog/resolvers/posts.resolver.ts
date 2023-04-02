@@ -3,20 +3,17 @@ import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 
 import { Author } from '../models/author.model';
-import { Post, PostDocument } from '../models/post.model';
-import { AuthorsService } from '../services/authors.service';
+import { Post } from '../models/post.model';
 import { PostsService } from '../services/posts.service';
 import { PostInput } from '../dtos/post.input';
+import { AuthorsService } from '../services/authors.service';
 
-const SimplePostResolver = SimpleResolverFactory(Post, PostInput);
+const SimplePostResolver = SimpleResolverFactory(Post, PostInput, PostsService);
 
 @Resolver(() => Post)
-export class PostsResolver extends SimplePostResolver<PostDocument> {
-  constructor(
-    simpleService: PostsService,
-    private authorsService: AuthorsService,
-  ) {
-    super(simpleService);
+export class PostsResolver extends SimplePostResolver {
+  constructor(private readonly authorsService: AuthorsService) {
+    super();
   }
 
   @ResolveField(() => Author, { name: 'author' })

@@ -7,7 +7,7 @@ import {
   PartialType,
   Int,
 } from '@nestjs/graphql';
-import { Type } from '@nestjs/common';
+import { Inject, Type } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 
@@ -22,21 +22,28 @@ interface Options {
   noMutation?: boolean;
 }
 
-export function SimpleResolverFactory(
+export function SimpleResolverFactory<D>(
   Entity: Type<unknown>,
   Input: Type<unknown>,
+  Service: Type<SimpleService<D>>,
   options: Options = {
     noMutation: false,
   },
 ) {
   const { entityName, entityDescription } = getEntityMetadata(Entity);
 
+  const setClassName = (classRef: Type<unknown>) =>
+    Object.defineProperty(classRef, 'name', {
+      value: `${pascalCase(pluralize(entityName))}Resolver`,
+    });
+
   @InputType(`${entityName}PartialInput`)
   class PartialInput extends PartialType(Input) {}
 
   @Resolver(() => Entity)
-  abstract class ResolverWithAutoGetters<D> {
-    constructor(readonly simpleService: SimpleService<D>) {}
+  class ResolverWithAutoGetters {
+    @Inject(Service)
+    readonly simpleService: SimpleService<D>;
 
     @Query(() => Entity, {
       nullable: false,
@@ -90,13 +97,7 @@ export function SimpleResolverFactory(
 
   if (!options.noMutation) {
     @Resolver(() => Entity)
-    abstract class ResolverWithAutoSetters<
-      D,
-    > extends ResolverWithAutoGetters<D> {
-      constructor(readonly simpleService: SimpleService<D>) {
-        super(simpleService);
-      }
-
+    class ResolverWithAutoSetters extends ResolverWithAutoGetters {
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Create mutation`,
@@ -166,8 +167,10 @@ export function SimpleResolverFactory(
       }
     }
 
+    setClassName(ResolverWithAutoSetters);
     return ResolverWithAutoSetters;
   }
 
+  setClassName(ResolverWithAutoGetters);
   return ResolverWithAutoGetters;
 }

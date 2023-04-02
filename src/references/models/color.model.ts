@@ -4,9 +4,9 @@ import { HydratedDocument } from 'mongoose';
 
 import { ColorEnum } from '../enums/color.enum';
 
-import { SimpleReferenceFactory } from './simple-reference.factory';
+import { SimpleReferenceModelFactory } from './simple-reference-model.factory';
 
-const { SimpleReference, SimpleReferenceSchema } = SimpleReferenceFactory(
+const { SimpleReference, SimpleReferenceSchema } = SimpleReferenceModelFactory(
   ColorEnum,
   'Color',
 );
