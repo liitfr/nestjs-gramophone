@@ -8,13 +8,19 @@ import { pascalCase, pluralize } from '../../utils/string.util';
 
 import { ReferencesService } from '../services/references.service';
 
-export function SimpleReferenceServiceFactory<D>(Reference: Type<unknown>) {
+export function SimpleReferenceServiceFactory<D>(
+  Reference: Type<unknown>,
+  Repo: Type<Repository<D>>,
+) {
   const { referenceName, referenceDescription, referencePartitioner } =
     getReferenceMetadata(Reference);
 
   @Injectable()
   class SimpleReferenceService extends SimpleService<D> {
-    constructor(readonly repository: Repository<D>) {
+    constructor(
+      @Inject(Repo)
+      readonly repository: Repository<D>,
+    ) {
       super(repository);
     }
 

@@ -1,16 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
-
-import { SimpleService } from '../../utils/services/simple.service';
-
 import { ColorsRepository } from '../repositories/abstract/colors.repository';
-import { ColorDocument } from '../entities/color.entity';
+import { Color } from '../entities/color.entity';
+import { SimpleReferenceServiceFactory } from '../factories/simple-reference-service.factory';
 
-@Injectable()
-export class ColorsService extends SimpleService<ColorDocument> {
-  constructor(
-    @Inject(ColorsRepository)
-    private readonly colorsRepository: ColorsRepository,
-  ) {
-    super(colorsRepository);
-  }
-}
+export class ColorsService extends SimpleReferenceServiceFactory(
+  Color,
+  ColorsRepository,
+) {}
