@@ -409,6 +409,8 @@ type Query {
   countSomeTypes(filter: TypePartialInput!): Int!
   findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
   findOnePostVersionById(id: Id!): PostVersion!
+  getAllActiveColors: [Color!]!
+  getAllActiveTypes: [Type!]!
 
   """
   Author : Get all query
@@ -419,11 +421,13 @@ type Query {
   Color : Get all query
   """
   getAllColors: [Color!]!
+  getAllEnabledReferences: References!
 
   """
   Post : Get all query
   """
   getAllPosts: [Post!]!
+  getAllReferences: References!
 
   """
   Type : Get all query
@@ -469,6 +473,11 @@ type Query {
   Type : Get some query
   """
   getSomeTypes(filter: TypePartialInput!): [Type!]!
+}
+
+type References {
+  colors: [Color!]!
+  types: [Type!]!
 }
 
 type Type {

@@ -26,12 +26,6 @@ export const createVersioners = () => {
 
     const entityVersionName = getEntityMetadata(EntityVersion)?.entityName;
 
-    if (!entityVersionName) {
-      throw new Error(
-        'EntityVersion ' + EntityVersion.name + ' : name not found',
-      );
-    }
-
     models.push({
       name: entityVersionName,
       schema: EntityVersionSchema,

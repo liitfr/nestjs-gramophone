@@ -9,14 +9,17 @@ export interface RepositoryMetadata {
   repositoryDescription?: string;
 }
 
-export const isRepositoryDecorated = (classRef: Type): boolean =>
-  !!Reflect.getMetadata(REPOSITORY_METADATA, classRef);
+export const isRepositoryDecorated = (Repository: Type): boolean =>
+  !!Reflect.getMetadata(REPOSITORY_METADATA, Repository);
 
-export const getRepositoryMetadata = (classRef: Type): RepositoryMetadata => {
-  const repositoryMetadata = Reflect.getMetadata(REPOSITORY_METADATA, classRef);
+export const getRepositoryMetadata = (Repository: Type): RepositoryMetadata => {
+  const repositoryMetadata = Reflect.getMetadata(
+    REPOSITORY_METADATA,
+    Repository,
+  );
   return {
-    repositoryName: classRef.name,
-    repositoryDescription: addSpaceToPascalCase(classRef.name),
+    repositoryName: Repository.name,
+    repositoryDescription: addSpaceToPascalCase(Repository.name),
     ...repositoryMetadata,
   };
 };

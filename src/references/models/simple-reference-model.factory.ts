@@ -33,7 +33,13 @@ export function SimpleReferenceModelFactory(
       nullable: false,
       description: `${referenceDescription}'s code`,
     })
-    @Prop({ type: String, required: true, enum: CodeEnum })
+    @Prop({
+      type: String,
+      required: true,
+      enum: CodeEnum,
+      unique: true,
+      index: true,
+    })
     code: typeof CodeEnum;
 
     @Field(() => Int, {

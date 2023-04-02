@@ -21,8 +21,8 @@ export interface EntityMetadata {
 
 export const enhancerCheckerFactory =
   <E>(enhancerName: string) =>
-  (classRef: Type): classRef is Type<E> => {
-    const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, classRef);
+  (Entity: Type): Entity is Type<E> => {
+    const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
 
     const { entityEnhancers } = entityMetadata ?? { entityEnhancers: [] };
 
@@ -38,14 +38,14 @@ export const enhancerCheckerFactory =
     return true;
   };
 
-export const isEntityDecorated = (classRef: Type): boolean =>
-  !!Reflect.getMetadata(ENTITY_METADATA, classRef);
+export const isEntityDecorated = (Entity: Type): boolean =>
+  !!Reflect.getMetadata(ENTITY_METADATA, Entity);
 
-export const getEntityMetadata = (classRef: Type): EntityMetadata => {
-  const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, classRef);
+export const getEntityMetadata = (Entity: Type): EntityMetadata => {
+  const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
   return {
-    entityName: classRef.name,
-    entityDescription: addSpaceToPascalCase(classRef.name),
+    entityName: Entity.name,
+    entityDescription: addSpaceToPascalCase(Entity.name),
     entityEnhancers: [],
     entityReferences: [],
     ...entityMetadata,

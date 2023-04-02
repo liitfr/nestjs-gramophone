@@ -90,7 +90,7 @@ export function Trackable() {
       updatedAt: Date;
     }
 
-    Object.defineProperty(Tracked, 'name', { value: constructor.name });
+    Object.defineProperty(Tracked, 'name', { value: entityName });
 
     return Tracked;
   };

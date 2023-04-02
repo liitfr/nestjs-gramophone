@@ -9,14 +9,14 @@ export interface ServiceMetadata {
   serviceDescription?: string;
 }
 
-export const isServiceDecorated = (classRef: Type) =>
-  !!Reflect.getMetadata(SERVICE_METADATA, classRef);
+export const isServiceDecorated = (Service: Type) =>
+  !!Reflect.getMetadata(SERVICE_METADATA, Service);
 
-export const getServiceMetadata = (classRef: Type): ServiceMetadata => {
-  const serviceMetadata = Reflect.getMetadata(SERVICE_METADATA, classRef);
+export const getServiceMetadata = (Service: Type): ServiceMetadata => {
+  const serviceMetadata = Reflect.getMetadata(SERVICE_METADATA, Service);
   return {
-    serviceName: classRef.name,
-    serviceDescription: addSpaceToPascalCase(classRef.name),
+    serviceName: Service.name,
+    serviceDescription: addSpaceToPascalCase(Service.name),
     ...serviceMetadata,
   };
 };

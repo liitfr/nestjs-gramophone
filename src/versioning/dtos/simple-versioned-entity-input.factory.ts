@@ -8,12 +8,8 @@ import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.de
 
 import { VersionDataInput } from './version-data.input';
 
-export function SimpleVersionedEntityInputFactory<T>(classRef: Type<T>) {
-  const entityDescription = getEntityMetadata(classRef)?.entityDescription;
-
-  if (!entityDescription) {
-    throw new Error('Entity ' + classRef.name + ' : description not found');
-  }
+export function SimpleVersionedEntityInputFactory<T>(Entity: Type<T>) {
+  const entityDescription = getEntityMetadata(Entity)?.entityDescription;
 
   @InputType()
   class WithVersionDataInput {
@@ -28,7 +24,7 @@ export function SimpleVersionedEntityInputFactory<T>(classRef: Type<T>) {
   }
 
   return IntersectionType(
-    SimpleEntityInputFactory(classRef),
+    SimpleEntityInputFactory(Entity),
     WithVersionDataInput,
   );
 }

@@ -2,6 +2,7 @@ import { Inject, Injectable, Type } from '@nestjs/common';
 
 import { checkIfIsTrackable } from '../../utils/entities/trackable.decorator';
 import { getRepositoryMetadata } from '../../utils/repositories/repository.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
 
 import { VersioningService } from '../services/versioning.service';
 
@@ -11,9 +12,13 @@ export const versioners: {
 }[] = [];
 
 export function Versioned(Entity: Type<unknown>) {
+  const entityMetadata = getEntityMetadata(Entity);
+
   if (!checkIfIsTrackable(Entity)) {
     throw new Error(
-      `Entity` + Entity.name + ' must be trackable to be versioned',
+      'Entity ' +
+        entityMetadata.entityName +
+        ' must be trackable to be versioned',
     );
   }
 

@@ -11,6 +11,8 @@ import { ColorsService } from './services/colors.service';
 import { ColorsResolver } from './resolvers/colors.resolver';
 import { ColorsRepository } from './repositories/abstract/colors.repository';
 import { ColorsMongoRepository } from './repositories/mongo/colors.repository';
+import { ReferencesService } from './services/references.service';
+import { ReferencesResolver } from './resolvers/references.resolver';
 
 @Module({
   imports: [
@@ -22,8 +24,10 @@ import { ColorsMongoRepository } from './repositories/mongo/colors.repository';
     { provide: ColorsRepository, useClass: ColorsMongoRepository },
     TypesService,
     ColorsService,
+    ReferencesService,
     TypesResolver,
     ColorsResolver,
+    ReferencesResolver,
   ],
   exports: [],
 })

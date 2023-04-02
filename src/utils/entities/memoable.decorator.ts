@@ -63,7 +63,7 @@ export function Memoable() {
       automaticMemo: string;
     }
 
-    Object.defineProperty(Memoed, 'name', { value: constructor.name });
+    Object.defineProperty(Memoed, 'name', { value: entityName });
 
     return Memoed;
   };

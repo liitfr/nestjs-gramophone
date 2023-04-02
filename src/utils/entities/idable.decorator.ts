@@ -26,7 +26,6 @@ export function Idable() {
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
     const originalMetadata = getEntityMetadata(constructor);
     const { entityName, entityDescription, entityEnhancers } = originalMetadata;
-    // console.log(originalMetadata);
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,
@@ -42,7 +41,7 @@ export function Idable() {
       _id: Id;
     }
 
-    Object.defineProperty(Ided, 'name', { value: constructor.name });
+    Object.defineProperty(Ided, 'name', { value: entityName });
 
     return Ided;
   };

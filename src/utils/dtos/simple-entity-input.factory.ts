@@ -5,7 +5,7 @@ import { Trackable, checkIfIsTrackable } from '../entities/trackable.decorator';
 import { Idable, checkIfIsIdable } from '../entities/idable.decorator';
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
-import { ENTITY_METADATA, getEntityMetadata } from '../entities/entity.util';
+import { getEntityMetadata } from '../entities/entity.util';
 
 interface Options {
   isIdMandatory?: boolean;
@@ -13,17 +13,19 @@ interface Options {
 }
 
 export function SimpleEntityInputFactory(
-  classRef: Type<Idable | Trackable | any>,
+  Entity: Type<Idable | Trackable | any>,
   { isIdMandatory = false, removeTrackable = true }: Options = {
     isIdMandatory: false,
     removeTrackable: true,
   },
 ) {
-  if (!isIdMandatory && checkIfIsIdable(classRef)) {
-    const entityMetadata = getEntityMetadata(classRef);
+  if (!isIdMandatory && checkIfIsIdable(Entity)) {
+    const entityMetadata = getEntityMetadata(Entity);
 
     if (!entityMetadata) {
-      throw new Error(`Entity ${classRef.name} has no metadata.`);
+      throw new Error(
+        'Entity ' + entityMetadata.entityName + ' has no metadata.',
+      );
     }
 
     const { entityDescription } = entityMetadata;
@@ -39,9 +41,9 @@ export function SimpleEntityInputFactory(
       readonly _id?: Id;
     }
 
-    if (removeTrackable && checkIfIsTrackable(classRef)) {
+    if (removeTrackable && checkIfIsTrackable(Entity)) {
       return IntersectionType(
-        OmitType(classRef, [
+        OmitType(Entity, [
           'createdAt',
           'updatedAt',
           'creatorId',
@@ -53,20 +55,20 @@ export function SimpleEntityInputFactory(
       );
     } else {
       return IntersectionType(
-        OmitType(classRef, ['_id'] as const),
+        OmitType(Entity, ['_id'] as const),
         ClassOptionalId,
         InputType,
       );
     }
   } else {
-    if (removeTrackable && checkIfIsTrackable(classRef)) {
+    if (removeTrackable && checkIfIsTrackable(Entity)) {
       return OmitType(
-        classRef,
+        Entity,
         ['createdAt', 'updatedAt', 'creatorId', 'updaterId'] as const,
         InputType,
       );
     } else {
-      return OmitType(classRef, [] as const, InputType);
+      return OmitType(Entity, [] as const, InputType);
     }
   }
 }

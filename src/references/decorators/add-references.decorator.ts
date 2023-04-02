@@ -11,6 +11,7 @@ import {
 } from '../../utils/entities/entity.util';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { lowerCaseFirstLetter } from '../../utils/string.util';
+import { getReferenceMetadata } from '../../utils/references/reference.util';
 
 const defaultOptions = {
   nullable: false,
@@ -31,8 +32,8 @@ function createProp({
   options,
   entityDescription,
 }: CreatePropInput) {
-  const { entityName: referenceName, entityDescription: referenceDescription } =
-    getEntityMetadata(Reference);
+  const { referenceName, referenceDescription } =
+    getReferenceMetadata(Reference);
 
   const { nullable = false, idName } = { ...defaultOptions, ...options };
 

@@ -13,12 +13,6 @@ export function resolverFactory(
 ) {
   const entityVersionNameValue = getEntityMetadata(EntityVersion)?.entityName;
 
-  if (!entityVersionNameValue) {
-    throw new Error(
-      'EntityVersion ' + EntityVersion.name + ' : name not found',
-    );
-  }
-
   @Resolver(() => EntityVersion)
   class EntityVersionResolver {
     constructor(

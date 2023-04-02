@@ -1,14 +1,11 @@
-import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
-
 import { Type } from '../models/type.model';
 import { TypesService } from '../services/types.service';
 import { TypeInput } from '../dtos/type.input';
 
-export const TypesResolver = SimpleResolverFactory(
+import { SimpleReferenceResolverFactory } from './simple-reference-resolver.factory';
+
+export const TypesResolver = SimpleReferenceResolverFactory(
   Type,
   TypeInput,
   TypesService,
-  {
-    noMutation: true,
-  },
 );

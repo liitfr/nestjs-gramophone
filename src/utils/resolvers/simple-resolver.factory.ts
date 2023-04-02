@@ -32,8 +32,8 @@ export function SimpleResolverFactory<D>(
 ) {
   const { entityName, entityDescription } = getEntityMetadata(Entity);
 
-  const setClassName = (classRef: Type<unknown>) =>
-    Object.defineProperty(classRef, 'name', {
+  const setResolverName = (Resolver: Type<unknown>) =>
+    Object.defineProperty(Resolver, 'name', {
       value: `${pascalCase(pluralize(entityName))}Resolver`,
     });
 
@@ -167,10 +167,10 @@ export function SimpleResolverFactory<D>(
       }
     }
 
-    setClassName(ResolverWithAutoSetters);
+    setResolverName(ResolverWithAutoSetters);
     return ResolverWithAutoSetters;
   }
 
-  setClassName(ResolverWithAutoGetters);
+  setResolverName(ResolverWithAutoGetters);
   return ResolverWithAutoGetters;
 }

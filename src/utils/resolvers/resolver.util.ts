@@ -8,14 +8,14 @@ export interface ResolverMetadata {
   resolverDescription?: string;
 }
 
-export const isResolverDecorated = (classRef: Type): boolean =>
-  !!Reflect.getMetadata(RESOLVER_METADATA, classRef);
+export const isResolverDecorated = (Resolver: Type): boolean =>
+  !!Reflect.getMetadata(RESOLVER_METADATA, Resolver);
 
-export const getResolverMetadata = (classRef: Type): ResolverMetadata => {
-  const resolverMetadata = Reflect.getMetadata(RESOLVER_METADATA, classRef);
+export const getResolverMetadata = (Resolver: Type): ResolverMetadata => {
+  const resolverMetadata = Reflect.getMetadata(RESOLVER_METADATA, Resolver);
   return {
-    resolverName: classRef.name,
-    resolverDescription: addSpaceToPascalCase(classRef.name),
+    resolverName: Resolver.name,
+    resolverDescription: addSpaceToPascalCase(Resolver.name),
     ...resolverMetadata,
   };
 };
