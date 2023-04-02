@@ -7,10 +7,10 @@ import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { versioners } from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';
 
-import { versioningEntityFactory } from './versioning-entity.factory';
-import { versioningResolverFactory } from './versioning-resolver.factory';
+import { VersioningEntityFactory } from './versioning-entity.factory';
+import { VersioningResolverFactory } from './versioning-resolver.factory';
 
-function versioningServiceFactory(
+function VersioningServiceFactory(
   versioningService: VersioningService<unknown>,
   model: Model<unknown>,
 ) {
@@ -23,7 +23,7 @@ export const createVersioners = () => {
   const providers: Provider<VersioningService<unknown>>[] = [VersioningService];
   for (const { repositoryName, Entity } of versioners) {
     const { EntityVersion, EntityVersionSchema } =
-      versioningEntityFactory(Entity);
+      VersioningEntityFactory(Entity);
 
     const entityVersionName = getEntityMetadata(EntityVersion)?.entityName;
 
@@ -36,13 +36,13 @@ export const createVersioners = () => {
 
     providers.push({
       provide: providerName,
-      useFactory: versioningServiceFactory,
+      useFactory: VersioningServiceFactory,
       inject: [
         VersioningService,
         { token: getModelToken(entityVersionName), optional: false },
       ],
     });
-    const resolver = versioningResolverFactory(EntityVersion, providerName);
+    const resolver = VersioningResolverFactory(EntityVersion, providerName);
     providers.push(resolver);
   }
 
