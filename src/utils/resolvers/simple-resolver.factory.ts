@@ -47,28 +47,28 @@ export function SimpleResolverFactory<D>(
 
     @Query(() => Entity, {
       nullable: false,
-      description: `${entityDescription} : Get one query`,
-      name: `getOne${pascalCase(entityName)}`,
+      description: `${entityDescription} : Find one query`,
+      name: `findOne${pascalCase(entityName)}`,
     })
-    async getOne(@Args('id', { type: () => IdScalar }) id: Id): Promise<D> {
+    async findOne(@Args('id', { type: () => IdScalar }) id: Id): Promise<D> {
       return this.simpleService.findById(id);
     }
 
     @Query(() => [Entity], {
       nullable: false,
-      description: `${entityDescription} : Get all query`,
-      name: `getAll${pluralize(pascalCase(entityName))}`,
+      description: `${entityDescription} : Find all query`,
+      name: `findAll${pluralize(pascalCase(entityName))}`,
     })
-    async getAll(): Promise<D[]> {
+    async findAll(): Promise<D[]> {
       return this.simpleService.findAll();
     }
 
     @Query(() => [Entity], {
       nullable: false,
-      description: `${entityDescription} : Get some query`,
-      name: `getSome${pluralize(pascalCase(entityName))}`,
+      description: `${entityDescription} : Find some query`,
+      name: `findSome${pluralize(pascalCase(entityName))}`,
     })
-    async getSome(
+    async findSome(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
     ): Promise<D[]> {
       return this.simpleService.find(filter);

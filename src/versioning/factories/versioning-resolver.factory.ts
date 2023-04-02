@@ -11,7 +11,7 @@ export function VersioningResolverFactory(
   EntityVersion: Type<unknown>,
   providerName: string,
 ) {
-  const entityVersionNameValue = getEntityMetadata(EntityVersion)?.entityName;
+  const { entityName, entityDescription } = getEntityMetadata(EntityVersion);
 
   @Resolver(() => EntityVersion)
   class EntityVersionResolver {
@@ -21,7 +21,8 @@ export function VersioningResolverFactory(
     ) {}
 
     @Query(() => [EntityVersion], {
-      name: `findAll${entityVersionNameValue}sForOneOriginalId`,
+      name: `findAll${entityName}sForOneOriginalId`,
+      description: `${entityDescription} : Find all versions for one original id query`,
     })
     public async findAllVersionsForOneOriginalId(
       @Args('originalId', { type: () => IdScalar })
@@ -31,7 +32,8 @@ export function VersioningResolverFactory(
     }
 
     @Query(() => EntityVersion, {
-      name: `findOne${entityVersionNameValue}ById`,
+      name: `findOne${entityName}ById`,
+      description: `${entityDescription} : Find one version by id query`,
     })
     public async findOneById(
       @Args('id', { type: () => IdScalar })

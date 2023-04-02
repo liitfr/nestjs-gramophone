@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export abstract class SimpleService<D> implements Repository<D> {
-  constructor(private readonly repository: Repository<D>) {}
+  constructor(readonly repository: Repository<D>) {}
 
   public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
     return this.repository.create(doc, saveOptions);

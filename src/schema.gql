@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AllReferences {
+  activeColors: [Color!]!
+  activeTypes: [Type!]!
+  colors: [Color!]!
+  references: [Reference!]!
+  types: [Type!]!
+}
+
 type Author {
   """
   Author's id
@@ -47,7 +55,7 @@ type Color {
   index: Int!
 
   """
-  Color's  is selected by default ?
+  Color's is selected by default ?
   """
   isSelectedByDefault: Boolean!
 
@@ -89,7 +97,7 @@ input ColorPartialInput {
   index: Int
 
   """
-  Color's  is selected by default ?
+  Color's is selected by default ?
   """
   isSelectedByDefault: Boolean
 
@@ -384,6 +392,11 @@ type Query {
   countAllPosts: Int!
 
   """
+  Reference : Count all query
+  """
+  countAllReferences: Int!
+
+  """
   Type : Count all query
   """
   countAllTypes: Int!
@@ -404,80 +417,195 @@ type Query {
   countSomePosts(filter: PostPartialInput!): Int!
 
   """
+  Reference : Count some query
+  """
+  countSomeReferences(filter: ReferencePartialInput!): Int!
+
+  """
   Type : Count some query
   """
   countSomeTypes(filter: TypePartialInput!): Int!
+
+  """
+  Color : Find all active query
+  """
+  findAllActiveColors: [Color!]!
+
+  """
+  Reference : Find all active query
+  """
+  findAllActiveReferences: [Reference!]!
+
+  """
+  Type : Find all active query
+  """
+  findAllActiveTypes: [Type!]!
+
+  """
+  Author : Find all query
+  """
+  findAllAuthors: [Author!]!
+
+  """
+  Color : Find all query
+  """
+  findAllColors: [Color!]!
+
+  """
+  Post Version : Find all versions for one original id query
+  """
   findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
+
+  """
+  Post : Find all query
+  """
+  findAllPosts: [Post!]!
+
+  """
+  Reference : Find all query
+  """
+  findAllReferences: [Reference!]!
+
+  """
+  Type : Find all query
+  """
+  findAllTypes: [Type!]!
+
+  """
+  Author : Find one query
+  """
+  findOneAuthor(id: Id!): Author!
+
+  """
+  Color : Find one query
+  """
+  findOneColor(id: Id!): Color!
+
+  """
+  Post : Find one query
+  """
+  findOnePost(id: Id!): Post!
+
+  """
+  Post Version : Find one version by id query
+  """
   findOnePostVersionById(id: Id!): PostVersion!
-  getAllActiveColors: [Color!]!
-  getAllActiveTypes: [Type!]!
 
   """
-  Author : Get all query
+  Reference : Find one query
   """
-  getAllAuthors: [Author!]!
+  findOneReference(id: Id!): Reference!
 
   """
-  Color : Get all query
+  Type : Find one query
   """
-  getAllColors: [Color!]!
-  getAllEnabledReferences: References!
+  findOneType(id: Id!): Type!
 
   """
-  Post : Get all query
+  Author : Find some query
   """
-  getAllPosts: [Post!]!
-  getAllReferences: References!
+  findSomeAuthors(filter: AuthorPartialInput!): [Author!]!
 
   """
-  Type : Get all query
+  Color : Find some query
   """
-  getAllTypes: [Type!]!
+  findSomeColors(filter: ColorPartialInput!): [Color!]!
 
   """
-  Author : Get one query
+  Post : Find some query
   """
-  getOneAuthor(id: Id!): Author!
+  findSomePosts(filter: PostPartialInput!): [Post!]!
 
   """
-  Color : Get one query
+  Reference : Find some query
   """
-  getOneColor(id: Id!): Color!
+  findSomeReferences(filter: ReferencePartialInput!): [Reference!]!
 
   """
-  Post : Get one query
+  Type : Find some query
   """
-  getOnePost(id: Id!): Post!
-
-  """
-  Type : Get one query
-  """
-  getOneType(id: Id!): Type!
-
-  """
-  Author : Get some query
-  """
-  getSomeAuthors(filter: AuthorPartialInput!): [Author!]!
-
-  """
-  Color : Get some query
-  """
-  getSomeColors(filter: ColorPartialInput!): [Color!]!
-
-  """
-  Post : Get some query
-  """
-  getSomePosts(filter: PostPartialInput!): [Post!]!
-
-  """
-  Type : Get some query
-  """
-  getSomeTypes(filter: TypePartialInput!): [Type!]!
+  findSomeTypes(filter: TypePartialInput!): [Type!]!
+  noop: AllReferences!
 }
 
-type References {
-  colors: [Color!]!
-  types: [Type!]!
+type Reference {
+  """
+  Reference's id
+  """
+  _id: Id!
+
+  """
+  Reference's active version
+  """
+  activeVersion: Int!
+
+  """
+  Reference's code
+  """
+  code: ReferenceEnum!
+
+  """
+  Reference's index
+  """
+  index: Int!
+
+  """
+  Reference's is selected by default ?
+  """
+  isSelectedByDefault: Boolean!
+
+  """
+  Reference's label
+  """
+  label: String!
+
+  """
+  Reference's version
+  """
+  version: Int!
+}
+
+enum ReferenceEnum {
+  Color
+  References
+  Type
+}
+
+input ReferencePartialInput {
+  """
+  Reference's optional id
+  """
+  _id: Id
+
+  """
+  Reference's active version
+  """
+  activeVersion: Int
+
+  """
+  Reference's code
+  """
+  code: ReferenceEnum
+
+  """
+  Reference's index
+  """
+  index: Int
+
+  """
+  Reference's is selected by default ?
+  """
+  isSelectedByDefault: Boolean
+
+  """
+  Reference's label
+  """
+  label: String
+
+  """
+  Reference's version
+  """
+  version: Int
 }
 
 type Type {
@@ -497,7 +625,7 @@ type Type {
   index: Int!
 
   """
-  Type's  is selected by default ?
+  Type's is selected by default ?
   """
   isSelectedByDefault: Boolean!
 
@@ -535,7 +663,7 @@ input TypePartialInput {
   index: Int
 
   """
-  Type's  is selected by default ?
+  Type's is selected by default ?
   """
   isSelectedByDefault: Boolean
 

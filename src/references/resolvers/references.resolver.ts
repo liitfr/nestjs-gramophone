@@ -1,19 +1,10 @@
-import { Query, Resolver } from '@nestjs/graphql';
-
+import { Reference } from '../entities/reference.entity';
+import { ReferenceInput } from '../dtos/reference.input';
 import { ReferencesService } from '../services/references.service';
-import { References } from '../entities/references.entity';
+import { SimpleReferenceResolverFactory } from '../factories/simple-reference-resolver.factory';
 
-@Resolver(() => References)
-export class ReferencesResolver {
-  constructor(private readonly referencesService: ReferencesService) {}
-
-  @Query(() => References)
-  async getAllReferences() {
-    return this.referencesService.getAllReferences();
-  }
-
-  @Query(() => References)
-  async getAllEnabledReferences() {
-    return this.referencesService.getAllEnabledReferences();
-  }
-}
+export const ReferencesResolver = SimpleReferenceResolverFactory(
+  Reference,
+  ReferenceInput,
+  ReferencesService,
+);

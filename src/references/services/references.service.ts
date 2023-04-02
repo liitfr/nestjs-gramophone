@@ -1,26 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
-import { ColorsService } from './colors.service';
-import { TypesService } from './types.service';
+import { SimpleService } from '../../utils/services/simple.service';
+
+import { ReferenceDocument } from '../entities/reference.entity';
+import { ReferencesRepository } from '../repositories/abstract/references.repository';
 
 @Injectable()
-export class ReferencesService {
+export class ReferencesService extends SimpleService<ReferenceDocument> {
   constructor(
-    private readonly colorsService: ColorsService,
-    private readonly typesService: TypesService,
-  ) {}
-
-  getAllReferences() {
-    return {
-      colors: this.colorsService.findAll(),
-      types: this.typesService.findAll(),
-    };
-  }
-
-  getAllEnabledReferences() {
-    return {
-      colors: this.colorsService.findAllEnabled(),
-      types: this.typesService.findAllEnabled(),
-    };
+    @Inject(ReferencesRepository)
+    private readonly referencesRepository: ReferencesRepository,
+  ) {
+    super(referencesRepository);
   }
 }

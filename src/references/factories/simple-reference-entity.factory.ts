@@ -65,7 +65,7 @@ export function SimpleReferenceEntityFactory(
 
     @Field(() => Boolean, {
       nullable: false,
-      description: `${referenceDescription}'s  is selected by default ?`,
+      description: `${referenceDescription}'s is selected by default ?`,
     })
     @Prop({ required: true })
     isSelectedByDefault: boolean;
