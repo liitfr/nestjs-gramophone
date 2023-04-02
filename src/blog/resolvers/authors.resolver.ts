@@ -4,7 +4,7 @@ import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.fac
 
 import { Author, AuthorDocument } from '../models/author.model';
 import { Post } from '../models/post.model';
-import { AuthorInput } from '../dto/author.input';
+import { AuthorInput } from '../dtos/author.input';
 import { AuthorsService } from '../services/authors.service';
 import { PostsService } from '../services/posts.service';
 

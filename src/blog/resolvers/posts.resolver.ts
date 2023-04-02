@@ -6,7 +6,7 @@ import { Author } from '../models/author.model';
 import { Post, PostDocument } from '../models/post.model';
 import { AuthorsService } from '../services/authors.service';
 import { PostsService } from '../services/posts.service';
-import { PostInput } from '../dto/post.input';
+import { PostInput } from '../dtos/post.input';
 
 const SimplePostResolver = SimpleResolverFactory(Post, PostInput);
 
