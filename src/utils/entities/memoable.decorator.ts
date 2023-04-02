@@ -26,7 +26,7 @@ export function Memoable() {
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,
-      entityEnhancers: [...(entityEnhancers || []), IS_MEMOABLE],
+      entityEnhancers: [...(entityEnhancers ?? []), IS_MEMOABLE],
     })
     @ObjectType(entityName)
     @Schema({ collection: generateCollectionName(entityName) })

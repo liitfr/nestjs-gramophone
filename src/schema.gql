@@ -30,6 +30,80 @@ input AuthorPartialInput {
   lastName: String
 }
 
+type Color {
+  """
+  Color's id
+  """
+  _id: Id!
+
+  """
+  Color's code
+  """
+  code: ColorEnum!
+
+  """
+  Color's index
+  """
+  index: Int!
+
+  """
+  Color's  is selected by default ?
+  """
+  isSelectedByDefault: Boolean!
+
+  """
+  Color's label
+  """
+  label: String!
+
+  """
+  Color's version
+  """
+  version: Int!
+}
+
+enum ColorEnum {
+  Default
+  Error
+  Info
+  Primary
+  Secondary
+  Success
+  Warning
+}
+
+input ColorPartialInput {
+  """
+  Color's optional id
+  """
+  _id: Id
+
+  """
+  Color's code
+  """
+  code: ColorEnum
+
+  """
+  Color's index
+  """
+  index: Int
+
+  """
+  Color's  is selected by default ?
+  """
+  isSelectedByDefault: Boolean
+
+  """
+  Color's label
+  """
+  label: String
+
+  """
+  Color's version
+  """
+  version: Int
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -300,6 +374,11 @@ type Query {
   countAllAuthors: Int!
 
   """
+  Color : Count all query
+  """
+  countAllColors: Int!
+
+  """
   Post : Count all query
   """
   countAllPosts: Int!
@@ -313,6 +392,11 @@ type Query {
   Author : Count some query
   """
   countSomeAuthors(filter: AuthorPartialInput!): Int!
+
+  """
+  Color : Count some query
+  """
+  countSomeColors(filter: ColorPartialInput!): Int!
 
   """
   Post : Count some query
@@ -332,6 +416,11 @@ type Query {
   getAllAuthors: [Author!]!
 
   """
+  Color : Get all query
+  """
+  getAllColors: [Color!]!
+
+  """
   Post : Get all query
   """
   getAllPosts: [Post!]!
@@ -345,6 +434,11 @@ type Query {
   Author : Get one query
   """
   getOneAuthor(id: Id!): Author!
+
+  """
+  Color : Get one query
+  """
+  getOneColor(id: Id!): Color!
 
   """
   Post : Get one query
@@ -362,6 +456,11 @@ type Query {
   getSomeAuthors(filter: AuthorPartialInput!): [Author!]!
 
   """
+  Color : Get some query
+  """
+  getSomeColors(filter: ColorPartialInput!): [Color!]!
+
+  """
   Post : Get some query
   """
   getSomePosts(filter: PostPartialInput!): [Post!]!
@@ -377,7 +476,37 @@ type Type {
   Type's id
   """
   _id: Id!
+
+  """
+  Type's code
+  """
+  code: TypeEnum!
+
+  """
+  Type's index
+  """
+  index: Int!
+
+  """
+  Type's  is selected by default ?
+  """
+  isSelectedByDefault: Boolean!
+
+  """
+  Type's label
+  """
   label: String!
+
+  """
+  Type's version
+  """
+  version: Int!
+}
+
+enum TypeEnum {
+  CoverPage
+  Normal
+  TableOfContents
 }
 
 input TypePartialInput {
@@ -385,7 +514,31 @@ input TypePartialInput {
   Type's optional id
   """
   _id: Id
+
+  """
+  Type's code
+  """
+  code: TypeEnum
+
+  """
+  Type's index
+  """
+  index: Int
+
+  """
+  Type's  is selected by default ?
+  """
+  isSelectedByDefault: Boolean
+
+  """
+  Type's label
+  """
   label: String
+
+  """
+  Type's version
+  """
+  version: Int
 }
 
 input VersionDataInput {

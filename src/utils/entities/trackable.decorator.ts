@@ -34,7 +34,7 @@ export function Trackable() {
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,
-      entityEnhancers: [...(entityEnhancers || []), IS_TRACKABLE],
+      entityEnhancers: [...(entityEnhancers ?? []), IS_TRACKABLE],
     })
     @ObjectType(entityName)
     @Schema({ collection: generateCollectionName(entityName) })

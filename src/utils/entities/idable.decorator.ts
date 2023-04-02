@@ -29,7 +29,7 @@ export function Idable() {
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,
-      entityEnhancers: [...(entityEnhancers || []), IS_IDABLE],
+      entityEnhancers: [...(entityEnhancers ?? []), IS_IDABLE],
     })
     @ObjectType(entityName)
     @Schema({ collection: generateCollectionName(entityName) })

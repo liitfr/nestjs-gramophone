@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { Repository } from '../../../../data/abstracts/repository.abstract';
+import { Repository } from '../../../data/abstracts/repository.abstract';
 
 import { TypeDocument } from '../../models/type.model';
 

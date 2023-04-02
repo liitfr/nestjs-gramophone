@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { SimpleService } from '../../../utils/services/simple.service';
+import { SimpleService } from '../../utils/services/simple.service';
 
 import { TypesRepository } from '../repositories/abstract/types.repository';
 import { TypeDocument } from '../models/type.model';

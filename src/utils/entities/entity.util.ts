@@ -24,7 +24,7 @@ export const enhancerCheckerFactory =
   (classRef: Type): classRef is Type<E> => {
     const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, classRef);
 
-    const { entityEnhancers } = entityMetadata;
+    const { entityEnhancers } = entityMetadata ?? { entityEnhancers: [] };
 
     if (
       !entityEnhancers ||
