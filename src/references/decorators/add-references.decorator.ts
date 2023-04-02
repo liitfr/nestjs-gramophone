@@ -37,7 +37,7 @@ function createProp({
   const { nullable = false, idName } = { ...defaultOptions, ...options };
 
   const referenceIdPropName = lowerCaseFirstLetter(
-    idName ?? `${Reference.name}Id`,
+    idName ?? `${referenceName}Id`,
   );
 
   if (!this.hasOwnProperty(referenceIdPropName)) {

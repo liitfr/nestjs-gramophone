@@ -1,19 +1,17 @@
+import { Type as NestType } from '@nestjs/common';
+
 import { HydratedDocument } from 'mongoose';
 
-import { SimpleReferenceFactory } from './simple-reference.factory';
 import { ColorEnum } from '../enums/color.enum';
-import { ObjectType } from '@nestjs/graphql';
-import { Schema } from '@nestjs/mongoose';
 
-export type ColorDocument = HydratedDocument<Color>;
+import { SimpleReferenceFactory } from './simple-reference.factory';
 
 const { SimpleReference, SimpleReferenceSchema } = SimpleReferenceFactory(
   ColorEnum,
   'Color',
 );
 
-@ObjectType()
-@Schema()
-export class Color extends SimpleReference {}
+export type ColorDocument = HydratedDocument<NestType>;
 
+export { SimpleReference as Color };
 export { SimpleReferenceSchema as ColorSchema };

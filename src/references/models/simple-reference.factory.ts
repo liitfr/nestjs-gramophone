@@ -1,10 +1,17 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { SetMetadata } from '@nestjs/common';
 
 import { Idable } from '../../utils/entities/idable.decorator';
 import { generateCollectionName } from '../../utils/string.util';
-import { SetMetadata } from '@nestjs/common';
-import { ENTITY_METADATA } from 'src/utils/entities/entity.util';
+import {
+  ENTITY_METADATA,
+  EntityMetadata,
+} from '../../utils/entities/entity.util';
+import {
+  REFERENCE_METADATA,
+  ReferenceMetadata,
+} from '../../utils/references/reference.util';
 
 export function SimpleReferenceFactory(
   CodeEnum: Record<string, string>,
@@ -12,7 +19,10 @@ export function SimpleReferenceFactory(
   referenceDescription: string = referenceName,
 ) {
   @Idable()
-  @SetMetadata(ENTITY_METADATA, {
+  @SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
+    referencePartitioner: CodeEnum,
+  })
+  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
     entityName: referenceName,
     entityDescription: referenceDescription,
   })

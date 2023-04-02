@@ -1,19 +1,17 @@
+import { Type as NestType } from '@nestjs/common';
+
 import { HydratedDocument } from 'mongoose';
 
-import { SimpleReferenceFactory } from './simple-reference.factory';
 import { TypeEnum } from '../enums/type.enum';
-import { ObjectType } from '@nestjs/graphql';
-import { Schema } from '@nestjs/mongoose';
 
-export type TypeDocument = HydratedDocument<Type>;
+import { SimpleReferenceFactory } from './simple-reference.factory';
 
 const { SimpleReference, SimpleReferenceSchema } = SimpleReferenceFactory(
   TypeEnum,
   'Type',
 );
 
-@ObjectType()
-@Schema()
-export class Type extends SimpleReference {}
+export type TypeDocument = HydratedDocument<NestType>;
 
+export { SimpleReference as Type };
 export { SimpleReferenceSchema as TypeSchema };

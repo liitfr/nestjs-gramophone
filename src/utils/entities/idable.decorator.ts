@@ -13,7 +13,7 @@ import {
   getEntityMetadata,
 } from './entity.util';
 
-const IS_IDABLE = 'IS_IDABLE';
+const IS_IDABLE = 'isIdable';
 
 export interface Idable {
   _id: Id;
@@ -26,6 +26,7 @@ export function Idable() {
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
     const originalMetadata = getEntityMetadata(constructor);
     const { entityName, entityDescription, entityEnhancers } = originalMetadata;
+    // console.log(originalMetadata);
 
     @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,

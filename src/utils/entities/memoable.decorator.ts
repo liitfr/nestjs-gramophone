@@ -10,7 +10,7 @@ import {
 import { generateCollectionName } from '../string.util';
 import { SetMetadata } from '@nestjs/common';
 
-const IS_MEMOABLE = 'IS_MEMOABLE';
+const IS_MEMOABLE = 'isMemoable';
 
 export interface Memoable {
   memo?: string;
