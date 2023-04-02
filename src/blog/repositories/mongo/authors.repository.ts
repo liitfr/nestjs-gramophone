@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, SetMetadata } from '@nestjs/common';
 
-import { Author, AuthorDocument } from '../../../blog/models/author.model';
+import { Author, AuthorDocument } from '../../entities/author.entity';
 import { MongoRepository } from '../../../data/mongo/services/repository.service';
 import {
   REPOSITORY_METADATA,

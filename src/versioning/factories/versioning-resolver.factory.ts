@@ -7,7 +7,7 @@ import { Id } from '../../utils/id.type';
 
 import { VersioningService } from '../services/versioning.service';
 
-export function resolverFactory(
+export function versioningResolverFactory(
   EntityVersion: Type<unknown>,
   providerName: string,
 ) {

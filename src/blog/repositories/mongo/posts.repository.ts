@@ -9,7 +9,7 @@ import {
   RepositoryMetadata,
 } from '../../../utils/repositories/repository.util';
 
-import { Post, PostDocument } from '../../models/post.model';
+import { Post, PostDocument } from '../../entities/post.entity';
 
 import { PostsRepository } from '../abstract/posts.repository';
 

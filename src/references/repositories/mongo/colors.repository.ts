@@ -8,7 +8,7 @@ import {
   RepositoryMetadata,
 } from '../../../utils/repositories/repository.util';
 
-import { Color, ColorDocument } from '../../models/color.model';
+import { Color, ColorDocument } from '../../entities/color.entity';
 
 import { ColorsRepository } from '../abstract/colors.repository';
 

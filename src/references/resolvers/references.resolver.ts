@@ -1,7 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
 
 import { ReferencesService } from '../services/references.service';
-import { References } from '../models/references.model';
+import { References } from '../entities/references.entity';
 
 @Resolver(() => References)
 export class ReferencesResolver {

@@ -2,10 +2,10 @@ import { HydratedDocument } from 'mongoose';
 
 import { TypeEnum } from '../enums/type.enum';
 
-import { SimpleReferenceModelFactory } from './simple-reference-model.factory';
+import { SimpleReferenceEntityFactory } from '../factories/simple-reference-entity.factory';
 
 const { SimpleReference: Type, SimpleReferenceSchema: TypeSchema } =
-  SimpleReferenceModelFactory(TypeEnum, 'Type');
+  SimpleReferenceEntityFactory(TypeEnum, 'Type');
 
 export type TypeDocument = HydratedDocument<typeof Type>;
 

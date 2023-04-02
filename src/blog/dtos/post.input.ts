@@ -1,8 +1,8 @@
 import { InputType } from '@nestjs/graphql';
 
-import { SimpleVersionedEntityInputFactory } from '../../versioning/dtos/simple-versioned-entity-input.factory';
+import { SimpleVersionedEntityInputFactory } from '../../versioning/factories/simple-versioned-entity-input.factory';
 
-import { Post } from '../models/post.model';
+import { Post } from '../entities/post.entity';
 
 @InputType()
 export class PostInput extends SimpleVersionedEntityInputFactory(Post) {}

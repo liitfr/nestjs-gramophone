@@ -13,7 +13,7 @@ import {
   ReferenceMetadata,
 } from '../../utils/references/reference.util';
 
-export function SimpleReferenceModelFactory(
+export function SimpleReferenceEntityFactory(
   CodeEnum: Record<string, string>,
   referenceName: string,
   referenceDescription: string = referenceName,

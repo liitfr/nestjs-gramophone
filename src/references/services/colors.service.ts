@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SimpleService } from '../../utils/services/simple.service';
 
 import { ColorsRepository } from '../repositories/abstract/colors.repository';
-import { ColorDocument } from '../models/color.model';
+import { ColorDocument } from '../entities/color.entity';
 
 @Injectable()
 export class ColorsService extends SimpleService<ColorDocument> {

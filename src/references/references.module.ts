@@ -3,8 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { TypesService } from './services/types.service';
 import { TypesResolver } from './resolvers/types.resolver';
-import { Type, TypeSchema } from './models/type.model';
-import { Color, ColorSchema } from './models/color.model';
+import { Type, TypeSchema } from './entities/type.entity';
+import { Color, ColorSchema } from './entities/color.entity';
 import { TypesRepository } from './repositories/abstract/types.repository';
 import { TypesMongoRepository } from './repositories/mongo/types.repository';
 import { ColorsService } from './services/colors.service';

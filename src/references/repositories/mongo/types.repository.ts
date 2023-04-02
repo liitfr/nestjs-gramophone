@@ -8,7 +8,7 @@ import {
   RepositoryMetadata,
 } from '../../../utils/repositories/repository.util';
 
-import { Type, TypeDocument } from '../../models/type.model';
+import { Type, TypeDocument } from '../../entities/type.entity';
 
 import { TypesRepository } from '../abstract/types.repository';
 

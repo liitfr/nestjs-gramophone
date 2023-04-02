@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { Color } from './color.model';
-import { Type } from './type.model';
+import { Color } from './color.entity';
+import { Type } from './type.entity';
 
 @ObjectType()
 export class References {

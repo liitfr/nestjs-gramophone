@@ -6,7 +6,7 @@ import { SimpleEntityInputFactory } from '../../utils/dtos/simple-entity-input.f
 
 import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.decorator';
 
-import { VersionDataInput } from './version-data.input';
+import { VersionDataInput } from '../dtos/version-data.input';
 
 export function SimpleVersionedEntityInputFactory<T>(Entity: Type<T>) {
   const entityDescription = getEntityMetadata(Entity)?.entityDescription;

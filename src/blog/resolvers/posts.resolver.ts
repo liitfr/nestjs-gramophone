@@ -2,8 +2,8 @@ import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 
-import { Author } from '../models/author.model';
-import { Post } from '../models/post.model';
+import { Author } from '../entities/author.entity';
+import { Post } from '../entities/post.entity';
 import { PostsService } from '../services/posts.service';
 import { PostInput } from '../dtos/post.input';
 import { AuthorsService } from '../services/authors.service';

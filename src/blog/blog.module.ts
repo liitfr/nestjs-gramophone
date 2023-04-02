@@ -3,8 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { VersioningModule } from '../versioning/versioning.module';
 
-import { Author, AuthorSchema } from './models/author.model';
-import { Post, PostSchema } from './models/post.model';
+import { Author, AuthorSchema } from './entities/author.entity';
+import { Post, PostSchema } from './entities/post.entity';
 import { AuthorsResolver } from './resolvers/authors.resolver';
 import { PostsResolver } from './resolvers/posts.resolver';
 import { AuthorsRepository } from './repositories/abstract/authors.repository';

@@ -7,8 +7,8 @@ import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { versioners } from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';
 
-import { modelFactory } from './model.factory';
-import { resolverFactory } from './resolver.factory';
+import { versioningEntityFactory } from './versioning-entity.factory';
+import { versioningResolverFactory } from './versioning-resolver.factory';
 
 function versioningServiceFactory(
   versioningService: VersioningService<unknown>,
@@ -19,14 +19,15 @@ function versioningServiceFactory(
 }
 
 export const createVersioners = () => {
-  const models = [];
+  const entities = [];
   const providers: Provider<VersioningService<unknown>>[] = [VersioningService];
   for (const { repositoryName, Entity } of versioners) {
-    const { EntityVersion, EntityVersionSchema } = modelFactory(Entity);
+    const { EntityVersion, EntityVersionSchema } =
+      versioningEntityFactory(Entity);
 
     const entityVersionName = getEntityMetadata(EntityVersion)?.entityName;
 
-    models.push({
+    entities.push({
       name: entityVersionName,
       schema: EntityVersionSchema,
     });
@@ -41,12 +42,12 @@ export const createVersioners = () => {
         { token: getModelToken(entityVersionName), optional: false },
       ],
     });
-    const resolver = resolverFactory(EntityVersion, providerName);
+    const resolver = versioningResolverFactory(EntityVersion, providerName);
     providers.push(resolver);
   }
 
   return {
-    imports: [MongooseModule.forFeature(models)],
+    imports: [MongooseModule.forFeature(entities)],
     providers,
   };
 };

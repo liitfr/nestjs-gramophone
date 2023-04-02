@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SimpleService } from '../../utils/services/simple.service';
 
 import { TypesRepository } from '../repositories/abstract/types.repository';
-import { TypeDocument } from '../models/type.model';
+import { TypeDocument } from '../entities/type.entity';
 
 @Injectable()
 export class TypesService extends SimpleService<TypeDocument> {

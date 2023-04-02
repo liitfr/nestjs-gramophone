@@ -15,7 +15,7 @@ import { Trackable } from '../../utils/entities/trackable.decorator';
 import { Id } from '../../utils/id.type';
 import { Idable } from '../../utils/entities/idable.decorator';
 
-export function modelFactory(Entity: Type<unknown>) {
+export function versioningEntityFactory(Entity: Type<unknown>) {
   const originalMetadata = getEntityMetadata(Entity);
   const { entityName, entityDescription } = originalMetadata;
 
