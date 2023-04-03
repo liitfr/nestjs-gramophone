@@ -45,6 +45,7 @@ function createProp({
     Object.defineProperty(this, referenceIdPropName, {
       writable: true,
       enumerable: true,
+      configurable: true,
     });
   }
 
@@ -71,26 +72,47 @@ export function AddReferences(inputs: Input) {
 
     const { entityDescription } = originalMetadata;
 
-    const entityReferencesMetadata = [];
+    const entityReferencesMetadata: EntityReference[] = [];
 
     inputs.forEach((input) => {
       if (typeof input === 'function') {
         const Reference = input as Type<unknown>;
+        const { referenceName, referenceDescription } =
+          getReferenceMetadata(Reference);
+        const options = {
+          ...defaultOptions,
+          idName: lowerCaseFirstLetter(`${referenceName}Id`),
+          resolvedName: lowerCaseFirstLetter(referenceName),
+          idDescription: referenceDescription,
+          resolvedDescription: referenceDescription,
+        };
         createProp.call(constructor.prototype, {
           Reference,
-          options: defaultOptions,
+          options,
           entityDescription,
         });
-        entityReferencesMetadata.push({ Reference, ...defaultOptions });
+        entityReferencesMetadata.push({
+          Reference,
+          ...options,
+        });
       } else {
-        const options = input as EntityReference;
-        const { Reference, ...otherOptions } = options;
+        const { Reference, ...otherOptions } = input as EntityReference;
+        const { referenceName, referenceDescription } =
+          getReferenceMetadata(Reference);
+        const options = {
+          ...defaultOptions,
+          idName: lowerCaseFirstLetter(`${referenceName}Id`),
+          resolvedName: lowerCaseFirstLetter(referenceName),
+          idDescription: referenceDescription,
+          resolvedDescription: referenceDescription,
+          ...otherOptions,
+        };
         createProp.call(constructor.prototype, {
           Reference,
-          options: { ...defaultOptions, ...otherOptions },
+          options,
           entityDescription,
         });
-        entityReferencesMetadata.push(options);
+        entityReferencesMetadata.push({ Reference, ...options });
       }
     });
 
@@ -100,6 +122,6 @@ export function AddReferences(inputs: Input) {
         ...(originalMetadata.entityReferences || []),
         ...entityReferencesMetadata,
       ],
-    });
+    })(constructor);
   };
 }

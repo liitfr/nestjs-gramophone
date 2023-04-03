@@ -90,7 +90,12 @@ export function Trackable() {
       updatedAt: Date;
     }
 
-    Object.defineProperty(Tracked, 'name', { value: entityName });
+    Object.defineProperty(Tracked, 'name', {
+      value: entityName,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
 
     return Tracked;
   };

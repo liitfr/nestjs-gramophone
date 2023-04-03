@@ -7,7 +7,8 @@ export const REFERENCE_METADATA = Symbol('referenceMetadata');
 export interface ReferenceMetadata {
   referenceName?: string;
   referenceDescription?: string;
-  referencePartitioner?: Record<string, string>;
+  ReferencePartitioner?: Record<string, string>;
+  ReferenceService?: Type<unknown>;
 }
 
 enum EmptyEnum {}
@@ -20,7 +21,8 @@ export const getReferenceMetadata = (Reference: Type): ReferenceMetadata => {
   return {
     referenceName: Reference.name,
     referenceDescription: addSpaceToPascalCase(Reference.name),
-    referencePartitioner: EmptyEnum,
+    ReferencePartitioner: EmptyEnum,
+    ReferenceService: null,
     ...referenceMetadata,
   };
 };

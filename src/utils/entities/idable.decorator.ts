@@ -41,7 +41,12 @@ export function Idable() {
       _id: Id;
     }
 
-    Object.defineProperty(Ided, 'name', { value: entityName });
+    Object.defineProperty(Ided, 'name', {
+      value: entityName,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
 
     return Ided;
   };

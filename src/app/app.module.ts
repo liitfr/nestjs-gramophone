@@ -5,9 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { join } from 'path';
 
-import { BlogModule } from '../blog/blog.module';
-import { ReferencesModule } from '../references/references.module';
+// <!> ORDER MATTERS <!>
 import { DataServicesModule } from '../data/data-services.module';
+// Reference Service adds itselft as service in its entity metadata.
+// This metadata (ReferenceService) is used by other providers that
+// consum references with decorator AddReferences
+// So we need to build Reference before any other module
+import { ReferencesModule } from '../references/references.module';
+import { BlogModule } from '../blog/blog.module';
 
 @Module({
   imports: [

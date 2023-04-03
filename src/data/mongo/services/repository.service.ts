@@ -116,7 +116,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async findAll(): Promise<D[]> {
-    return await this.model.find().session(this.dbSession.get());
+    return this.model.find().session(this.dbSession.get());
   }
 
   @SaveVersionIfEnabled()
@@ -133,7 +133,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     update: UpdateWithAggregationPipeline | UpdateQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
-    return await this.model
+    return this.model
       .updateOne(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
   }
@@ -144,7 +144,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     update: UpdateWithAggregationPipeline | UpdateQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
-    return await this.model
+    return this.model
       .updateMany(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
   }
@@ -173,15 +173,15 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async countAll(): Promise<number> {
-    return await this.model.countDocuments().session(this.dbSession.get());
+    return this.model.countDocuments().session(this.dbSession.get());
   }
 
   async count(
     filter: FilterQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<number> {
-    return await this.model
-      .countDocuments({ filter, options })
+    return this.model
+      .countDocuments(filter, options)
       .session(this.dbSession.get());
   }
 }

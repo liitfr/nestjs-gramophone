@@ -13,6 +13,7 @@ import { AuthorsMongoRepository } from './repositories/mongo/authors.repository'
 import { PostsMongoRepository } from './repositories/mongo/posts.repository';
 import { PostsService } from './services/posts.service';
 import { AuthorsService } from './services/authors.service';
+import { ReferencesModule } from 'src/references/references.module';
 
 @Module({
   imports: [
@@ -21,14 +22,15 @@ import { AuthorsService } from './services/authors.service';
       { name: Post.name, schema: PostSchema },
     ]),
     VersioningModule.forRoot(),
+    ReferencesModule,
   ],
   providers: [
-    AuthorsResolver,
     { provide: AuthorsRepository, useClass: AuthorsMongoRepository },
     { provide: PostsRepository, useClass: PostsMongoRepository },
     PostsService,
     AuthorsService,
     PostsResolver,
+    AuthorsResolver,
   ],
   exports: [],
 })

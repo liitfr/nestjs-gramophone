@@ -191,6 +191,10 @@ type Post {
   Post's id
   """
   _id: Id!
+
+  """
+  Post's author
+  """
   author: Author!
 
   """
@@ -202,6 +206,20 @@ type Post {
   Post's automatic memo
   """
   automaticMemo: String
+
+  """
+  Post's color
+  """
+  color: Color
+
+  """
+  Post's color id
+  """
+  colorId: Id
+
+  """
+  Post's content
+  """
   content: String!
 
   """
@@ -223,7 +241,16 @@ type Post {
   Post's memo
   """
   memo: String
+
+  """
+  Post's title
+  """
   title: String!
+
+  """
+  Post's type
+  """
+  type: Type!
 
   """
   Post's type id
@@ -256,6 +283,15 @@ input PostInput {
   Post's automatic memo
   """
   automaticMemo: String = "Memo automatique généré via GraphQL"
+
+  """
+  Post's color id
+  """
+  colorId: Id
+
+  """
+  Post's content
+  """
   content: String!
 
   """
@@ -267,6 +303,10 @@ input PostInput {
   Post's memo
   """
   memo: String
+
+  """
+  Post's title
+  """
   title: String!
 
   """
@@ -297,6 +337,15 @@ input PostPartialInput {
   Post's automatic memo
   """
   automaticMemo: String = "Memo automatique généré via GraphQL"
+
+  """
+  Post's color id
+  """
+  colorId: Id
+
+  """
+  Post's content
+  """
   content: String
 
   """
@@ -308,6 +357,10 @@ input PostPartialInput {
   Post's memo
   """
   memo: String
+
+  """
+  Post's title
+  """
   title: String
 
   """
@@ -392,6 +445,56 @@ type Query {
   countAllPosts: Int!
 
   """
+  Post : Count all with CoverPage Type query
+  """
+  countAllPostsWithCoverPageType: Int!
+
+  """
+  Post : Count all with Default Color query
+  """
+  countAllPostsWithDefaultColor: Int!
+
+  """
+  Post : Count all with Error Color query
+  """
+  countAllPostsWithErrorColor: Int!
+
+  """
+  Post : Count all with Info Color query
+  """
+  countAllPostsWithInfoColor: Int!
+
+  """
+  Post : Count all with Normal Type query
+  """
+  countAllPostsWithNormalType: Int!
+
+  """
+  Post : Count all with Primary Color query
+  """
+  countAllPostsWithPrimaryColor: Int!
+
+  """
+  Post : Count all with Secondary Color query
+  """
+  countAllPostsWithSecondaryColor: Int!
+
+  """
+  Post : Count all with Success Color query
+  """
+  countAllPostsWithSuccessColor: Int!
+
+  """
+  Post : Count all with TableOfContents Type query
+  """
+  countAllPostsWithTableOfContentsType: Int!
+
+  """
+  Post : Count all with Warning Color query
+  """
+  countAllPostsWithWarningColor: Int!
+
+  """
   Reference : Count all query
   """
   countAllReferences: Int!
@@ -460,6 +563,56 @@ type Query {
   Post : Find all query
   """
   findAllPosts: [Post!]!
+
+  """
+  Post: Find all with CoverPage Type query
+  """
+  findAllPostsWithCoverPageType: [Post!]!
+
+  """
+  Post: Find all with Default Color query
+  """
+  findAllPostsWithDefaultColor: [Post!]!
+
+  """
+  Post: Find all with Error Color query
+  """
+  findAllPostsWithErrorColor: [Post!]!
+
+  """
+  Post: Find all with Info Color query
+  """
+  findAllPostsWithInfoColor: [Post!]!
+
+  """
+  Post: Find all with Normal Type query
+  """
+  findAllPostsWithNormalType: [Post!]!
+
+  """
+  Post: Find all with Primary Color query
+  """
+  findAllPostsWithPrimaryColor: [Post!]!
+
+  """
+  Post: Find all with Secondary Color query
+  """
+  findAllPostsWithSecondaryColor: [Post!]!
+
+  """
+  Post: Find all with Success Color query
+  """
+  findAllPostsWithSuccessColor: [Post!]!
+
+  """
+  Post: Find all with TableOfContents Type query
+  """
+  findAllPostsWithTableOfContentsType: [Post!]!
+
+  """
+  Post: Find all with Warning Color query
+  """
+  findAllPostsWithWarningColor: [Post!]!
 
   """
   Reference : Find all query

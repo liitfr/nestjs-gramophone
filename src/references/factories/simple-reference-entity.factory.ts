@@ -14,13 +14,15 @@ import {
 } from '../../utils/references/reference.util';
 
 export function SimpleReferenceEntityFactory(
-  CodeEnum: Record<string, string>,
+  ReferencePartitioner: Record<string, string>,
   referenceName: string,
   referenceDescription: string = referenceName,
 ) {
   @Idable()
   @SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
-    referencePartitioner: CodeEnum,
+    referenceName,
+    referenceDescription,
+    ReferencePartitioner,
   })
   @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
     entityName: referenceName,
@@ -29,18 +31,18 @@ export function SimpleReferenceEntityFactory(
   @ObjectType(referenceName, { description: referenceDescription })
   @Schema({ collection: generateCollectionName(referenceName) })
   class SimpleReference {
-    @Field(() => CodeEnum, {
+    @Field(() => ReferencePartitioner, {
       nullable: false,
       description: `${referenceDescription}'s code`,
     })
     @Prop({
       type: String,
       required: true,
-      enum: CodeEnum,
+      enum: ReferencePartitioner,
       unique: true,
       index: true,
     })
-    code: typeof CodeEnum;
+    code: typeof ReferencePartitioner;
 
     @Field(() => Int, {
       nullable: false,

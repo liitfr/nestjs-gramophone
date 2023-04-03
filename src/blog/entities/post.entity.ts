@@ -9,21 +9,25 @@ import { Idable } from '../../utils/entities/idable.decorator';
 import { Id } from '../../utils/id.type';
 import { Type } from '../../references/entities/type.entity';
 import { AddReferences } from '../../references/decorators/add-references.decorator';
+import { Color } from '../../references/entities/color.entity';
 
 export type PostDocument = HydratedDocument<Post>;
 
-@AddReferences([Type])
 @Idable()
 @Memoable()
 @Trackable()
 @ObjectType()
 @Schema()
+@AddReferences([
+  { Reference: Type, partitionQueries: true },
+  { Reference: Color, partitionQueries: true, nullable: true },
+])
 export class Post {
-  @Field({ nullable: false })
+  @Field({ nullable: false, description: "Post's title" })
   @Prop()
   title: string;
 
-  @Field({ nullable: false })
+  @Field({ nullable: false, description: "Post's content" })
   @Prop()
   content: string;
 

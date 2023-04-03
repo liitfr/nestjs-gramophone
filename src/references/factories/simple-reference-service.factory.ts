@@ -1,9 +1,19 @@
-import { Inject, Injectable, Type } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  SetMetadata,
+  Type,
+  // forwardRef,
+} from '@nestjs/common';
 import { UserInputError } from 'apollo-server-express';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
-import { SimpleService } from '../../utils/services/simple.service';
-import { getReferenceMetadata } from '../../utils/references/reference.util';
+import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
+import {
+  REFERENCE_METADATA,
+  ReferenceMetadata,
+  getReferenceMetadata,
+} from '../../utils/references/reference.util';
 import { pascalCase, pluralize } from '../../utils/string.util';
 
 import { ReferencesService } from '../services/references.service';
@@ -12,20 +22,25 @@ export function SimpleReferenceServiceFactory<D>(
   Reference: Type<unknown>,
   Repo: Type<Repository<D>>,
 ) {
-  const { referenceName, referenceDescription, referencePartitioner } =
-    getReferenceMetadata(Reference);
+  const referenceMetadata = getReferenceMetadata(Reference);
+
+  const { referenceName, referenceDescription, ReferencePartitioner } =
+    referenceMetadata;
 
   @Injectable()
-  class SimpleReferenceService extends SimpleService<D> {
+  class SimpleReferenceService extends SimpleServiceFactory<D>(
+    Reference,
+    Repo,
+  ) {
     constructor(
+      // @Inject(forwardRef(() => ReferencesService))
+      @Inject(ReferencesService)
+      readonly referencesService: ReferencesService,
       @Inject(Repo)
-      readonly repository: Repository<D>,
+      readonly repo: Repository<D>,
     ) {
-      super(repository);
+      super(repo);
     }
-
-    @Inject(ReferencesService)
-    readonly referencesService: ReferencesService;
 
     public async findAllForAVersion(requestedVersion?: number) {
       let version = requestedVersion;
@@ -67,18 +82,37 @@ export function SimpleReferenceServiceFactory<D>(
 
   Object.defineProperty(SimpleReferenceService, 'name', {
     value: `${pascalCase(pluralize(referenceName))}Service`,
+    writable: true,
+    enumerable: true,
+    configurable: true,
   });
 
-  Object.entries(referencePartitioner).forEach(([key]) => {
+  Object.entries(ReferencePartitioner).forEach(([key]) => {
     const pCKey = pascalCase(key);
-    SimpleReferenceService.prototype[`find${pCKey}`] = async function () {
-      return (await this.repository.find({ code: key }))?.[0];
-    };
 
-    SimpleReferenceService.prototype[`find${pCKey}Id`] = async function () {
-      return (await this[`find${pCKey}`]())?._id;
-    };
+    Object.defineProperty(SimpleReferenceService.prototype, `find${pCKey}`, {
+      value: async function () {
+        return (await this.repository.find({ code: key }))?.[0];
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+
+    Object.defineProperty(SimpleReferenceService.prototype, `find${pCKey}Id`, {
+      value: async function () {
+        return (await this[`find${pCKey}`]())?._id;
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
   });
+
+  SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
+    ...referenceMetadata,
+    ReferenceService: SimpleReferenceService,
+  })(Reference);
 
   return SimpleReferenceService;
 }

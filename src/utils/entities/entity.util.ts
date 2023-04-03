@@ -1,4 +1,5 @@
 import { Type } from '@nestjs/common';
+
 import { addSpaceToPascalCase } from '../string.util';
 
 export const ENTITY_METADATA = Symbol('entityMetadata');
@@ -8,8 +9,10 @@ export interface EntityReference {
   nullable?: boolean;
   resolve?: boolean;
   partitionQueries?: boolean;
-  resolvedName?: string;
   idName?: string;
+  idDescription?: string;
+  resolvedName?: string;
+  resolvedDescription?: string;
 }
 
 export interface EntityMetadata {
@@ -17,6 +20,7 @@ export interface EntityMetadata {
   entityDescription?: string;
   entityEnhancers?: string[];
   entityReferences?: EntityReference[];
+  EntityService?: Type<unknown>;
 }
 
 export const enhancerCheckerFactory =
@@ -48,6 +52,7 @@ export const getEntityMetadata = (Entity: Type): EntityMetadata => {
     entityDescription: addSpaceToPascalCase(Entity.name),
     entityEnhancers: [],
     entityReferences: [],
+    EntityService: null,
     ...entityMetadata,
   };
 };

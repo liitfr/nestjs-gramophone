@@ -17,7 +17,16 @@ import { ColorsRepository } from './repositories/abstract/colors.repository';
 import { ColorsMongoRepository } from './repositories/mongo/colors.repository';
 import { ReferencesRepository } from './repositories/abstract/references.repository';
 import { ReferencesMongoRepository } from './repositories/mongo/references.repository';
-import { AllReferences } from './entities/all-references.entity';
+
+const TypesServiceAlias = {
+  provide: 'TypesService',
+  useExisting: TypesService,
+};
+
+const ColorsServiceAlias = {
+  provide: 'ColorsService',
+  useExisting: ColorsService,
+};
 
 @Module({
   imports: [
@@ -28,19 +37,26 @@ import { AllReferences } from './entities/all-references.entity';
     ]),
   ],
   providers: [
-    AllReferences,
     { provide: TypesRepository, useClass: TypesMongoRepository },
     { provide: ColorsRepository, useClass: ColorsMongoRepository },
     { provide: ReferencesRepository, useClass: ReferencesMongoRepository },
     TypesService,
+    TypesServiceAlias,
     ColorsService,
+    ColorsServiceAlias,
     ReferencesService,
     TypesResolver,
     ColorsResolver,
     ReferencesResolver,
     AllReferencesResolver,
   ],
-  exports: [],
+  exports: [
+    ReferencesService,
+    ColorsServiceAlias,
+    TypesServiceAlias,
+    ColorsService,
+    TypesService,
+  ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ReferencesModule {}

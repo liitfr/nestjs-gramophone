@@ -16,7 +16,7 @@ export class PostsResolver extends SimplePostResolver {
     super();
   }
 
-  @ResolveField(() => Author, { name: 'author' })
+  @ResolveField(() => Author, { name: 'author', description: "Post's author" })
   async author(@Parent() post: Post) {
     const { authorId } = post;
     return this.authorsService.findById(authorId);

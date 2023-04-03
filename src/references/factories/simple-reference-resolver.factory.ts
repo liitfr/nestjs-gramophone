@@ -1,7 +1,6 @@
 import { Type } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
-import { SimpleService } from '../../utils/services/simple.service';
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { getResolverMetadata } from '../../utils/resolvers/resolver.util';
@@ -21,7 +20,7 @@ const defaultOptions: Options = {
 export function SimpleReferenceResolverFactory<D>(
   Reference: Type<unknown>,
   Input: Type<unknown>,
-  Service: Type<SimpleService<D>>,
+  Service: Type<unknown>,
   pOptions: Options = defaultOptions,
 ) {
   const options = { ...defaultOptions, ...pOptions };
@@ -37,53 +36,58 @@ export function SimpleReferenceResolverFactory<D>(
   const resolverMetadata = getResolverMetadata(SimpleResolver);
   const serviceMetadata = getServiceMetadata(Service);
 
-  const { referenceName, referenceDescription, referencePartitioner } =
+  const { referenceName, referenceDescription, ReferencePartitioner } =
     referenceMetadata;
 
   const pCPName = pascalCase(pluralize(referenceName));
-  const findAllQueryName = `findAllActive${pCPName}`;
+  const findAllActiveQueryName = `findAllActive${pCPName}`;
 
   @Resolver(() => Reference)
   class SimpleReferenceResolver extends SimpleResolver {
     @Query(() => [Reference], {
-      name: findAllQueryName,
+      name: findAllActiveQueryName,
       nullable: false,
       description: `${referenceName} : Find all active query`,
     })
-    async [findAllQueryName]() {
-      if (!this.simpleService[findAllQueryName]) {
+    async [findAllActiveQueryName]() {
+      if (!this.simpleService[findAllActiveQueryName]) {
         throw new Error(
           'The service ' +
             serviceMetadata.serviceName +
             ' does not implement the method ' +
-            findAllQueryName,
+            findAllActiveQueryName,
         );
       }
-      return this.simpleService[findAllQueryName]();
+      return this.simpleService[findAllActiveQueryName]();
     }
   }
 
   Object.defineProperty(SimpleReferenceResolver, 'name', {
     value: resolverMetadata.resolverName,
+    writable: true,
+    enumerable: true,
+    configurable: true,
   });
 
   if (!options.noPartition) {
-    Object.entries(referencePartitioner).forEach(([key]) => {
+    Object.entries(ReferencePartitioner).forEach(([key]) => {
       const pCKey = pascalCase(key);
       const serviceMethodName = `find${pCKey}`;
       const queryName = `find${referenceName}${pCKey}`;
 
-      SimpleReferenceResolver.prototype[queryName] = async function () {
-        if (!this.simpleService[serviceMethodName]) {
-          throw new Error(
-            'The service ' +
-              serviceMetadata.serviceName +
-              ' does not implement the method ' +
-              serviceMethodName,
-          );
-        }
-        return (await this.simpleService[serviceMethodName]?.())?.[0];
-      };
+      Object.defineProperty(SimpleReferenceResolver.prototype, queryName, {
+        value: async function () {
+          if (!this.simpleService[serviceMethodName]) {
+            throw new Error(
+              `The service ${serviceMetadata.serviceName} does not implement the method ${serviceMethodName}`,
+            );
+          }
+          return (await this.simpleService[serviceMethodName]?.())?.[0];
+        },
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
 
       Query(() => Reference, {
         name: queryName,

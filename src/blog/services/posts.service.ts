@@ -1,21 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
-
-import { SimpleService } from '../../utils/services/simple.service';
-import { Post, PostDocument } from '../../blog/models/post.model';
+import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
 import { Id } from '../../utils/id.type';
 
+import { Post } from '../entities/post.entity';
 import { PostsRepository } from '../repositories/abstract/posts.repository';
+// import { Injectable } from '@nestjs/common';
 
-@Injectable()
-export class PostsService extends SimpleService<PostDocument> {
-  constructor(
-    @Inject(PostsRepository)
-    private readonly postsRepository: PostsRepository,
-  ) {
-    super(postsRepository);
-  }
-
+// @Injectable()
+export class PostsService extends SimpleServiceFactory(Post, PostsRepository) {
   async findAllPostsForOneAuthor(authorId: Id): Promise<Post[]> {
-    return this.postsRepository.find({ authorId });
+    return this.repository.find({ authorId });
   }
 }
