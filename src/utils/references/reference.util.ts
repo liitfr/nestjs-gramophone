@@ -8,7 +8,7 @@ export interface ReferenceMetadata {
   referenceName?: string;
   referenceDescription?: string;
   ReferencePartitioner?: Record<string, string>;
-  ReferenceService?: Type<unknown>;
+  referenceServiceName?: string;
 }
 
 enum EmptyEnum {}
@@ -22,7 +22,7 @@ export const getReferenceMetadata = (Reference: Type): ReferenceMetadata => {
     referenceName: Reference.name,
     referenceDescription: addSpaceToPascalCase(Reference.name),
     ReferencePartitioner: EmptyEnum,
-    ReferenceService: null,
+    referenceServiceName: null,
     ...referenceMetadata,
   };
 };

@@ -429,6 +429,8 @@ type PostVersion {
 }
 
 type Query {
+  AllReferences: AllReferences!
+
   """
   Author : Count all query
   """
@@ -678,7 +680,6 @@ type Query {
   Type : Find some query
   """
   findSomeTypes(filter: TypePartialInput!): [Type!]!
-  noop: AllReferences!
 }
 
 type Reference {

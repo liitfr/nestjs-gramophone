@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  SetMetadata,
-  Type,
-  // forwardRef,
-} from '@nestjs/common';
+import { Inject, Injectable, SetMetadata, Type } from '@nestjs/common';
 import { UserInputError } from 'apollo-server-express';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
@@ -14,26 +8,25 @@ import {
   ReferenceMetadata,
   getReferenceMetadata,
 } from '../../utils/references/reference.util';
-import { pascalCase, pluralize } from '../../utils/string.util';
+import { pascalCase } from '../../utils/string.util';
 
 import { ReferencesService } from '../services/references.service';
 
 export function SimpleReferenceServiceFactory<D>(
   Reference: Type<unknown>,
   Repo: Type<Repository<D>>,
+  serviceName: string,
 ) {
   const referenceMetadata = getReferenceMetadata(Reference);
 
   const { referenceName, referenceDescription, ReferencePartitioner } =
     referenceMetadata;
 
+  const SimpleService = SimpleServiceFactory<D>(Reference, Repo);
+
   @Injectable()
-  class SimpleReferenceService extends SimpleServiceFactory<D>(
-    Reference,
-    Repo,
-  ) {
+  class SimpleReferenceService extends SimpleService {
     constructor(
-      // @Inject(forwardRef(() => ReferencesService))
       @Inject(ReferencesService)
       readonly referencesService: ReferencesService,
       @Inject(Repo)
@@ -80,12 +73,12 @@ export function SimpleReferenceServiceFactory<D>(
     }
   }
 
-  Object.defineProperty(SimpleReferenceService, 'name', {
-    value: `${pascalCase(pluralize(referenceName))}Service`,
-    writable: true,
-    enumerable: true,
-    configurable: true,
-  });
+  // Object.defineProperty(SimpleReferenceService, 'name', {
+  //   value: `${pascalCase(pluralize(referenceName))}Service`,
+  //   writable: true,
+  //   enumerable: true,
+  //   configurable: true,
+  // });
 
   Object.entries(ReferencePartitioner).forEach(([key]) => {
     const pCKey = pascalCase(key);
@@ -111,7 +104,7 @@ export function SimpleReferenceServiceFactory<D>(
 
   SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
     ...referenceMetadata,
-    ReferenceService: SimpleReferenceService,
+    referenceServiceName: serviceName,
   })(Reference);
 
   return SimpleReferenceService;

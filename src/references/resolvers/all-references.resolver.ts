@@ -16,8 +16,8 @@ export class AllReferencesResolver {
     private readonly referencesService: ReferencesService,
   ) {}
 
-  @Query(() => AllReferences)
-  async noop() {
+  @Query(() => AllReferences, { name: 'AllReferences' })
+  async getAllReferences() {
     return {};
   }
 

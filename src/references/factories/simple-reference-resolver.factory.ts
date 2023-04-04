@@ -62,13 +62,6 @@ export function SimpleReferenceResolverFactory<D>(
     }
   }
 
-  Object.defineProperty(SimpleReferenceResolver, 'name', {
-    value: resolverMetadata.resolverName,
-    writable: true,
-    enumerable: true,
-    configurable: true,
-  });
-
   if (!options.noPartition) {
     Object.entries(ReferencePartitioner).forEach(([key]) => {
       const pCKey = pascalCase(key);

@@ -12,10 +12,8 @@ import {
   EntityMetadata,
   getEntityMetadata,
 } from '../entities/entity.util';
-import { camelCase, pascalCase, pluralize } from '../string.util';
+import { camelCase, pascalCase } from '../string.util';
 import { getReferenceMetadata } from '../references/reference.util';
-
-import { getServiceMetadata } from './service.util';
 
 type SimpleServiceObj<D> = Repository<D> & {
   repository: Repository<D>;
@@ -99,13 +97,6 @@ export const SimpleServiceFactory = <D>(
     }
   }
 
-  Object.defineProperty(SimpleService, 'name', {
-    value: `${pascalCase(pluralize(entityMetadata.entityName))}Service`,
-    writable: true,
-    enumerable: true,
-    configurable: true,
-  });
-
   if (
     entityMetadata.entityReferences &&
     entityMetadata.entityReferences.length
@@ -114,10 +105,9 @@ export const SimpleServiceFactory = <D>(
       const { Reference, idName, partitionQueries } = reference;
 
       if (partitionQueries) {
-        const { ReferencePartitioner, referenceName, ReferenceService } =
+        const { ReferencePartitioner, referenceName, referenceServiceName } =
           getReferenceMetadata(Reference);
-        const { serviceName } = getServiceMetadata(ReferenceService);
-        const referenceServicePropertyName = camelCase(serviceName);
+        const referenceServicePropertyName = camelCase(referenceServiceName);
 
         if (!SimpleService[referenceServicePropertyName]) {
           Object.defineProperty(
@@ -131,7 +121,7 @@ export const SimpleServiceFactory = <D>(
             },
           );
 
-          const referenceServiceInjector = Inject(ReferenceService.name);
+          const referenceServiceInjector = Inject(referenceServiceName);
           referenceServiceInjector(
             SimpleService.prototype,
             referenceServicePropertyName,

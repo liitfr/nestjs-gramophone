@@ -53,16 +53,15 @@ const addReferenceResolvers = (
         ReferencePartitioner,
         referenceName,
         referenceDescription,
-        ReferenceService,
+        referenceServiceName,
       } = getReferenceMetadata(Reference);
-      if (!ReferenceService) {
+      if (!referenceServiceName) {
         throw new Error(
           `The reference ${referenceName} does not have a service`,
         );
       }
-      const { serviceName } = getServiceMetadata(ReferenceService);
 
-      const referenceServicePropertyName = camelCase(serviceName);
+      const referenceServicePropertyName = camelCase(referenceServiceName);
 
       if (!Resolver[referenceServicePropertyName]) {
         Object.defineProperty(
@@ -76,7 +75,7 @@ const addReferenceResolvers = (
           },
         );
 
-        const referenceServiceInjector = Inject(ReferenceService.name);
+        const referenceServiceInjector = Inject(referenceServiceName);
         referenceServiceInjector(
           Resolver.prototype,
           referenceServicePropertyName,
@@ -124,7 +123,7 @@ const addReferenceResolvers = (
             value: async function () {
               if (!this.simpleService[serviceFindAllMethodName]) {
                 throw new Error(
-                  `The method ${serviceFindAllMethodName} does not exist in the service ${serviceName}`,
+                  `The method ${serviceFindAllMethodName} does not exist in the service ${referenceServiceName}`,
                 );
               }
               return this.simpleService[serviceFindAllMethodName]();
@@ -159,7 +158,7 @@ const addReferenceResolvers = (
               value: async function () {
                 if (!this.simpleService[serviceCountAllMethodName]) {
                   throw new Error(
-                    `The method ${serviceCountAllMethodName} does not exist in the service ${serviceName}`,
+                    `The method ${serviceCountAllMethodName} does not exist in the service ${referenceServiceName}`,
                   );
                 }
                 return this.simpleService[serviceCountAllMethodName]();
@@ -197,14 +196,6 @@ export function SimpleResolverFactory<D>(
   },
 ) {
   const { entityName, entityDescription } = getEntityMetadata(Entity);
-
-  const setResolverName = (Resolver: Type<unknown>) =>
-    Object.defineProperty(Resolver, 'name', {
-      value: `${pascalCase(pluralize(entityName))}Resolver`,
-      writable: true,
-      enumerable: true,
-      configurable: true,
-    });
 
   @InputType(`${entityName}PartialInput`)
   class PartialInput extends PartialType(Input) {}
@@ -336,12 +327,10 @@ export function SimpleResolverFactory<D>(
       }
     }
 
-    setResolverName(ResolverWithAutoSetters);
     addReferenceResolvers(ResolverWithAutoSetters, Entity);
     return ResolverWithAutoSetters;
   }
 
-  setResolverName(ResolverWithAutoGetters);
   addReferenceResolvers(ResolverWithAutoGetters, Entity);
   return ResolverWithAutoGetters;
 }
