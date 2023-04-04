@@ -1,4 +1,3 @@
-import { UserInputError } from 'apollo-server-express';
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import {
@@ -14,6 +13,7 @@ import { Document } from 'mongoose';
 
 import { Id } from '../../../utils/id.type';
 import { SaveVersionIfEnabled } from '../../../versioning/decorators/save-version-if-enabled.decorator';
+import { CustomError, ErrorCode } from '../../../utils/errors/custom.error';
 
 import {
   CreatedModel,
@@ -28,7 +28,7 @@ interface Throwable {
 }
 
 const mustThrowError = (options?: Throwable) =>
-  typeof options?.errorIfUnknown === undefined ||
+  typeof options?.errorIfUnknown === 'undefined' ||
   options?.errorIfUnknown === null ||
   options?.errorIfUnknown === true;
 
@@ -80,15 +80,20 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
 
     if (mustThrowError(options) && result.length === 0) {
-      throw new UserInputError('No result with these filters.', {
-        service: 'repository',
-        method: 'find',
-        model: this.model.name,
-        filter,
-        options,
-        userFriendly:
-          'Aucun résultat ne correspond à votre recherche. Veuillez réessayer.',
-      });
+      throw new CustomError(
+        'No result with these filters.',
+        ErrorCode.NOT_FOUND,
+        {
+          fr: 'Aucun résultat ne correspond à votre recherche. Veuillez réessayer.',
+        },
+        {
+          service: 'repository',
+          method: 'find',
+          model: this.model.name,
+          filter,
+          options,
+        },
+      );
     }
 
     return result;
@@ -102,14 +107,19 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .findById(id, null, options)
       .session(this.dbSession.get());
     if (mustThrowError(options) && !result) {
-      throw new UserInputError('No result with this id.', {
-        service: 'repository',
-        method: 'findById',
-        model: this.model.name,
-        options,
-        userFriendly:
-          'Aucun résultat ne correspond à cet identifiant. Veuillez réessayer',
-      });
+      throw new CustomError(
+        'No result with this id.',
+        ErrorCode.NOT_FOUND,
+        {
+          fr: 'Aucun résultat ne correspond à cet identifiant. Veuillez réessayer',
+        },
+        {
+          service: 'repository',
+          method: 'findById',
+          model: this.model.name,
+          options,
+        },
+      );
     }
 
     return result;
@@ -160,14 +170,19 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       ...options,
     });
     if (mustThrowError(options) && !result) {
-      throw new UserInputError('No item with this id.', {
-        service: 'repository',
-        method: 'findOneAndUpdate',
-        model: this.model.name,
-        options,
-        userFriendly:
-          'Aucun élément ne correspond à cet identifiant. Veuillez réessayer',
-      });
+      throw new CustomError(
+        'No item with this id.',
+        ErrorCode.NOT_FOUND,
+        {
+          fr: 'Aucun élément ne correspond à cet identifiant. Veuillez réessayer',
+        },
+        {
+          service: 'repository',
+          method: 'findOneAndUpdate',
+          model: this.model.name,
+          options,
+        },
+      );
     }
     return result;
   }

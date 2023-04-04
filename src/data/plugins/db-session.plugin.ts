@@ -19,15 +19,12 @@ export class DbSessionPlugin implements ApolloServerPlugin {
       didEncounterErrors: async (requestContext: any) => {
         await this.dbSession.abort();
         await this.dbSession.end();
-
-        for (const error of requestContext.errors) {
-          const err = error.originalError || error;
-          this.logger.error(err);
-        }
       },
-      willSendResponse: async () => {
-        await this.dbSession.commit();
-        await this.dbSession.end();
+      willSendResponse: async (requestContext: any) => {
+        if (!requestContext.errors) {
+          await this.dbSession.commit();
+          await this.dbSession.end();
+        }
       },
     };
   }

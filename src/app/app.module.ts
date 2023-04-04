@@ -21,6 +21,7 @@ import { BlogModule } from '../blog/blog.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       fieldResolverEnhancers: ['interceptors'],
+      context: ({ req, res }) => ({ req, res }),
     }),
     MongooseModule.forRoot(
       'mongodb://localhost:27017/eSocnaDb?replicaSet=eSocnaRs',
