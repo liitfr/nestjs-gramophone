@@ -1,11 +1,18 @@
+import { SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
+import {
+  ISimpleReference,
+  SimpleReference,
+} from '../decorators/simple-reference.decorator';
 import { ColorEnum } from '../enums/color.enum';
-import { SimpleReferenceEntityFactory } from '../factories/simple-reference-entity.factory';
 
-const { SimpleReference: Color, SimpleReferenceSchema: ColorSchema } =
-  SimpleReferenceEntityFactory(ColorEnum, 'Color');
+export type ColorDocument = HydratedDocument<Color>;
 
-export type ColorDocument = HydratedDocument<typeof Color>;
+@SimpleReference(ColorEnum)
+export class Color {}
 
-export { Color, ColorSchema };
+export const ColorSchema = SchemaFactory.createForClass(Color);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Color extends ISimpleReference {}

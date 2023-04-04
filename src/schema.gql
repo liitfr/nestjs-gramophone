@@ -685,6 +685,9 @@ type Query {
   findSomeTypes(filter: TypePartialInput!): [Type!]!
 }
 
+"""
+Reference
+"""
 type Reference {
   """
   Reference's id

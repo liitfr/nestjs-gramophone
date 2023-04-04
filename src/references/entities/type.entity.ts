@@ -1,11 +1,18 @@
+import { SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
+import {
+  ISimpleReference,
+  SimpleReference,
+} from '../decorators/simple-reference.decorator';
 import { TypeEnum } from '../enums/type.enum';
-import { SimpleReferenceEntityFactory } from '../factories/simple-reference-entity.factory';
 
-const { SimpleReference: Type, SimpleReferenceSchema: TypeSchema } =
-  SimpleReferenceEntityFactory(TypeEnum, 'Type');
+export type TypeDocument = HydratedDocument<Type>;
 
-export type TypeDocument = HydratedDocument<typeof Type>;
+@SimpleReference(TypeEnum)
+export class Type {}
 
-export { Type, TypeSchema };
+export const TypeSchema = SchemaFactory.createForClass(Type);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Type extends ISimpleReference {}

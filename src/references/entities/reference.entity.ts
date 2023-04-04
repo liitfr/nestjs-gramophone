@@ -1,18 +1,17 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Field, Int } from '@nestjs/graphql';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { SimpleReferenceEntityFactory } from '../factories/simple-reference-entity.factory';
 import { ReferenceEnum } from '../enums/reference.enum';
+import {
+  ISimpleReference,
+  SimpleReference,
+} from '../decorators/simple-reference.decorator';
 
-const { SimpleReference } = SimpleReferenceEntityFactory(
-  ReferenceEnum,
-  'Reference',
-);
+export type ReferenceDocument = HydratedDocument<Reference>;
 
-@ObjectType()
-@Schema()
-export class Reference extends SimpleReference {
+@SimpleReference(ReferenceEnum)
+export class Reference {
   @Field(() => Int, {
     nullable: false,
     description: "Reference's active version",
@@ -21,6 +20,7 @@ export class Reference extends SimpleReference {
   activeVersion: number;
 }
 
-export type ReferenceDocument = HydratedDocument<Reference>;
-
 export const ReferenceSchema = SchemaFactory.createForClass(Reference);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Reference extends ISimpleReference {}
