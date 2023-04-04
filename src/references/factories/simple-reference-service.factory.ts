@@ -73,13 +73,6 @@ export function SimpleReferenceServiceFactory<D>(
     }
   }
 
-  // Object.defineProperty(SimpleReferenceService, 'name', {
-  //   value: `${pascalCase(pluralize(referenceName))}Service`,
-  //   writable: true,
-  //   enumerable: true,
-  //   configurable: true,
-  // });
-
   Object.entries(ReferencePartitioner).forEach(([key]) => {
     const pCKey = pascalCase(key);
 

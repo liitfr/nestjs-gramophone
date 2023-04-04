@@ -1,6 +1,6 @@
 import { Inject, Injectable, Type } from '@nestjs/common';
 
-import { checkIfIsTrackable } from '../../utils/entities/trackable.decorator';
+import { checkIfIsTrackable } from '../../utils/entities/simple-entity.decorator';
 import { getRepositoryMetadata } from '../../utils/repositories/repository.util';
 import { getEntityMetadata } from '../../utils/entities/entity.util';
 

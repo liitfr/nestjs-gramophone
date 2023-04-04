@@ -2,26 +2,27 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types as MongooseTypes } from 'mongoose';
 
-import { Trackable } from '../../utils/entities/trackable.decorator';
-import { Memoable } from '../../utils/entities/memoable.decorator';
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import { Idable } from '../../utils/entities/idable.decorator';
 import { Id } from '../../utils/id.type';
 import { Type } from '../../references/entities/type.entity';
 import { AddReferences } from '../../references/decorators/add-references.decorator';
 import { Color } from '../../references/entities/color.entity';
+import {
+  Idable,
+  Memoable,
+  SimpleEntity,
+  Trackable,
+} from '../../utils/entities/simple-entity.decorator';
 
 export type PostDocument = HydratedDocument<Post>;
 
-@Idable()
-@Memoable()
-@Trackable()
 @ObjectType()
 @Schema()
 @AddReferences([
   { Reference: Type, partitionQueries: true },
   { Reference: Color, partitionQueries: true, nullable: true },
 ])
+@SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
 export class Post {
   @Field({ nullable: false, description: "Post's title" })
   @Prop()

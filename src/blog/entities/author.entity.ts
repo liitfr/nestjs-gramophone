@@ -2,13 +2,16 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { Idable } from '../../utils/entities/idable.decorator';
+import {
+  Idable,
+  SimpleEntity,
+} from '../../utils/entities/simple-entity.decorator';
 
 export type AuthorDocument = HydratedDocument<Author>;
 
-@Idable()
 @ObjectType()
 @Schema()
+@SimpleEntity({ isIdable: true })
 export class Author {
   @Field({ nullable: false })
   @Prop()

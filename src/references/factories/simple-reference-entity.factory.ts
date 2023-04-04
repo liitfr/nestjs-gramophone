@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { SetMetadata } from '@nestjs/common';
 
-import { Idable } from '../../utils/entities/idable.decorator';
+import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { generateCollectionName } from '../../utils/string.util';
 import {
   ENTITY_METADATA,
@@ -18,7 +18,9 @@ export function SimpleReferenceEntityFactory(
   referenceName: string,
   referenceDescription: string = referenceName,
 ) {
-  @Idable()
+  @ObjectType(referenceName, { description: referenceDescription })
+  @Schema({ collection: generateCollectionName(referenceName) })
+  @SimpleEntity({ isIdable: true })
   @SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
     referenceName,
     referenceDescription,
@@ -28,8 +30,6 @@ export function SimpleReferenceEntityFactory(
     entityName: referenceName,
     entityDescription: referenceDescription,
   })
-  @ObjectType(referenceName, { description: referenceDescription })
-  @Schema({ collection: generateCollectionName(referenceName) })
   class SimpleReference {
     @Field(() => ReferencePartitioner, {
       nullable: false,

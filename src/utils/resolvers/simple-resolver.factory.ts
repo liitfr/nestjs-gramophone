@@ -68,7 +68,6 @@ const addReferenceResolvers = (
           Resolver.prototype,
           referenceServicePropertyName,
           {
-            value: null,
             writable: true,
             enumerable: true,
             configurable: true,

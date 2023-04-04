@@ -114,7 +114,6 @@ export const SimpleServiceFactory = <D>(
             SimpleService.prototype,
             referenceServicePropertyName,
             {
-              value: null,
               writable: true,
               enumerable: true,
               configurable: true,

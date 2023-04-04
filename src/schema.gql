@@ -38,6 +38,9 @@ input AuthorPartialInput {
   lastName: String
 }
 
+"""
+Color
+"""
 type Color {
   """
   Color's id
@@ -762,6 +765,9 @@ input ReferencePartialInput {
   version: Int
 }
 
+"""
+Type
+"""
 type Type {
   """
   Type's id

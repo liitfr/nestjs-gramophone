@@ -10,10 +10,8 @@ import {
   getEntityMetadata,
 } from '../../utils/entities/entity.util';
 import { generateCollectionName } from '../../utils/string.util';
-import { Memoable } from '../../utils/entities/memoable.decorator';
-import { Trackable } from '../../utils/entities/trackable.decorator';
 import { Id } from '../../utils/id.type';
-import { Idable } from '../../utils/entities/idable.decorator';
+import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 
 export function VersioningEntityFactory(Entity: Type<unknown>) {
   const originalMetadata = getEntityMetadata(Entity);
@@ -24,16 +22,14 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
   const newEntityName = `${entityName}Version`;
   const newEntityDescription = `${entityDescription} Version`;
 
-  @Idable()
-  @Trackable()
-  @Memoable()
-  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-    entityName: newEntityName,
-    entityDescription: newEntityDescription,
-  })
   @ObjectType(newEntityName)
   @Schema({
     collection: generateCollectionName(newEntityName),
+  })
+  @SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
+  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+    entityName: newEntityName,
+    entityDescription: newEntityDescription,
   })
   class EntityVersion {
     @Field(() => IdScalar, {
