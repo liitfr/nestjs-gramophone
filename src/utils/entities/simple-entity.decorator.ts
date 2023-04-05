@@ -117,12 +117,12 @@ export function SimpleEntity(
       Field(() => String, {
         nullable: true,
         description: `${entityDescription}'s automatic memo`,
-        defaultValue: 'Memo automatique généré via GraphQL',
       })(constructor.prototype, 'automaticMemo');
 
       Prop({
         type: String,
         required: true,
+        default: 'Memo automatique généré via GraphQL',
       })(constructor.prototype, 'automaticMemo');
     }
 

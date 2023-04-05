@@ -1,4 +1,4 @@
-import { Inject, Injectable, Optional } from '@nestjs/common';
+import { Inject, Injectable, Optional, Scope } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import {
   FilterQuery,
@@ -12,7 +12,6 @@ import {
 import { Document } from 'mongoose';
 
 import { Id } from '../../../utils/id.type';
-import { SaveVersionIfEnabled } from '../../../versioning/decorators/save-version-if-enabled.decorator';
 import { CustomError, ErrorCode } from '../../../utils/errors/custom.error';
 
 import {
@@ -32,14 +31,14 @@ const mustThrowError = (options?: Throwable) =>
   options?.errorIfUnknown === null ||
   options?.errorIfUnknown === true;
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class MongoRepository<D extends Document> implements Repository<D> {
-  constructor(@Optional() private readonly model: Model<D>) {}
+  constructor(
+    @Inject(DbSession)
+    private readonly dbSession: DbSession<mongoose.ClientSession>,
+    @Optional() readonly model?: Model<D>,
+  ) {}
 
-  @Inject(DbSession)
-  private readonly dbSession: DbSession<mongoose.ClientSession>;
-
-  @SaveVersionIfEnabled()
   async create(
     doc: object,
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
@@ -55,7 +54,6 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       : savedResult;
   }
 
-  @SaveVersionIfEnabled()
   async createMany(
     docs: object[],
     insertManyOptions?: InsertManyOptions,
@@ -129,7 +127,6 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return this.model.find().session(this.dbSession.get());
   }
 
-  @SaveVersionIfEnabled()
   async remove(filter: FilterQuery<D>): Promise<RemovedModel> {
     const { deletedCount } = await this.model
       .deleteMany(filter)
@@ -137,7 +134,6 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return { deletedCount, deleted: !!deletedCount };
   }
 
-  @SaveVersionIfEnabled()
   async updateOne(
     filter: FilterQuery<D>,
     update: UpdateWithAggregationPipeline | UpdateQuery<D>,
@@ -148,7 +144,6 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
   }
 
-  @SaveVersionIfEnabled()
   async updateMany(
     filter: FilterQuery<D>,
     update: UpdateWithAggregationPipeline | UpdateQuery<D>,
@@ -159,7 +154,6 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
   }
 
-  @SaveVersionIfEnabled()
   public async findOneAndUpdate(
     filter: FilterQuery<D>,
     update: UpdateQuery<D>,

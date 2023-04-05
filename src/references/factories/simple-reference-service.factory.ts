@@ -1,7 +1,6 @@
-import { Inject, Injectable, SetMetadata, Type } from '@nestjs/common';
+import { Inject, SetMetadata, Type } from '@nestjs/common';
 import { UserInputError } from 'apollo-server-express';
 
-import { Repository } from '../../data/abstracts/repository.abstract';
 import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
 import {
   REFERENCE_METADATA,
@@ -12,9 +11,8 @@ import { pascalCase } from '../../utils/string.util';
 
 import { ReferencesService } from '../services/references.service';
 
-export function SimpleReferenceServiceFactory<D>(
+export function SimpleReferenceServiceFactory(
   Reference: Type<unknown>,
-  Repo: Type<Repository<D>>,
   serviceName: string,
 ) {
   const referenceMetadata = getReferenceMetadata(Reference);
@@ -22,18 +20,11 @@ export function SimpleReferenceServiceFactory<D>(
   const { referenceName, referenceDescription, ReferencePartitioner } =
     referenceMetadata;
 
-  const SimpleService = SimpleServiceFactory<D>(Reference, Repo);
+  const SimpleService = SimpleServiceFactory(Reference);
 
-  @Injectable()
   class SimpleReferenceService extends SimpleService {
-    constructor(
-      @Inject(ReferencesService)
-      readonly referencesService: ReferencesService,
-      @Inject(Repo)
-      readonly repo: Repository<D>,
-    ) {
-      super(repo);
-    }
+    @Inject(ReferencesService)
+    public readonly referencesService?: ReferencesService;
 
     public async findAllForAVersion(requestedVersion?: number) {
       let version = requestedVersion;

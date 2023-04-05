@@ -1,6 +1,4 @@
-import { Injectable } from '@nestjs/common';
-
-import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
+import { Injectable, Optional, Scope } from '@nestjs/common';
 
 import {
   CreatedModel,
@@ -8,19 +6,17 @@ import {
   UpdatedModel,
 } from './operations.abstract';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export abstract class Repository<D> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor(entity: any) {
+  constructor(@Optional() readonly model?: any) {
     throw new Error('Not implemented');
   }
 
-  @SaveVersionIfEnabled()
   public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
     throw new Error('Not implemented');
   }
 
-  @SaveVersionIfEnabled()
   public createMany(
     docs: object[],
     insertManyOptions?: unknown,
@@ -40,12 +36,10 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  @SaveVersionIfEnabled()
   public remove(filter: unknown): Promise<RemovedModel> {
     throw new Error('Not implemented');
   }
 
-  @SaveVersionIfEnabled()
   public updateOne(
     filter: unknown,
     update: unknown,
@@ -54,7 +48,6 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  @SaveVersionIfEnabled()
   public updateMany(
     filter: unknown,
     update: unknown,
@@ -63,7 +56,6 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  @SaveVersionIfEnabled()
   public findOneAndUpdate(
     filter: unknown,
     udpate: unknown,

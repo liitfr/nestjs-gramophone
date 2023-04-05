@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { MongoRepositoryFactory } from '../data/factories/mongo-repository.factory';
+
 import { TypesService } from './services/types.service';
 import { ColorsService } from './services/colors.service';
 import { ReferencesService } from './services/references.service';
@@ -11,12 +13,6 @@ import { AllReferencesResolver } from './resolvers/all-references.resolver';
 import { Type, TypeSchema } from './entities/type.entity';
 import { Color, ColorSchema } from './entities/color.entity';
 import { Reference, ReferenceSchema } from './entities/reference.entity';
-import { TypesRepository } from './repositories/abstract/types.repository';
-import { TypesMongoRepository } from './repositories/mongo/types.repository';
-import { ColorsRepository } from './repositories/abstract/colors.repository';
-import { ColorsMongoRepository } from './repositories/mongo/colors.repository';
-import { ReferencesRepository } from './repositories/abstract/references.repository';
-import { ReferencesMongoRepository } from './repositories/mongo/references.repository';
 
 const TypesServiceAlias = {
   provide: 'TypesService',
@@ -37,9 +33,9 @@ const ColorsServiceAlias = {
     ]),
   ],
   providers: [
-    { provide: TypesRepository, useClass: TypesMongoRepository },
-    { provide: ColorsRepository, useClass: ColorsMongoRepository },
-    { provide: ReferencesRepository, useClass: ReferencesMongoRepository },
+    MongoRepositoryFactory(Type),
+    MongoRepositoryFactory(Color),
+    MongoRepositoryFactory(Reference),
     TypesService,
     TypesServiceAlias,
     ColorsService,

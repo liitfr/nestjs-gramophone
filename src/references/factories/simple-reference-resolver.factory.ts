@@ -3,9 +3,9 @@ import { Query, Resolver } from '@nestjs/graphql';
 
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
-import { getResolverMetadata } from '../../utils/resolvers/resolver.util';
 import { getServiceMetadata } from '../../utils/services/service.util';
 import { getReferenceMetadata } from '../../utils/references/reference.util';
+import { Repository } from '../../data/abstracts/repository.abstract';
 
 interface Options {
   noMutation?: boolean;
@@ -17,15 +17,15 @@ const defaultOptions: Options = {
   noPartition: true,
 };
 
-export function SimpleReferenceResolverFactory<D>(
+export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
   Reference: Type<unknown>,
   Input: Type<unknown>,
-  Service: Type<unknown>,
+  Service: Type<S>,
   pOptions: Options = defaultOptions,
 ) {
   const options = { ...defaultOptions, ...pOptions };
 
-  const SimpleResolver = SimpleResolverFactory<D>(
+  const SimpleResolver = SimpleResolverFactory<D, S>(
     Reference,
     Input,
     Service,
@@ -33,13 +33,12 @@ export function SimpleReferenceResolverFactory<D>(
   );
 
   const referenceMetadata = getReferenceMetadata(Reference);
-  const resolverMetadata = getResolverMetadata(SimpleResolver);
   const serviceMetadata = getServiceMetadata(Service);
 
   const { referenceName, referenceDescription, ReferencePartitioner } =
     referenceMetadata;
 
-  const pCPName = pascalCase(pluralize(referenceName));
+  const pCPName = pluralize(pascalCase(referenceName));
   const findAllActiveQueryName = `findAllActive${pCPName}`;
 
   @Resolver(() => Reference)

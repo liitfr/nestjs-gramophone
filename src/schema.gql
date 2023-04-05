@@ -285,7 +285,7 @@ input PostInput {
   """
   Post's automatic memo
   """
-  automaticMemo: String = "Memo automatique généré via GraphQL"
+  automaticMemo: String
 
   """
   Post's color id
@@ -320,9 +320,7 @@ input PostInput {
   """
   Post's version data
   """
-  versionData: VersionDataInput = {
-    automaticMemo: "Memo automatique généré via GraphQL"
-  }
+  versionData: VersionDataInput
 }
 
 input PostPartialInput {
@@ -339,7 +337,7 @@ input PostPartialInput {
   """
   Post's automatic memo
   """
-  automaticMemo: String = "Memo automatique généré via GraphQL"
+  automaticMemo: String
 
   """
   Post's color id
@@ -374,9 +372,7 @@ input PostPartialInput {
   """
   Post's version data
   """
-  versionData: VersionDataInput = {
-    automaticMemo: "Memo automatique généré via GraphQL"
-  }
+  versionData: VersionDataInput
 }
 
 type PostVersion {
@@ -568,6 +564,11 @@ type Query {
   Post : Find all query
   """
   findAllPosts: [Post!]!
+
+  """
+  Find all posts for one author
+  """
+  findAllPostsForOneAuthor(id: Id!): [Post!]!
 
   """
   Post: Find all with CoverPage Type query
@@ -845,7 +846,7 @@ input VersionDataInput {
   """
   Version Data's automatic memo
   """
-  automaticMemo: String = "Memo automatique généré via GraphQL"
+  automaticMemo: String
 
   """
   Version Data's internal memo

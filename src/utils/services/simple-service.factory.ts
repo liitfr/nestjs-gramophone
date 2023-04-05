@@ -1,4 +1,5 @@
-import { Inject, Injectable, SetMetadata, Type } from '@nestjs/common';
+import { Inject, SetMetadata, Type } from '@nestjs/common';
+import { HydratedDocument } from 'mongoose';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import {
@@ -6,13 +7,14 @@ import {
   RemovedModel,
   UpdatedModel,
 } from '../../data/abstracts/operations.abstract';
+import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
 
 import {
   ENTITY_METADATA,
   EntityMetadata,
   getEntityMetadata,
 } from '../entities/entity.util';
-import { camelCase, pascalCase } from '../string.util';
+import { camelCase, pascalCase, pluralize } from '../string.util';
 import { getReferenceMetadata } from '../references/reference.util';
 
 type SimpleServiceObj<D> = Repository<D> & {
@@ -21,19 +23,17 @@ type SimpleServiceObj<D> = Repository<D> & {
 
 type SimpleService<D> = Type<SimpleServiceObj<D>>;
 
-export const SimpleServiceFactory = <D>(
-  Entity: Type<unknown>,
-  Repository: Type<Repository<D>>,
+export const SimpleServiceFactory = <E, D = HydratedDocument<E>>(
+  Entity: Type<E>,
 ): SimpleService<D> => {
   const entityMetadata = getEntityMetadata(Entity);
+  const { entityName, entityReferences } = entityMetadata;
 
-  @Injectable()
   class SimpleService<D> implements Repository<D> {
-    constructor(
-      @Inject(Repository)
-      readonly repository: Repository<D>,
-    ) {}
+    @Inject(`${pluralize(pascalCase(entityName))}Repository`)
+    public readonly repository: Repository<D>;
 
+    @SaveVersionIfEnabled()
     public create(
       doc: object,
       saveOptions?: unknown,
@@ -41,6 +41,7 @@ export const SimpleServiceFactory = <D>(
       return this.repository.create(doc, saveOptions);
     }
 
+    @SaveVersionIfEnabled()
     async createMany(
       docs: object[],
       insertManyOptions?: unknown,
@@ -60,10 +61,12 @@ export const SimpleServiceFactory = <D>(
       return this.repository.findAll();
     }
 
+    @SaveVersionIfEnabled()
     async remove(filter: unknown): Promise<RemovedModel> {
       return this.repository.remove(filter);
     }
 
+    @SaveVersionIfEnabled()
     async updateOne(
       filter: unknown,
       update: unknown,
@@ -72,6 +75,7 @@ export const SimpleServiceFactory = <D>(
       return this.repository.updateOne(filter, update, options);
     }
 
+    @SaveVersionIfEnabled()
     async updateMany(
       filter: unknown,
       update: unknown,
@@ -80,6 +84,7 @@ export const SimpleServiceFactory = <D>(
       return this.repository.updateMany(filter, update, options);
     }
 
+    @SaveVersionIfEnabled()
     async findOneAndUpdate(
       filter: unknown,
       update: unknown,
@@ -97,11 +102,8 @@ export const SimpleServiceFactory = <D>(
     }
   }
 
-  if (
-    entityMetadata.entityReferences &&
-    entityMetadata.entityReferences.length
-  ) {
-    entityMetadata.entityReferences.forEach((reference) => {
+  if (entityReferences && entityReferences.length) {
+    entityReferences.forEach((reference) => {
       const { Reference, idName, partitionQueries } = reference;
 
       if (partitionQueries) {

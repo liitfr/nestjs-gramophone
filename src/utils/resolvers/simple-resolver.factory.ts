@@ -24,7 +24,6 @@ import { Id } from '../id.type';
 import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
 import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
 import { getReferenceMetadata } from '../references/reference.util';
-import { getServiceMetadata } from '../services/service.util';
 
 interface Options {
   noMutation?: boolean;
@@ -186,10 +185,10 @@ const addReferenceResolvers = (
   });
 };
 
-export function SimpleResolverFactory<D>(
+export function SimpleResolverFactory<D, S extends Repository<D>>(
   Entity: Type<unknown>,
   Input: Type<unknown>,
-  Service: Type<unknown>,
+  Service: Type<S>,
   options: Options = {
     noMutation: false,
   },
@@ -202,7 +201,7 @@ export function SimpleResolverFactory<D>(
   @Resolver(() => Entity)
   class ResolverWithAutoGetters {
     @Inject(Service)
-    readonly simpleService: Repository<D>;
+    readonly simpleService: S;
 
     @Query(() => Entity, {
       nullable: false,

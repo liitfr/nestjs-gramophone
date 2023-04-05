@@ -15,9 +15,6 @@ export function SimpleVersionedEntityInputFactory<T>(Entity: Type<T>) {
   class WithVersionDataInput {
     @Field(() => VersionDataInput, {
       nullable: true,
-      defaultValue: {
-        automaticMemo: 'Memo automatique généré via GraphQL',
-      },
       description: `${entityDescription}'s version data`,
     })
     [VERSION_DATA_FIELDNAME]?: VersionDataInput;
