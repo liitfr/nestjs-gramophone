@@ -16,13 +16,17 @@ export class AllReferencesResolver {
     private readonly referencesService: ReferencesService,
   ) {}
 
-  @Query(() => AllReferences, { name: 'AllReferences' })
+  @Query(() => AllReferences, {
+    name: 'AllReferences',
+    description: 'References : All references query',
+  })
   async getAllReferences() {
     return {};
   }
 
   @ResolveField(() => [Color], {
     name: 'colors',
+    description: "All References's all colors",
   })
   async findColors() {
     return this.colorsService.findAll();
@@ -30,6 +34,7 @@ export class AllReferencesResolver {
 
   @ResolveField(() => [Color], {
     name: 'activeColors',
+    description: "All References's all active colors",
   })
   async findActiveColors() {
     return this.colorsService.findAllActive();
@@ -37,6 +42,7 @@ export class AllReferencesResolver {
 
   @ResolveField(() => [Type], {
     name: 'types',
+    description: "All References's all types",
   })
   async findTypes() {
     return this.typesService.findAll();
@@ -44,6 +50,7 @@ export class AllReferencesResolver {
 
   @ResolveField(() => [Type], {
     name: 'activeTypes',
+    description: "All References's all active generic statuses",
   })
   async findActiveTypes() {
     return this.typesService.findAllActive();
@@ -51,6 +58,7 @@ export class AllReferencesResolver {
 
   @ResolveField(() => [Reference], {
     name: 'references',
+    description: "All References's all references",
   })
   async findReferences() {
     return this.referencesService.findAll();

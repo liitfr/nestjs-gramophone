@@ -17,19 +17,16 @@ export enum ErrorCode {
   FORBIDDEN = 'FORBIDDEN',
 }
 
-export const errorMapping: Record<ErrorCode, ApolloServerErrorCode> = {
+export const errorMapping = {
   [ErrorCode.UNKNOWN_ERROR]: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
   [ErrorCode.INVALID_ARGUMENT]: ApolloServerErrorCode.BAD_USER_INPUT,
   [ErrorCode.NOT_FOUND]: ApolloServerErrorCode.BAD_USER_INPUT,
   [ErrorCode.ALREADY_EXISTS]: ApolloServerErrorCode.BAD_USER_INPUT,
   [ErrorCode.PERMISSION_DENIED]: ApolloServerErrorCode.BAD_REQUEST,
-  [ErrorCode.UNAUTHENTICATED]: ApolloServerErrorCode.BAD_REQUEST,
   [ErrorCode.USER_INPUT_ERROR]: ApolloServerErrorCode.BAD_USER_INPUT,
   [ErrorCode.VALIDATION_ERROR]: ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED,
-  [ErrorCode.FORBIDDEN]: ApolloServerErrorCode.BAD_REQUEST,
-};
+} as const;
 
-// custom error that map error code to apollo server error code and extends GraphQLError
 export class CustomError extends GraphQLError {
   constructor(
     public readonly message: string,
@@ -39,7 +36,7 @@ export class CustomError extends GraphQLError {
   ) {
     super(message, {
       extensions: {
-        code: errorMapping[code],
+        code: errorMapping[code] ?? code,
         userFriendlyMessage,
         stack: new Error().stack,
         details,

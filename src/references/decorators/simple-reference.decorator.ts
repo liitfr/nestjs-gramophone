@@ -13,8 +13,18 @@ import {
   getReferenceMetadata,
 } from '../../utils/references/reference.util';
 import { generateCollectionName } from '../../utils/string.util';
+import { Id } from '../../utils/id.type';
 
-export function SimpleReference(ReferencePartitioner: Record<string, string>) {
+import { Chip, ChipSchema } from '../entities/chip.entity';
+
+interface Options {
+  addChip?: boolean;
+}
+
+export function SimpleReference(
+  ReferencePartitioner: Record<string, string>,
+  options: Options = { addChip: false },
+) {
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
     const { referenceName, referenceDescription } =
       getReferenceMetadata(constructor);
@@ -75,6 +85,21 @@ export function SimpleReference(ReferencePartitioner: Record<string, string>) {
       'isSelectedByDefault',
     );
 
+    if (options.addChip) {
+      Object.defineProperty(constructor.prototype, 'chip', {
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
+
+      Field(() => Chip, {
+        nullable: false,
+        description: `${referenceDescription}'s chip`,
+      })(constructor.prototype, 'chip');
+
+      Prop({ type: ChipSchema, required: true })(constructor.prototype, 'chip');
+    }
+
     SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       entityName: referenceName,
       entityDescription: referenceDescription,
@@ -84,6 +109,7 @@ export function SimpleReference(ReferencePartitioner: Record<string, string>) {
       referenceName,
       referenceDescription,
       ReferencePartitioner,
+      addChip: options.addChip,
     })(constructor);
 
     SimpleEntity({ isIdable: true })(constructor);
@@ -97,6 +123,7 @@ export function SimpleReference(ReferencePartitioner: Record<string, string>) {
 }
 
 export interface ISimpleReference {
+  _id: Id;
   code: string;
   version: number;
   index: number;

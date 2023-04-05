@@ -3,10 +3,29 @@
 # ------------------------------------------------------
 
 type AllReferences {
+  """
+  All References's all active colors
+  """
   activeColors: [Color!]!
+
+  """
+  All References's all active generic statuses
+  """
   activeTypes: [Type!]!
+
+  """
+  All References's all colors
+  """
   colors: [Color!]!
+
+  """
+  All References's all references
+  """
   references: [Reference!]!
+
+  """
+  All References's all types
+  """
   types: [Type!]!
 }
 
@@ -22,7 +41,7 @@ type Author {
 
 input AuthorInput {
   """
-  Author's optional id
+  Author's id
   """
   _id: Id
   firstName: String!
@@ -31,7 +50,7 @@ input AuthorInput {
 
 input AuthorPartialInput {
   """
-  Author's optional id
+  Author's id
   """
   _id: Id
   firstName: String
@@ -85,7 +104,7 @@ enum ColorEnum {
 
 input ColorPartialInput {
   """
-  Color's optional id
+  Color's id
   """
   _id: Id
 
@@ -273,7 +292,7 @@ type Post {
 
 input PostInput {
   """
-  Post's optional id
+  Post's id
   """
   _id: Id
 
@@ -325,7 +344,7 @@ input PostInput {
 
 input PostPartialInput {
   """
-  Post's optional id
+  Post's id
   """
   _id: Id
 
@@ -428,6 +447,9 @@ type PostVersion {
 }
 
 type Query {
+  """
+  References : All references query
+  """
   AllReferences: AllReferences!
 
   """
@@ -734,7 +756,7 @@ enum ReferenceEnum {
 
 input ReferencePartialInput {
   """
-  Reference's optional id
+  Reference's id
   """
   _id: Id
 
@@ -812,7 +834,7 @@ enum TypeEnum {
 
 input TypePartialInput {
   """
-  Type's optional id
+  Type's id
   """
   _id: Id
 

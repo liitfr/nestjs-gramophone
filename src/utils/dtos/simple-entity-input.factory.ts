@@ -11,68 +11,71 @@ import {
   checkIfIsTrackable,
 } from '../entities/simple-entity.decorator';
 
-interface Options {
+interface Options<E> {
   isIdMandatory?: boolean;
   removeTrackable?: boolean;
+  removeFields?: readonly (keyof E)[];
+  addFields?: Type<unknown>[];
 }
 
-export function SimpleEntityInputFactory(
-  Entity: Type<Idable | Trackable | any>,
-  { isIdMandatory = false, removeTrackable = true }: Options = {
+// BUG : fix typing that is brut force casted to Partial<R>
+export function SimpleEntityInputFactory<E>(
+  Entity: Type<E>,
+  {
+    isIdMandatory = false,
+    removeTrackable = true,
+    removeFields,
+    addFields,
+  }: Options<E> = {
     isIdMandatory: false,
     removeTrackable: true,
   },
-) {
-  if (!isIdMandatory && checkIfIsIdable(Entity)) {
-    const entityMetadata = getEntityMetadata(Entity);
+): Type<Partial<E>> {
+  const entityMetadata = getEntityMetadata(Entity);
 
-    if (!entityMetadata) {
-      throw new Error(
-        'Entity ' + entityMetadata.entityName + ' has no metadata.',
-      );
-    }
+  const { entityDescription } = entityMetadata;
 
-    const { entityDescription } = entityMetadata;
-
-    @InputType()
-    class ClassOptionalId {
-      @Field(() => IdScalar, {
-        nullable: true,
-        description:
-          `${entityDescription}'s optional id` ??
-          'Optional Reference Identifier',
-      })
-      readonly _id?: Id;
-    }
-
-    if (removeTrackable && checkIfIsTrackable(Entity)) {
-      return IntersectionType(
-        OmitType(Entity, [
-          'createdAt',
-          'updatedAt',
-          'creatorId',
-          'updaterId',
-          '_id',
-        ] as const),
-        ClassOptionalId,
-        InputType,
-      );
-    } else {
-      return IntersectionType(
-        OmitType(Entity, ['_id'] as const),
-        ClassOptionalId,
-        InputType,
-      );
-    }
-  } else {
-    if (removeTrackable && checkIfIsTrackable(Entity)) {
-      return OmitType(
-        Entity,
-        ['createdAt', 'updatedAt', 'creatorId', 'updaterId'] as const,
-        InputType,
-      );
-    } else {
-      return OmitType(Entity, [] as const, InputType);
-    }
+  @InputType({ isAbstract: true })
+  class OptionalIdField {
+    @Field(() => IdScalar, {
+      nullable: true,
+      description: `${entityDescription}'s id`,
+    })
+    readonly _id?: Id;
   }
+
+  let Result: Type<Partial<E>> = OmitType(Entity, [] as const);
+
+  if (!isIdMandatory && checkIfIsIdable(Entity)) {
+    Result = OmitType(
+      Result as unknown as Type<Idable>,
+      ['_id'] as const,
+    ) as unknown as Type<Partial<E>>;
+    Result = IntersectionType(Result, OptionalIdField);
+  }
+
+  if (removeTrackable && checkIfIsTrackable(Entity)) {
+    Result = OmitType(
+      Result as unknown as Type<Trackable>,
+      ['createdAt', 'updatedAt', 'creatorId', 'updaterId'] as const,
+    ) as unknown as Type<Partial<E>>;
+  }
+
+  if (removeFields) {
+    Result = OmitType(Result, removeFields) as unknown as Type<Partial<E>>;
+  }
+
+  Result = OmitType(Result, [], InputType) as unknown as Type<Partial<E>>;
+
+  if (!isIdMandatory && checkIfIsIdable(Entity)) {
+    Result = IntersectionType(Result, OptionalIdField);
+  }
+
+  if (addFields) {
+    addFields.forEach((field) => {
+      Result = IntersectionType(Result, field);
+    });
+  }
+
+  return Result;
 }

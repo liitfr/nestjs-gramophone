@@ -1,5 +1,4 @@
 import { Inject, SetMetadata, Type } from '@nestjs/common';
-import { UserInputError } from 'apollo-server-express';
 
 import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
 import {
@@ -8,6 +7,7 @@ import {
   getReferenceMetadata,
 } from '../../utils/references/reference.util';
 import { pascalCase } from '../../utils/string.util';
+import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 
 import { ReferencesService } from '../services/references.service';
 
@@ -35,24 +35,33 @@ export function SimpleReferenceServiceFactory(
           })
         )?.[0];
         if (!reference) {
-          throw new UserInputError('No reference for this version.', {
-            service: 'simpleReferenceService',
-            method: 'findAllForAVersion',
-            version,
-            userFriendly: "Il n'existe pas de référence pour cette version.",
-          });
+          throw new CustomError(
+            'No reference for this version.',
+            ErrorCode.NOT_FOUND,
+            {
+              fr: "Il n'existe pas de référence pour cette version.",
+            },
+            {
+              service: 'simpleReferenceService',
+              method: 'findAllForAVersion',
+              version,
+            },
+          );
         }
         version = reference.version;
       }
       const result = await this.repository.find({ version }, { index: 1 });
       if (result.length === 0) {
-        throw new UserInputError(
+        throw new CustomError(
           'No ' + referenceDescription + ' for this version.',
+          ErrorCode.NOT_FOUND,
+          {
+            fr: "Il n'existe pas de référence pour cette version.",
+          },
           {
             service: 'simpleReferenceService',
             method: 'findAllForAVersion',
             version,
-            userFriendly: "Il n'existe pas de référence pour cette version.",
           },
         );
       }
