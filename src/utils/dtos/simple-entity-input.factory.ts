@@ -18,6 +18,8 @@ interface Options<E> {
   addFields?: Type<unknown>[];
 }
 
+export { Options as SimpleEntityInputFactoryOptions };
+
 // BUG : fix typing that is brut force casted to Partial<R>
 export function SimpleEntityInputFactory<E>(
   Entity: Type<E>,
@@ -46,6 +48,10 @@ export function SimpleEntityInputFactory<E>(
 
   let Result: Type<Partial<E>> = OmitType(Entity, [] as const);
 
+  if (removeFields) {
+    Result = OmitType(Result, removeFields) as unknown as Type<Partial<E>>;
+  }
+
   if (!isIdMandatory && checkIfIsIdable(Entity)) {
     Result = OmitType(
       Result as unknown as Type<Idable>,
@@ -59,10 +65,6 @@ export function SimpleEntityInputFactory<E>(
       Result as unknown as Type<Trackable>,
       ['createdAt', 'updatedAt', 'creatorId', 'updaterId'] as const,
     ) as unknown as Type<Partial<E>>;
-  }
-
-  if (removeFields) {
-    Result = OmitType(Result, removeFields) as unknown as Type<Partial<E>>;
   }
 
   Result = OmitType(Result, [], InputType) as unknown as Type<Partial<E>>;

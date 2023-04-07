@@ -1,11 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types as MongooseTypes } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
-import { IdScalar } from '../../utils/scalars/id.scalar';
-import { Id } from '../../utils/id.type';
 import { Type } from '../../references/entities/type.entity';
-import { AddReferences } from '../../references/decorators/add-references.decorator';
+import { AddRelations } from '../../utils/relations/add-relations.decorator';
 import { Color } from '../../references/entities/color.entity';
 import {
   Idable,
@@ -13,14 +11,16 @@ import {
   SimpleEntity,
   Trackable,
 } from '../../utils/entities/simple-entity.decorator';
+import { Author } from './author.entity';
 
 export type PostDocument = HydratedDocument<Post>;
 
 @ObjectType()
 @Schema()
-@AddReferences([
-  { Reference: Type, partitionQueries: true },
-  { Reference: Color, partitionQueries: true, nullable: true },
+@AddRelations([
+  { Relation: Type, partitionQueries: true },
+  { Relation: Color, partitionQueries: true, nullable: true },
+  Author,
 ])
 @SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
 export class Post {
@@ -35,18 +35,6 @@ export class Post {
   // @Field(() => [Line], { nullable: false })
   // @Prop(() => [LineSchema])
   // lines: Line[];
-
-  @Field(() => IdScalar, {
-    nullable: false,
-    description: "Post's author id",
-  })
-  @Prop({
-    type: MongooseTypes.ObjectId,
-    ref: 'Author',
-    autopopulate: false,
-    required: true,
-  })
-  authorId: Id;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

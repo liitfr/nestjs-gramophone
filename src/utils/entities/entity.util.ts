@@ -4,8 +4,8 @@ import { addSpaceToPascalCase } from '../string.util';
 
 export const ENTITY_METADATA = Symbol('entityMetadata');
 
-export interface EntityReference {
-  Reference: Type<unknown>;
+export interface EntityRelation {
+  Relation: Type<unknown>;
   nullable?: boolean;
   resolve?: boolean;
   partitionQueries?: boolean;
@@ -16,11 +16,14 @@ export interface EntityReference {
 }
 
 export interface EntityMetadata {
-  entityName?: string;
+  entityToken: symbol;
   entityDescription?: string;
   entityEnhancers?: string[];
-  entityReferences?: EntityReference[];
-  EntityService?: Type<unknown>;
+  entityRelations?: EntityRelation[];
+  EntityPartition?: Record<string, string>;
+  entityPartitioner?: string;
+  entityServiceToken?: symbol;
+  entityRepositoryToken?: symbol;
 }
 
 export const enhancerCheckerFactory =
@@ -48,11 +51,7 @@ export const isEntityDecorated = (Entity: Type): boolean =>
 export const getEntityMetadata = (Entity: Type): EntityMetadata => {
   const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
   return {
-    entityName: Entity.name,
     entityDescription: addSpaceToPascalCase(Entity.name),
-    entityEnhancers: [],
-    entityReferences: [],
-    EntityService: null,
     ...entityMetadata,
   };
 };

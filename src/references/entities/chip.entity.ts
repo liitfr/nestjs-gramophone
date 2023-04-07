@@ -29,4 +29,6 @@ export class Chip {
   icon: IconEnum;
 }
 
-export const ChipSchema = SchemaFactory.createForClass(Chip);
+export const ChipSchemas = {
+  noIndex: SchemaFactory.createForClass(Chip),
+};

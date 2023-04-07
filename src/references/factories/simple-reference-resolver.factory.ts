@@ -4,7 +4,7 @@ import { Query, Resolver } from '@nestjs/graphql';
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { getServiceMetadata } from '../../utils/services/service.util';
-import { getReferenceMetadata } from '../../utils/references/reference.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { Repository } from '../../data/abstracts/repository.abstract';
 
 interface Options {
@@ -32,13 +32,17 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     options,
   );
 
-  const referenceMetadata = getReferenceMetadata(Reference);
+  const referenceMetadata = getEntityMetadata(Reference);
   const serviceMetadata = getServiceMetadata(Service);
 
-  const { referenceName, referenceDescription, ReferencePartitioner } =
-    referenceMetadata;
+  const {
+    entityToken: referenceToken,
+    entityDescription: referenceDescription,
+    entityPartitioner: referencePartitioner,
+    EntityPartition: ReferencePartition,
+  } = referenceMetadata;
 
-  const pCPName = pluralize(pascalCase(referenceName));
+  const pCPName = pluralize(pascalCase(referenceToken.description));
   const findAllActiveQueryName = `findAllActive${pCPName}`;
 
   @Resolver(() => Reference)
@@ -46,13 +50,13 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     @Query(() => [Reference], {
       name: findAllActiveQueryName,
       nullable: false,
-      description: `${referenceName} : Find all active query`,
+      description: `${referenceToken.description} : Find all active query`,
     })
     async [findAllActiveQueryName]() {
       if (!this.simpleService[findAllActiveQueryName]) {
         throw new Error(
           'The service ' +
-            serviceMetadata.serviceName +
+            serviceMetadata.serviceToken.description +
             ' does not implement the method ' +
             findAllActiveQueryName,
         );
@@ -62,16 +66,23 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
   }
 
   if (!options.noPartition) {
-    Object.entries(ReferencePartitioner).forEach(([key]) => {
+    if (!ReferencePartition || !referencePartitioner) {
+      throw new Error(
+        "Can't partition query since partition or partitioner is missing for " +
+          referenceToken.description,
+      );
+    }
+
+    Object.entries(ReferencePartition).forEach(([key]) => {
       const pCKey = pascalCase(key);
       const serviceMethodName = `find${pCKey}`;
-      const queryName = `find${referenceName}${pCKey}`;
+      const queryName = `find${referenceToken.description}${pCKey}`;
 
       Object.defineProperty(SimpleReferenceResolver.prototype, queryName, {
         value: async function () {
           if (!this.simpleService[serviceMethodName]) {
             throw new Error(
-              `The service ${serviceMetadata.serviceName} does not implement the method ${serviceMethodName}`,
+              `The service ${serviceMetadata.serviceToken.description} does not implement the method ${serviceMethodName}`,
             );
           }
           return (await this.simpleService[serviceMethodName]?.())?.[0];

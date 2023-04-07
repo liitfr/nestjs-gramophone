@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { VersioningModule } from '../versioning/versioning.module';
+import { ReferencesModule } from '../references/references.module';
+import { MongoRepositoryFactory } from '../data/factories/mongo-repository.factory';
 
 import { Author, AuthorSchema } from './entities/author.entity';
 import { Post, PostSchema } from './entities/post.entity';
 import { AuthorsResolver } from './resolvers/authors.resolver';
 import { PostsResolver } from './resolvers/posts.resolver';
-import { PostsService } from './services/posts.service';
-import { AuthorsService } from './services/authors.service';
-import { ReferencesModule } from '../references/references.module';
-import { MongoRepositoryFactory } from '../data/factories/mongo-repository.factory';
+import { PostsServiceProviders } from './services/posts.service';
+import { AuthorsServiceProviders } from './services/authors.service';
 
 @Module({
   imports: [
@@ -24,8 +24,8 @@ import { MongoRepositoryFactory } from '../data/factories/mongo-repository.facto
   providers: [
     MongoRepositoryFactory(Author),
     MongoRepositoryFactory(Post),
-    PostsService,
-    AuthorsService,
+    ...PostsServiceProviders,
+    ...AuthorsServiceProviders,
     PostsResolver,
     AuthorsResolver,
   ],

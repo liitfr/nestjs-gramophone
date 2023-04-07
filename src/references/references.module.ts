@@ -3,9 +3,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { MongoRepositoryFactory } from '../data/factories/mongo-repository.factory';
 
-import { TypesService } from './services/types.service';
-import { ColorsService } from './services/colors.service';
-import { ReferencesService } from './services/references.service';
+import { TypesServiceProviders } from './services/types.service';
+import { ColorsServiceProviders } from './services/colors.service';
+import { ReferencesServiceProviders } from './services/references.service';
 import { TypesResolver } from './resolvers/types.resolver';
 import { ColorsResolver } from './resolvers/colors.resolver';
 import { ReferencesResolver } from './resolvers/references.resolver';
@@ -13,16 +13,6 @@ import { AllReferencesResolver } from './resolvers/all-references.resolver';
 import { Type, TypeSchema } from './entities/type.entity';
 import { Color, ColorSchema } from './entities/color.entity';
 import { Reference, ReferenceSchema } from './entities/reference.entity';
-
-const TypesServiceAlias = {
-  provide: 'TypesService',
-  useExisting: TypesService,
-};
-
-const ColorsServiceAlias = {
-  provide: 'ColorsService',
-  useExisting: ColorsService,
-};
 
 @Module({
   imports: [
@@ -36,22 +26,18 @@ const ColorsServiceAlias = {
     MongoRepositoryFactory(Type),
     MongoRepositoryFactory(Color),
     MongoRepositoryFactory(Reference),
-    TypesService,
-    TypesServiceAlias,
-    ColorsService,
-    ColorsServiceAlias,
-    ReferencesService,
+    ...TypesServiceProviders,
+    ...ColorsServiceProviders,
+    ...ReferencesServiceProviders,
     TypesResolver,
     ColorsResolver,
     ReferencesResolver,
     AllReferencesResolver,
   ],
   exports: [
-    ReferencesService,
-    ColorsServiceAlias,
-    TypesServiceAlias,
-    ColorsService,
-    TypesService,
+    ...TypesServiceProviders,
+    ...ColorsServiceProviders,
+    ...ReferencesServiceProviders,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

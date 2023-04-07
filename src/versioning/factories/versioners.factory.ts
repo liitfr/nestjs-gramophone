@@ -20,34 +20,41 @@ function VersioningServiceFactory(
 
 export const createVersioners = () => {
   const entities = [];
-  const providers: Provider<VersioningService<unknown>>[] = [VersioningService];
-  for (const { repositoryName, Entity } of versioners) {
-    const { EntityVersion, EntityVersionSchema } =
+  const services: Provider<VersioningService<unknown>>[] = [VersioningService];
+  for (const { versioningServiceToken, Entity } of versioners) {
+    const { EntityVersion, EntityVersionSchemas } =
       VersioningEntityFactory(Entity);
 
-    const entityVersionName = getEntityMetadata(EntityVersion)?.entityName;
+    const entityVersionName =
+      getEntityMetadata(EntityVersion)?.entityToken?.description;
+
+    if (!entityVersionName) {
+      throw new Error('Entity version name not found');
+    }
 
     entities.push({
       name: entityVersionName,
-      schema: EntityVersionSchema,
+      schema: EntityVersionSchemas.noIndex,
     });
 
-    const providerName = `VersioningServiceFor${repositoryName}`;
-
-    providers.push({
-      provide: providerName,
+    services.push({
+      provide: versioningServiceToken,
       useFactory: VersioningServiceFactory,
       inject: [
         VersioningService,
         { token: getModelToken(entityVersionName), optional: false },
       ],
     });
-    const resolver = VersioningResolverFactory(EntityVersion, providerName);
-    providers.push(resolver);
+
+    const resolver = VersioningResolverFactory(
+      EntityVersion,
+      versioningServiceToken,
+    );
+    services.push(resolver);
   }
 
   return {
     imports: [MongooseModule.forFeature(entities)],
-    providers,
+    providers: services,
   };
 };

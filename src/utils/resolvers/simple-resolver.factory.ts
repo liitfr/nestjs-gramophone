@@ -23,179 +23,195 @@ import {
 import { Id } from '../id.type';
 import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
 import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
-import { getReferenceMetadata } from '../references/reference.util';
 
 interface Options {
   noMutation?: boolean;
 }
 
-const addReferenceResolvers = (
+const addRelationResolvers = (
   Resolver: Type<unknown>,
   Entity: Type<unknown>,
 ) => {
-  const { entityReferences, entityDescription, entityName } =
+  const { entityRelations, entityDescription, entityToken } =
     getEntityMetadata(Entity);
 
-  entityReferences.forEach((reference) => {
-    const {
-      Reference,
-      idName,
-      partitionQueries,
-      resolve,
-      resolvedName,
-      resolvedDescription,
-      nullable,
-    } = reference;
-
-    if (resolve || partitionQueries) {
+  if (entityRelations && entityRelations.length) {
+    entityRelations.forEach((relation) => {
       const {
-        ReferencePartitioner,
-        referenceName,
-        referenceDescription,
-        referenceServiceName,
-      } = getReferenceMetadata(Reference);
-      if (!referenceServiceName) {
-        throw new Error(
-          `The reference ${referenceName} does not have a service`,
-        );
-      }
+        Relation,
+        idName,
+        partitionQueries,
+        resolve,
+        resolvedName,
+        resolvedDescription,
+        nullable,
+      } = relation;
 
-      const referenceServicePropertyName = camelCase(referenceServiceName);
+      if (resolve || partitionQueries) {
+        const {
+          entityToken: relationToken,
+          entityDescription: relationDescription,
+          EntityPartition: RelationPartition,
+          entityPartitioner: RelationPartitioner,
+          entityServiceToken: relationServiceToken,
+        } = getEntityMetadata(Relation);
 
-      if (!Resolver[referenceServicePropertyName]) {
-        Object.defineProperty(
-          Resolver.prototype,
-          referenceServicePropertyName,
-          {
-            writable: true,
-            enumerable: true,
-            configurable: true,
-          },
-        );
-
-        const referenceServiceInjector = Inject(referenceServiceName);
-        referenceServiceInjector(
-          Resolver.prototype,
-          referenceServicePropertyName,
-        );
-      }
-
-      if (resolve) {
-        Object.defineProperty(Resolver.prototype, resolvedName, {
-          value: async function (parent: unknown) {
-            if (!parent[idName]) {
-              throw new Error(
-                'The parent object does not have the property ' + idName,
-              );
-            }
-            const id = parent?.[idName];
-            return this[referenceServicePropertyName].findById(id);
-          },
-          writable: true,
-          enumerable: true,
-          configurable: true,
-        });
-        ResolveField(() => Reference, {
-          name: resolvedName,
-          nullable,
-          description: `${entityDescription}'s ${lowerCaseFirstLetter(
-            resolvedDescription,
-          )}`,
-        })(
-          Resolver.prototype,
-          resolvedName,
-          Object.getOwnPropertyDescriptor(Resolver.prototype, resolvedName),
-        );
-      }
-
-      if (partitionQueries) {
-        const pCReferenceName = pascalCase(referenceName);
-        Object.entries(ReferencePartitioner).forEach(([key]) => {
-          const pCPartitioner = pascalCase(key);
-          const resolverFindAllMethodName = `findAll${pascalCase(
-            pluralize(entityName),
-          )}With${pCPartitioner}${pCReferenceName}`;
-          const serviceFindAllMethodName = `findAllWith${pCPartitioner}${pCReferenceName}`;
-
-          Object.defineProperty(Resolver.prototype, resolverFindAllMethodName, {
-            value: async function () {
-              if (!this.simpleService[serviceFindAllMethodName]) {
-                throw new Error(
-                  `The method ${serviceFindAllMethodName} does not exist in the service ${referenceServiceName}`,
-                );
-              }
-              return this.simpleService[serviceFindAllMethodName]();
-            },
-            writable: true,
-            enumerable: true,
-            configurable: true,
-          });
-
-          Query(() => [Entity], {
-            nullable: false,
-            description: `${entityDescription}: Find all with ${pCPartitioner} ${referenceDescription} query`,
-            name: resolverFindAllMethodName,
-          })(
-            Resolver.prototype,
-            resolverFindAllMethodName,
-            Object.getOwnPropertyDescriptor(
-              Resolver.prototype,
-              resolverFindAllMethodName,
-            ),
+        if (!relationServiceToken) {
+          throw new Error(
+            `The entity ${relationToken.description} does not have a service`,
           );
+        }
 
-          const resolverCountAllMethodName = `countAll${pascalCase(
-            pluralize(entityName),
-          )}With${pCPartitioner}${pCReferenceName}`;
-          const serviceCountAllMethodName = `countAllWith${pCPartitioner}${pCReferenceName}`;
+        const relationServicePropertyName = camelCase(
+          relationServiceToken.description,
+        );
 
+        if (!Resolver[relationServicePropertyName]) {
           Object.defineProperty(
             Resolver.prototype,
-            resolverCountAllMethodName,
+            relationServicePropertyName,
             {
-              value: async function () {
-                if (!this.simpleService[serviceCountAllMethodName]) {
-                  throw new Error(
-                    `The method ${serviceCountAllMethodName} does not exist in the service ${referenceServiceName}`,
-                  );
-                }
-                return this.simpleService[serviceCountAllMethodName]();
-              },
               writable: true,
               enumerable: true,
               configurable: true,
             },
           );
 
-          Query(() => Int, {
-            nullable: false,
-            description: `${entityDescription} : Count all with ${pCPartitioner} ${referenceDescription} query`,
-            name: resolverCountAllMethodName,
+          const relationServiceInjector = Inject(relationServiceToken);
+          relationServiceInjector(
+            Resolver.prototype,
+            relationServicePropertyName,
+          );
+        }
+
+        if (resolve) {
+          Object.defineProperty(Resolver.prototype, resolvedName, {
+            value: async function (parent: unknown) {
+              if (!parent[idName]) {
+                throw new Error(
+                  'The parent object does not have the property ' + idName,
+                );
+              }
+              const id = parent?.[idName];
+              return this[relationServicePropertyName].findById(id);
+            },
+            writable: true,
+            enumerable: true,
+            configurable: true,
+          });
+
+          ResolveField(() => Relation, {
+            name: resolvedName,
+            nullable,
+            description: `${entityDescription}'s ${lowerCaseFirstLetter(
+              resolvedDescription,
+            )}`,
           })(
             Resolver.prototype,
-            resolverCountAllMethodName,
-            Object.getOwnPropertyDescriptor(
+            resolvedName,
+            Object.getOwnPropertyDescriptor(Resolver.prototype, resolvedName),
+          );
+        }
+
+        if (partitionQueries) {
+          if (!RelationPartition || !RelationPartitioner) {
+            throw new Error(
+              `The entity ${relationServiceToken.description} does not have a partitioner`,
+            );
+          }
+
+          const pCRelationName = pascalCase(relationToken.description);
+          Object.entries(RelationPartition).forEach(([key]) => {
+            const pCPartition = pascalCase(key);
+            const resolverFindAllMethodName = `findAll${pascalCase(
+              pluralize(entityToken.description),
+            )}With${pCPartition}${pCRelationName}`;
+            const serviceFindAllMethodName = `findAllWith${pCPartition}${pCRelationName}`;
+
+            Object.defineProperty(
+              Resolver.prototype,
+              resolverFindAllMethodName,
+              {
+                value: async function () {
+                  if (!this.simpleService[serviceFindAllMethodName]) {
+                    throw new Error(
+                      `The method ${serviceFindAllMethodName} does not exist in the service ${relationServiceToken.description}`,
+                    );
+                  }
+                  return this.simpleService[serviceFindAllMethodName]();
+                },
+                writable: true,
+                enumerable: true,
+                configurable: true,
+              },
+            );
+
+            Query(() => [Entity], {
+              nullable: false,
+              description: `${entityDescription}: Find all with ${pCPartition} ${relationDescription} query`,
+              name: resolverFindAllMethodName,
+            })(
+              Resolver.prototype,
+              resolverFindAllMethodName,
+              Object.getOwnPropertyDescriptor(
+                Resolver.prototype,
+                resolverFindAllMethodName,
+              ),
+            );
+
+            const resolverCountAllMethodName = `countAll${pascalCase(
+              pluralize(entityToken.description),
+            )}With${pCPartition}${pCRelationName}`;
+            const serviceCountAllMethodName = `countAllWith${pCPartition}${pCRelationName}`;
+
+            Object.defineProperty(
               Resolver.prototype,
               resolverCountAllMethodName,
-            ),
-          );
-        });
+              {
+                value: async function () {
+                  if (!this.simpleService[serviceCountAllMethodName]) {
+                    throw new Error(
+                      `The method ${serviceCountAllMethodName} does not exist in the service ${relationServiceToken.description}`,
+                    );
+                  }
+                  return this.simpleService[serviceCountAllMethodName]();
+                },
+                writable: true,
+                enumerable: true,
+                configurable: true,
+              },
+            );
+
+            Query(() => Int, {
+              nullable: false,
+              description: `${entityDescription} : Count all with ${pCPartition} ${relationDescription} query`,
+              name: resolverCountAllMethodName,
+            })(
+              Resolver.prototype,
+              resolverCountAllMethodName,
+              Object.getOwnPropertyDescriptor(
+                Resolver.prototype,
+                resolverCountAllMethodName,
+              ),
+            );
+          });
+        }
       }
-    }
-  });
+    });
+  }
 };
 
 export function SimpleResolverFactory<D, S extends Repository<D>>(
   Entity: Type<unknown>,
   Input: Type<unknown>,
   Service: Type<S>,
-  options: Options = {
+  { noMutation = false }: Options = {
     noMutation: false,
   },
 ) {
-  const { entityName, entityDescription } = getEntityMetadata(Entity);
+  const { entityToken, entityDescription } = getEntityMetadata(Entity);
 
-  @InputType(`${entityName}PartialInput`)
+  @InputType(`${entityToken.description}PartialInput`)
   class PartialInput extends PartialType(Input) {}
 
   @Resolver(() => Entity)
@@ -206,7 +222,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => Entity, {
       nullable: false,
       description: `${entityDescription} : Find one query`,
-      name: `findOne${pascalCase(entityName)}`,
+      name: `findOne${pascalCase(entityToken.description)}`,
     })
     async findOne(@Args('id', { type: () => IdScalar }) id: Id): Promise<D> {
       return this.simpleService.findById(id);
@@ -215,7 +231,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => [Entity], {
       nullable: false,
       description: `${entityDescription} : Find all query`,
-      name: `findAll${pluralize(pascalCase(entityName))}`,
+      name: `findAll${pluralize(pascalCase(entityToken.description))}`,
     })
     async findAll(): Promise<D[]> {
       return this.simpleService.findAll();
@@ -224,7 +240,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => [Entity], {
       nullable: false,
       description: `${entityDescription} : Find some query`,
-      name: `findSome${pluralize(pascalCase(entityName))}`,
+      name: `findSome${pluralize(pascalCase(entityToken.description))}`,
     })
     async findSome(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -235,7 +251,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => Int, {
       nullable: false,
       description: `${entityDescription} : Count all query`,
-      name: `countAll${pluralize(pascalCase(entityName))}`,
+      name: `countAll${pluralize(pascalCase(entityToken.description))}`,
     })
     async countAll(): Promise<number> {
       return this.simpleService.countAll();
@@ -244,7 +260,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => Int, {
       nullable: false,
       description: `${entityDescription} : Count some query`,
-      name: `countSome${pluralize(pascalCase(entityName))}`,
+      name: `countSome${pluralize(pascalCase(entityToken.description))}`,
     })
     async countSome(
       @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -253,17 +269,17 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     }
   }
 
-  if (!options.noMutation) {
+  if (!noMutation) {
     @Resolver(() => Entity)
     class ResolverWithAutoSetters extends ResolverWithAutoGetters {
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Create mutation`,
-        name: `create${pascalCase(entityName)}`,
+        name: `create${pascalCase(entityToken.description)}`,
       })
       async create(
         @Args(
-          camelCase(entityName),
+          camelCase(entityToken.description),
           {
             type: () => Input,
           },
@@ -277,7 +293,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Update one mutation`,
-        name: `updateOne${pascalCase(entityName)}`,
+        name: `updateOne${pascalCase(entityToken.description)}`,
       })
       async updateOne(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -290,7 +306,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Update many mutation`,
-        name: `updateMany${pluralize(pascalCase(entityName))}`,
+        name: `updateMany${pluralize(pascalCase(entityToken.description))}`,
       })
       async updateMany(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -303,7 +319,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Find one and update mutation`,
-        name: `findOneAndUpdate${pascalCase(entityName)}`,
+        name: `findOneAndUpdate${pascalCase(entityToken.description)}`,
       })
       async findOneAndUpdte(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -316,7 +332,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Remove mutation`,
-        name: `remove${pluralize(pascalCase(entityName))}`,
+        name: `remove${pluralize(pascalCase(entityToken.description))}`,
       })
       async remove(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
@@ -325,10 +341,10 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       }
     }
 
-    addReferenceResolvers(ResolverWithAutoSetters, Entity);
+    addRelationResolvers(ResolverWithAutoSetters, Entity);
     return ResolverWithAutoSetters;
   }
 
-  addReferenceResolvers(ResolverWithAutoGetters, Entity);
+  addRelationResolvers(ResolverWithAutoGetters, Entity);
   return ResolverWithAutoGetters;
 }

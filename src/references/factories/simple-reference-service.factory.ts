@@ -1,28 +1,29 @@
 import { Inject, SetMetadata, Type } from '@nestjs/common';
 
 import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
-import {
-  REFERENCE_METADATA,
-  ReferenceMetadata,
-  getReferenceMetadata,
-} from '../../utils/references/reference.util';
-import { pascalCase } from '../../utils/string.util';
+import { pascalCase, pluralize } from '../../utils/string.util';
 import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
+import {
+  ENTITY_METADATA,
+  EntityMetadata,
+  getEntityMetadata,
+} from '../../utils/entities/entity.util';
 
 import { ReferencesService } from '../services/references.service';
+import {
+  SERVICE_METADATA,
+  ServiceMetadata,
+} from '../../utils/services/service.util';
 
-export function SimpleReferenceServiceFactory(
-  Reference: Type<unknown>,
-  serviceName: string,
-) {
-  const referenceMetadata = getReferenceMetadata(Reference);
+export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
+  const entityMetadata = getEntityMetadata(Reference);
 
-  const { referenceName, referenceDescription, ReferencePartitioner } =
-    referenceMetadata;
+  const { entityToken, entityDescription, EntityPartition, entityPartitioner } =
+    entityMetadata;
 
-  const SimpleService = SimpleServiceFactory(Reference);
+  const { Service } = SimpleServiceFactory(Reference);
 
-  class SimpleReferenceService extends SimpleService {
+  class SimpleReferenceService extends Service {
     @Inject(ReferencesService)
     public readonly referencesService?: ReferencesService;
 
@@ -31,7 +32,7 @@ export function SimpleReferenceServiceFactory(
       if (!version) {
         const reference = (
           await this.referencesService.find({
-            code: referenceName,
+            code: entityToken.description,
           })
         )?.[0];
         if (!reference) {
@@ -53,7 +54,7 @@ export function SimpleReferenceServiceFactory(
       const result = await this.repository.find({ version }, { index: 1 });
       if (result.length === 0) {
         throw new CustomError(
-          'No ' + referenceDescription + ' for this version.',
+          'No ' + entityDescription + ' for this version.',
           ErrorCode.NOT_FOUND,
           {
             fr: "Il n'existe pas de référence pour cette version.",
@@ -73,12 +74,21 @@ export function SimpleReferenceServiceFactory(
     }
   }
 
-  Object.entries(ReferencePartitioner).forEach(([key]) => {
+  if (
+    (!EntityPartition && entityPartitioner) ||
+    (EntityPartition && !entityPartitioner)
+  ) {
+    throw new Error(
+      'EntityPartition and entityPartitioner must be both defined or both undefined.',
+    );
+  }
+
+  Object.entries(EntityPartition).forEach(([key]) => {
     const pCKey = pascalCase(key);
 
     Object.defineProperty(SimpleReferenceService.prototype, `find${pCKey}`, {
       value: async function () {
-        return (await this.repository.find({ code: key }))?.[0];
+        return (await this.repository.find({ [entityPartitioner]: key }))?.[0];
       },
       writable: true,
       enumerable: true,
@@ -95,10 +105,21 @@ export function SimpleReferenceServiceFactory(
     });
   });
 
-  SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
-    ...referenceMetadata,
-    referenceServiceName: serviceName,
+  const serviceToken = Symbol(
+    `${pluralize(pascalCase(entityToken.description))}Service`,
+  );
+
+  SetMetadata<symbol, ServiceMetadata>(SERVICE_METADATA, {
+    serviceToken,
+  })(SimpleReferenceService);
+
+  SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+    ...entityMetadata,
+    entityServiceToken: serviceToken,
   })(Reference);
 
-  return SimpleReferenceService;
+  return {
+    Service: SimpleReferenceService,
+    serviceToken,
+  };
 }

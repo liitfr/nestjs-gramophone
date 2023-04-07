@@ -15,30 +15,51 @@ import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 
 export function VersioningEntityFactory(Entity: Type<unknown>) {
   const originalMetadata = getEntityMetadata(Entity);
-  const { entityName, entityDescription } = originalMetadata;
+  const {
+    entityToken: versionedEntityToken,
+    entityDescription: versionedEntityDescription,
+  } = originalMetadata;
 
   const EntitySchema = SchemaFactory.createForClass(Entity);
 
-  const newEntityName = `${entityName}Version`;
-  const newEntityDescription = `${entityDescription} Version`;
+  const versioningEntityToken = Symbol(
+    `${versionedEntityToken.description}Version`,
+  );
+  const versioningEntityServiceToken = Symbol(
+    `${versionedEntityToken.description}VersionsService`,
+  );
+  const versioningEntityRepositoryToken = Symbol(
+    `${versionedEntityToken.description}VersionsRepository`,
+  );
+  const versioningEntityDescription = `${versionedEntityDescription} Version`;
 
-  @ObjectType(newEntityName)
+  @ObjectType(versioningEntityToken.description)
   @Schema({
-    collection: generateCollectionName(newEntityName),
+    collection: generateCollectionName(versioningEntityToken.description),
+  })
+  // set metadata after simple entity decorator
+  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+    entityToken: versioningEntityToken,
+    entityDescription: versioningEntityDescription,
+    entityServiceToken: versioningEntityServiceToken,
+    entityRepositoryToken: versioningEntityRepositoryToken,
   })
   @SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
+  // set metadata before simple entity decorator
   @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-    entityName: newEntityName,
-    entityDescription: newEntityDescription,
+    entityToken: versioningEntityToken,
+    entityDescription: versioningEntityDescription,
+    entityServiceToken: versioningEntityServiceToken,
+    entityRepositoryToken: versioningEntityRepositoryToken,
   })
   class EntityVersion {
     @Field(() => IdScalar, {
       nullable: false,
-      description: `${newEntityDescription}'s original id`,
+      description: `${versioningEntityDescription}'s original id`,
     })
     @Prop({
       type: MongooseSchema.Types.ObjectId,
-      ref: entityName,
+      ref: versionedEntityToken.description,
       autopopulate: false,
       required: true,
     })
@@ -46,13 +67,15 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
 
     @Field(() => Entity, {
       nullable: false,
-      description: `${newEntityDescription}'s version`,
+      description: `${versioningEntityDescription}'s version`,
     })
     @Prop({ type: EntitySchema, required: true })
     version: typeof Entity;
   }
 
-  const EntityVersionSchema = SchemaFactory.createForClass(EntityVersion);
+  const EntityVersionSchemas = {
+    noIndex: SchemaFactory.createForClass(EntityVersion),
+  };
 
-  return { EntityVersion, EntityVersionSchema };
+  return { EntityVersion, EntityVersionSchemas };
 }

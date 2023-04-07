@@ -1,5 +1,4 @@
 import { Inject, SetMetadata, Type } from '@nestjs/common';
-import { HydratedDocument } from 'mongoose';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import {
@@ -9,13 +8,10 @@ import {
 } from '../../data/abstracts/operations.abstract';
 import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
 
-import {
-  ENTITY_METADATA,
-  EntityMetadata,
-  getEntityMetadata,
-} from '../entities/entity.util';
-import { camelCase, pascalCase, pluralize } from '../string.util';
-import { getReferenceMetadata } from '../references/reference.util';
+import { getEntityMetadata } from '../entities/entity.util';
+import { camelCase, pascalCase } from '../string.util';
+
+import { SERVICE_METADATA, ServiceMetadata } from './service.util';
 
 type SimpleServiceObj<D> = Repository<D> & {
   repository: Repository<D>;
@@ -23,14 +19,18 @@ type SimpleServiceObj<D> = Repository<D> & {
 
 type SimpleService<D> = Type<SimpleServiceObj<D>>;
 
-export const SimpleServiceFactory = <E, D = HydratedDocument<E>>(
-  Entity: Type<E>,
-): SimpleService<D> => {
+interface Return<E> {
+  Service: SimpleService<E>;
+  serviceToken: symbol;
+}
+
+export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
   const entityMetadata = getEntityMetadata(Entity);
-  const { entityName, entityReferences } = entityMetadata;
+  const { entityRelations, entityRepositoryToken, entityServiceToken } =
+    entityMetadata;
 
   class SimpleService<D> implements Repository<D> {
-    @Inject(`${pluralize(pascalCase(entityName))}Repository`)
+    @Inject(entityRepositoryToken)
     public readonly repository: Repository<D>;
 
     @SaveVersionIfEnabled()
@@ -102,19 +102,36 @@ export const SimpleServiceFactory = <E, D = HydratedDocument<E>>(
     }
   }
 
-  if (entityReferences && entityReferences.length) {
-    entityReferences.forEach((reference) => {
-      const { Reference, idName, partitionQueries } = reference;
+  if (entityRelations && entityRelations.length) {
+    entityRelations.forEach((relation) => {
+      const { Relation, idName, partitionQueries } = relation;
 
       if (partitionQueries) {
-        const { ReferencePartitioner, referenceName, referenceServiceName } =
-          getReferenceMetadata(Reference);
-        const referenceServicePropertyName = camelCase(referenceServiceName);
+        const {
+          entityToken: relationToken,
+          entityPartitioner: relationPartitioner,
+          EntityPartition: RelationPartition,
+          entityServiceToken: relationServiceName,
+        } = getEntityMetadata(Relation);
 
-        if (!SimpleService[referenceServicePropertyName]) {
+        if (!RelationPartition || !relationPartitioner) {
+          throw new Error(
+            `The entity ${relationToken.description} does not have a partitioner`,
+          );
+        }
+
+        if (!relationServiceName) {
+          throw new Error(
+            `The entity ${relationToken.description} does not have a service`,
+          );
+        }
+
+        const relationServicePropertyName = camelCase(relationServiceName);
+
+        if (!SimpleService[relationServicePropertyName]) {
           Object.defineProperty(
             SimpleService.prototype,
-            referenceServicePropertyName,
+            relationServicePropertyName,
             {
               writable: true,
               enumerable: true,
@@ -122,26 +139,26 @@ export const SimpleServiceFactory = <E, D = HydratedDocument<E>>(
             },
           );
 
-          const referenceServiceInjector = Inject(referenceServiceName);
-          referenceServiceInjector(
+          const relationServiceInjector = Inject(relationServiceName);
+          relationServiceInjector(
             SimpleService.prototype,
-            referenceServicePropertyName,
+            relationServicePropertyName,
           );
         }
 
-        const pCReferenceName = pascalCase(referenceName);
+        const pCRelationName = pascalCase(relationToken.description);
 
-        Object.entries(ReferencePartitioner).forEach(([key]) => {
-          const pCPartitioner = pascalCase(key);
+        Object.entries(RelationPartition).forEach(([key]) => {
+          const pCPartition = pascalCase(key);
 
           Object.defineProperty(
             SimpleService.prototype,
-            `findAllWith${pCPartitioner}${pCReferenceName}`,
+            `findAllWith${pCPartition}${pCRelationName}`,
             {
               value: async function () {
                 const partitionerId = (
-                  await this[referenceServicePropertyName].find({
-                    code: key,
+                  await this[relationServicePropertyName].find({
+                    [relationPartitioner]: key,
                   })
                 )?.[0]?._id;
                 return this.find({ [idName]: partitionerId });
@@ -154,11 +171,13 @@ export const SimpleServiceFactory = <E, D = HydratedDocument<E>>(
 
           Object.defineProperty(
             SimpleService.prototype,
-            `countAllWith${pCPartitioner}${pCReferenceName}`,
+            `countAllWith${pCPartition}${pCRelationName}`,
             {
               value: async function () {
                 const partitionerId = (
-                  await this[referenceServicePropertyName].find({ code: key })
+                  await this[relationServicePropertyName].find({
+                    [relationPartitioner]: key,
+                  })
                 )?.[0]?._id;
                 return this.count({ [idName]: partitionerId });
               },
@@ -172,10 +191,12 @@ export const SimpleServiceFactory = <E, D = HydratedDocument<E>>(
     });
   }
 
-  SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-    ...entityMetadata,
-    EntityService: SimpleService,
-  })(Entity);
+  SetMetadata<symbol, ServiceMetadata>(SERVICE_METADATA, {
+    serviceToken: entityServiceToken,
+  })(SimpleService);
 
-  return SimpleService;
+  return {
+    Service: SimpleService,
+    serviceToken: entityServiceToken,
+  };
 };

@@ -5,7 +5,7 @@ import { addSpaceToPascalCase } from '../string.util';
 export const REPOSITORY_METADATA = Symbol('repositoryMetadata');
 
 export interface RepositoryMetadata {
-  repositoryName?: string;
+  repositoryToken: symbol;
   repositoryDescription?: string;
 }
 
@@ -18,7 +18,6 @@ export const getRepositoryMetadata = (Repository: Type): RepositoryMetadata => {
     Repository,
   );
   return {
-    repositoryName: Repository.name,
     repositoryDescription: addSpaceToPascalCase(Repository.name),
     ...repositoryMetadata,
   };

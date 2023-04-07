@@ -5,6 +5,7 @@ import { SetMetadata } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
+import { pascalCase, pluralize } from '../string.util';
 
 import {
   ENTITY_METADATA,
@@ -24,13 +25,17 @@ const IS_MEMOABLE = 'isMemoable';
 const IS_TRACKABLE = 'isTrackable';
 
 export function SimpleEntity(
-  options: Options = { isTrackable: false, isMemoable: false, isIdable: false },
+  { isTrackable = false, isMemoable = false, isIdable = false }: Options = {
+    isTrackable: false,
+    isMemoable: false,
+    isIdable: false,
+  },
 ) {
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
     const originalMetadata = getEntityMetadata(constructor);
-    const { entityDescription, entityEnhancers } = originalMetadata;
+    const { entityDescription } = originalMetadata;
 
-    if (options.isTrackable) {
+    if (isTrackable) {
       Object.defineProperties(constructor.prototype, {
         creatorId: { enumerable: true, configurable: true, writable: true },
         updaterId: { enumerable: true, configurable: true, writable: true },
@@ -87,7 +92,7 @@ export function SimpleEntity(
       })(constructor.prototype, 'updatedAt');
     }
 
-    if (options.isMemoable) {
+    if (isMemoable) {
       Object.defineProperties(constructor.prototype, {
         memo: { enumerable: true, configurable: true, writable: true },
         internalMemo: { enumerable: true, configurable: true, writable: true },
@@ -126,7 +131,7 @@ export function SimpleEntity(
       })(constructor.prototype, 'automaticMemo');
     }
 
-    if (options.isIdable) {
+    if (isIdable) {
       Object.defineProperty(constructor.prototype, '_id', {
         enumerable: true,
         configurable: true,
@@ -139,14 +144,27 @@ export function SimpleEntity(
       })(constructor.prototype, '_id');
     }
 
+    const entityToken = Symbol(constructor.name);
+
+    const entityServiceToken = Symbol(
+      `${pluralize(pascalCase(entityToken.description))}Service`,
+    );
+
+    const entityRepositoryToken = Symbol(
+      `${pluralize(pascalCase(entityToken.description))}Repository`,
+    );
+
     SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,
+      entityToken,
+      entityDescription,
       entityEnhancers: [
-        ...(entityEnhancers ?? []),
-        ...(options.isTrackable ? [IS_TRACKABLE] : []),
-        ...(options.isMemoable ? [IS_MEMOABLE] : []),
-        ...(options.isIdable ? [IS_IDABLE] : []),
+        ...(isTrackable ? [IS_TRACKABLE] : []),
+        ...(isMemoable ? [IS_MEMOABLE] : []),
+        ...(isIdable ? [IS_IDABLE] : []),
       ],
+      entityServiceToken,
+      entityRepositoryToken,
     })(constructor);
   };
 }

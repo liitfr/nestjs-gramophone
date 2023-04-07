@@ -1,15 +1,43 @@
 import { Inject, Injectable, Type } from '@nestjs/common';
 
 import { checkIfIsTrackable } from '../../utils/entities/simple-entity.decorator';
-import { getRepositoryMetadata } from '../../utils/repositories/repository.util';
+import { getServiceMetadata } from '../../utils/services/service.util';
 import { getEntityMetadata } from '../../utils/entities/entity.util';
 
 import { VersioningService } from '../services/versioning.service';
 
 export const versioners: {
-  repositoryName: string;
   Entity: Type<unknown>;
+  versionedServiceToken: symbol;
+  versioningServiceToken: symbol;
 }[] = [];
+
+function registerVersioner(
+  Entity: Type<unknown>,
+  versionedServiceToken: symbol,
+) {
+  const existingVersioner = versioners.find(
+    (v) => v.versionedServiceToken === versionedServiceToken,
+  );
+
+  if (existingVersioner) {
+    return existingVersioner;
+  }
+
+  const versioningServiceToken = Symbol(
+    `VersioningServiceFor${versionedServiceToken.description}`,
+  );
+
+  const newVersioner = {
+    Entity,
+    versionedServiceToken: versionedServiceToken,
+    versioningServiceToken,
+  };
+
+  versioners.push(newVersioner);
+
+  return newVersioner;
+}
 
 export function Versioned(Entity: Type<unknown>) {
   const entityMetadata = getEntityMetadata(Entity);
@@ -17,21 +45,19 @@ export function Versioned(Entity: Type<unknown>) {
   if (!checkIfIsTrackable(Entity)) {
     throw new Error(
       'Entity ' +
-        entityMetadata.entityName +
+        entityMetadata.entityToken.description +
         ' must be trackable to be versioned',
     );
   }
 
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const { repositoryName } = getRepositoryMetadata(constructor);
+    const { serviceToken } = getServiceMetadata(constructor);
 
-    if (!versioners.find((v) => v.repositoryName === repositoryName)) {
-      versioners.push({ repositoryName: repositoryName, Entity });
-    }
+    const versioner = registerVersioner(Entity, serviceToken);
 
     @Injectable()
     class VersionedRepository extends constructor {
-      @Inject(`VersioningServiceFor${repositoryName}`)
+      @Inject(versioner.versioningServiceToken)
       versionerService: VersioningService<unknown>;
     }
 

@@ -5,7 +5,7 @@ import { addSpaceToPascalCase } from '../string.util';
 export const SERVICE_METADATA = Symbol('serviceMetadata');
 
 export interface ServiceMetadata {
-  serviceName?: string;
+  serviceToken: symbol;
   serviceDescription?: string;
 }
 
@@ -15,7 +15,6 @@ export const isServiceDecorated = (Service: Type) =>
 export const getServiceMetadata = (Service: Type): ServiceMetadata => {
   const serviceMetadata = Reflect.getMetadata(SERVICE_METADATA, Service);
   return {
-    serviceName: Service.name,
     serviceDescription: addSpaceToPascalCase(Service.name),
     ...serviceMetadata,
   };

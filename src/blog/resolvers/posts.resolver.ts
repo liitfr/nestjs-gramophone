@@ -1,10 +1,9 @@
-import { Parent, ResolveField, Resolver, Query, Args } from '@nestjs/graphql';
+import { Resolver, Query, Args } from '@nestjs/graphql';
 
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { Id } from '../../utils/id.type';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 
-import { Author } from '../entities/author.entity';
 import { Post } from '../entities/post.entity';
 import { PostsService } from '../services/posts.service';
 import { PostInput } from '../dtos/post.input';
@@ -16,12 +15,6 @@ const SimplePostResolver = SimpleResolverFactory(Post, PostInput, PostsService);
 export class PostsResolver extends SimplePostResolver {
   constructor(private readonly authorsService: AuthorsService) {
     super();
-  }
-
-  @ResolveField(() => Author, { name: 'author', description: "Post's author" })
-  async author(@Parent() post: Post) {
-    const { authorId } = post;
-    return this.authorsService.findById(authorId);
   }
 
   @Query(() => [Post], {

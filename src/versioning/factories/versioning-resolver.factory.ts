@@ -9,19 +9,23 @@ import { VersioningService } from '../services/versioning.service';
 
 export function VersioningResolverFactory(
   EntityVersion: Type<unknown>,
-  providerName: string,
+  versioningServiceToken: symbol,
 ) {
-  const { entityName, entityDescription } = getEntityMetadata(EntityVersion);
+  const { entityToken, entityDescription } = getEntityMetadata(EntityVersion);
+  const entityTokenDescription = entityToken.description;
+
+  const findAllVersionsForOneOriginalIdName = `findAll${entityTokenDescription}sForOneOriginalId`;
+  const findOneByIdName = `findOne${entityTokenDescription}ById`;
 
   @Resolver(() => EntityVersion)
   class EntityVersionResolver {
     constructor(
-      @Inject(providerName)
+      @Inject(versioningServiceToken)
       readonly versioningService: VersioningService<unknown>,
     ) {}
 
     @Query(() => [EntityVersion], {
-      name: `findAll${entityName}sForOneOriginalId`,
+      name: findAllVersionsForOneOriginalIdName,
       description: `${entityDescription} : Find all versions for one original id query`,
     })
     public async findAllVersionsForOneOriginalId(
@@ -32,7 +36,7 @@ export function VersioningResolverFactory(
     }
 
     @Query(() => EntityVersion, {
-      name: `findOne${entityName}ById`,
+      name: findOneByIdName,
       description: `${entityDescription} : Find one version by id query`,
     })
     public async findOneById(

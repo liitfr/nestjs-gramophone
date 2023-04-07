@@ -9,7 +9,7 @@ import { join } from 'path';
 import { DataServicesModule } from '../data/data-services.module';
 // Reference Service adds itselft as service in its entity metadata.
 // This metadata (ReferenceService) is used by other providers that
-// consum references with decorator AddReferences
+// consum references with decorator AddRelations
 // So we need to build Reference before any other module
 import { ReferencesModule } from '../references/references.module';
 import { BlogModule } from '../blog/blog.module';
