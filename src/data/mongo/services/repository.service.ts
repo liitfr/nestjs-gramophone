@@ -31,7 +31,7 @@ const mustThrowError = (options?: Throwable) =>
   options?.errorIfUnknown === null ||
   options?.errorIfUnknown === true;
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class MongoRepository<D extends Document> implements Repository<D> {
   constructor(
     @Inject(DbSession)

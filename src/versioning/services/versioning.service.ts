@@ -1,32 +1,27 @@
-import { Injectable, Scope } from '@nestjs/common';
-import { Document, Model } from 'mongoose';
+import { Injectable } from '@nestjs/common';
+import { Document } from 'mongoose';
 
 import { Trackable } from '../../utils/entities/simple-entity.decorator';
 import { Id } from '../../utils/id.type';
+import { Repository } from '../../data/abstracts/repository.abstract';
 
-@Injectable({
-  scope: Scope.TRANSIENT,
-})
-export class VersioningService<T> {
-  private model: Model<T>;
-
-  public setModel(model: Model<T>) {
-    this.model = model;
-  }
+@Injectable()
+export class VersioningService<D> {
+  constructor(private readonly repository: Repository<D>) {}
 
   public async findAllVersionsForOneOriginalId(originalId: Id) {
-    return this.model.find({ originalId });
+    return this.repository.find({ originalId });
   }
 
   public async findOneById(id: Id) {
-    return this.model.findById(id);
+    return this.repository.findById(id);
   }
 
   public async saveVersion(
     item: Document & Trackable,
     versionData: Record<string, any>,
   ) {
-    const version = new this.model({
+    return this.repository.create({
       originalId: item._id,
       version: item,
       creatorId: item.creatorId,
@@ -35,6 +30,5 @@ export class VersioningService<T> {
       updatedAt: new Date(),
       ...versionData,
     });
-    await version.save();
   }
 }

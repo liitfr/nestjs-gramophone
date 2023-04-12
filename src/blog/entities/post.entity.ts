@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 import { Type } from '../../references/entities/type.entity';
@@ -11,12 +11,15 @@ import {
   SimpleEntity,
   Trackable,
 } from '../../utils/entities/simple-entity.decorator';
+import { CreateRepository } from '../../data/decorators/create-repository.decorator';
+
 import { Author } from './author.entity';
 
 export type PostDocument = HydratedDocument<Post>;
 
 @ObjectType()
 @Schema()
+@CreateRepository()
 @AddRelations([
   { Relation: Type, partitionQueries: true },
   { Relation: Color, partitionQueries: true, nullable: true },
@@ -31,13 +34,7 @@ export class Post {
   @Field({ nullable: false, description: "Post's content" })
   @Prop()
   content: string;
-
-  // @Field(() => [Line], { nullable: false })
-  // @Prop(() => [LineSchema])
-  // lines: Line[];
 }
-
-export const PostSchema = SchemaFactory.createForClass(Post);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Post extends Idable, Trackable, Memoable {}

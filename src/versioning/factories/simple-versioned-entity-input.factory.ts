@@ -1,8 +1,11 @@
 import { Field, InputType, IntersectionType } from '@nestjs/graphql';
-import { Type } from '@nestjs/common';
+import { Logger, Type } from '@nestjs/common';
 
 import { getEntityMetadata } from '../../utils/entities/entity.util';
-import { SimpleEntityInputFactory } from '../../utils/dtos/simple-entity-input.factory';
+import {
+  SimpleEntityInputFactory,
+  SimpleEntityInputFactoryOptions,
+} from '../../utils/dtos/simple-entity-input.factory';
 
 import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.decorator';
 
@@ -11,8 +14,14 @@ import { VersionDataInput } from '../dtos/version-data.input';
 // BUG : fix typing that is brut force casted to Partial<E>
 export function SimpleVersionedEntityInputFactory<E>(
   Entity: Type<E>,
+  options?: SimpleEntityInputFactoryOptions<E>,
 ): Type<Partial<E>> {
-  const entityDescription = getEntityMetadata(Entity)?.entityDescription;
+  const { entityToken, entityDescription } = getEntityMetadata(Entity);
+
+  Logger.verbose(
+    `SimpleVersionedEntityInput for ${entityToken.description}`,
+    'SimpleVersionedEntityInputFactory',
+  );
 
   @InputType()
   class WithVersionDataInput {
@@ -24,7 +33,7 @@ export function SimpleVersionedEntityInputFactory<E>(
   }
 
   return IntersectionType(
-    SimpleEntityInputFactory(Entity),
+    SimpleEntityInputFactory(Entity, options),
     WithVersionDataInput,
   );
 }

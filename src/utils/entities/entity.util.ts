@@ -13,6 +13,7 @@ export interface EntityRelation {
   idDescription?: string;
   resolvedName?: string;
   resolvedDescription?: string;
+  multiple?: boolean;
 }
 
 export interface EntityMetadata {

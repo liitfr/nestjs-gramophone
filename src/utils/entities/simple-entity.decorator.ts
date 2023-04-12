@@ -150,10 +150,6 @@ export function SimpleEntity(
       `${pluralize(pascalCase(entityToken.description))}Service`,
     );
 
-    const entityRepositoryToken = Symbol(
-      `${pluralize(pascalCase(entityToken.description))}Repository`,
-    );
-
     SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...originalMetadata,
       entityToken,
@@ -164,7 +160,6 @@ export function SimpleEntity(
         ...(isIdable ? [IS_IDABLE] : []),
       ],
       entityServiceToken,
-      entityRepositoryToken,
     })(constructor);
   };
 }

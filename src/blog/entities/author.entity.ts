@@ -1,16 +1,18 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 import {
   Idable,
   SimpleEntity,
 } from '../../utils/entities/simple-entity.decorator';
+import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 
 export type AuthorDocument = HydratedDocument<Author>;
 
 @ObjectType()
 @Schema()
+@CreateRepository()
 @SimpleEntity({ isIdable: true })
 export class Author {
   @Field({ nullable: false })
@@ -21,8 +23,6 @@ export class Author {
   @Prop()
   lastName: string;
 }
-
-export const AuthorSchema = SchemaFactory.createForClass(Author);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Author extends Idable {}

@@ -1,4 +1,4 @@
-import { Inject, SetMetadata, Type } from '@nestjs/common';
+import { Inject, Logger, SetMetadata, Type } from '@nestjs/common';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import {
@@ -26,8 +26,23 @@ interface Return<E> {
 
 export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
   const entityMetadata = getEntityMetadata(Entity);
-  const { entityRelations, entityRepositoryToken, entityServiceToken } =
-    entityMetadata;
+  const {
+    entityToken,
+    entityRelations,
+    entityRepositoryToken,
+    entityServiceToken,
+  } = entityMetadata;
+
+  if (!entityRepositoryToken) {
+    throw new Error(
+      'Repository token not found for entity ' + entityToken.description,
+    );
+  }
+
+  Logger.verbose(
+    `SimpleService for ${entityToken.description}`,
+    'SimpleServiceFactory',
+  );
 
   class SimpleService<D> implements Repository<D> {
     @Inject(entityRepositoryToken)
@@ -161,6 +176,9 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
                     [relationPartitioner]: key,
                   })
                 )?.[0]?._id;
+                if (relation.multiple) {
+                  return this.find({ [idName]: { $in: [partitionerId] } });
+                }
                 return this.find({ [idName]: partitionerId });
               },
               writable: true,
@@ -179,6 +197,9 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
                     [relationPartitioner]: key,
                   })
                 )?.[0]?._id;
+                if (relation.multiple) {
+                  return this.count({ [idName]: { $in: [partitionerId] } });
+                }
                 return this.count({ [idName]: partitionerId });
               },
               writable: true,

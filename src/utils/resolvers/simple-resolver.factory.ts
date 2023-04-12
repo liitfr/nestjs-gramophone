@@ -8,18 +8,14 @@ import {
   Int,
   ResolveField,
 } from '@nestjs/graphql';
-import { Inject, Type } from '@nestjs/common';
+import { Inject, Logger, Type } from '@nestjs/common';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
+import { CheckRelations } from '../../data/pipes/check-relations.pipe';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { getEntityMetadata } from '../entities/entity.util';
-import {
-  camelCase,
-  lowerCaseFirstLetter,
-  pascalCase,
-  pluralize,
-} from '../string.util';
+import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
 import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
 import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
@@ -92,20 +88,24 @@ const addRelationResolvers = (
                   'The parent object does not have the property ' + idName,
                 );
               }
-              const id = parent?.[idName];
-              return this[relationServicePropertyName].findById(id);
+              if (relation.multiple) {
+                return this[relationServicePropertyName].find({
+                  _id: { $in: parent?.[idName] ?? [] },
+                });
+              }
+              return this[relationServicePropertyName].findById(
+                parent?.[idName],
+              );
             },
             writable: true,
             enumerable: true,
             configurable: true,
           });
 
-          ResolveField(() => Relation, {
+          ResolveField(() => (relation.multiple ? [Relation] : Relation), {
             name: resolvedName,
             nullable,
-            description: `${entityDescription}'s ${lowerCaseFirstLetter(
-              resolvedDescription,
-            )}`,
+            description: resolvedDescription,
           })(
             Resolver.prototype,
             resolvedName,
@@ -211,6 +211,30 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
 ) {
   const { entityToken, entityDescription } = getEntityMetadata(Entity);
 
+  Logger.verbose(
+    `SimpleResolver for ${entityToken.description}`,
+    'SimpleResolverFactory',
+  );
+
+  // MHO : can't make it work ...  2 issues :
+  // 1. ExpectedType isn't respected by class-transformer
+  // 2. It looks like this validation generates new Ids ?! instead of ids received
+  // So I disabled it for now and use a "CheckRelations" pipe
+  // If you want to try, I kept rules IdExistsRule & IdsExistRule in codebase
+  // and then use these decorators in createProp in AddRelations
+  // class InputValidation extends ValidationPipe {
+  //   constructor() {
+  //     super({
+  //       whitelist: true,
+  //       forbidNonWhitelisted: true,
+  //       forbidUnknownValues: true,
+  //       transform: false,
+  //       // transform: true,
+  //       // expectedType: Input,
+  //     });
+  //   }
+  // }
+
   @InputType(`${entityToken.description}PartialInput`)
   class PartialInput extends PartialType(Input) {}
 
@@ -270,6 +294,8 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
   }
 
   if (!noMutation) {
+    const CheckEntityRelations = new CheckRelations(Entity);
+
     @Resolver(() => Entity)
     class ResolverWithAutoSetters extends ResolverWithAutoGetters {
       @Mutation(() => Entity, {
@@ -283,6 +309,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           {
             type: () => Input,
           },
+          CheckEntityRelations,
           AddTrackableCreationFields,
         )
         doc: typeof Input,
@@ -297,7 +324,12 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       })
       async updateOne(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-        @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+        @Args(
+          'update',
+          { type: () => PartialInput },
+          CheckEntityRelations,
+          AddTrackableUpdateFields,
+        )
         update: PartialInput,
       ) {
         return this.simpleService.updateOne(filter, update);
@@ -310,7 +342,12 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       })
       async updateMany(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-        @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+        @Args(
+          'update',
+          { type: () => PartialInput },
+          CheckEntityRelations,
+          AddTrackableUpdateFields,
+        )
         update: PartialInput,
       ) {
         return this.simpleService.updateMany(filter, update);
@@ -323,7 +360,12 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       })
       async findOneAndUpdte(
         @Args('filter', { type: () => PartialInput }) filter: PartialInput,
-        @Args('update', { type: () => PartialInput }, AddTrackableUpdateFields)
+        @Args(
+          'update',
+          { type: () => PartialInput },
+          CheckEntityRelations,
+          AddTrackableUpdateFields,
+        )
         update: PartialInput,
       ) {
         return this.simpleService.findOneAndUpdate(filter, update);

@@ -6,43 +6,43 @@ import { getEntityMetadata } from '../../utils/entities/entity.util';
 
 import { VersioningService } from '../services/versioning.service';
 
-export const versioners: {
-  Entity: Type<unknown>;
+export const versioningServices: {
+  VersionedEntity: Type<unknown>;
   versionedServiceToken: symbol;
   versioningServiceToken: symbol;
 }[] = [];
 
-function registerVersioner(
-  Entity: Type<unknown>,
+export function registerVersioningService(
+  VersionedEntity: Type<unknown>,
   versionedServiceToken: symbol,
 ) {
-  const existingVersioner = versioners.find(
+  const existingVersioningService = versioningServices.find(
     (v) => v.versionedServiceToken === versionedServiceToken,
   );
 
-  if (existingVersioner) {
-    return existingVersioner;
+  if (existingVersioningService) {
+    return existingVersioningService;
   }
 
   const versioningServiceToken = Symbol(
     `VersioningServiceFor${versionedServiceToken.description}`,
   );
 
-  const newVersioner = {
-    Entity,
-    versionedServiceToken: versionedServiceToken,
+  const newVersioningService = {
+    VersionedEntity,
+    versionedServiceToken,
     versioningServiceToken,
   };
 
-  versioners.push(newVersioner);
+  versioningServices.push(newVersioningService);
 
-  return newVersioner;
+  return newVersioningService;
 }
 
-export function Versioned(Entity: Type<unknown>) {
-  const entityMetadata = getEntityMetadata(Entity);
+export function Versioned(VersionedEntity: Type<unknown>) {
+  const entityMetadata = getEntityMetadata(VersionedEntity);
 
-  if (!checkIfIsTrackable(Entity)) {
+  if (!checkIfIsTrackable(VersionedEntity)) {
     throw new Error(
       'Entity ' +
         entityMetadata.entityToken.description +
@@ -53,14 +53,17 @@ export function Versioned(Entity: Type<unknown>) {
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
     const { serviceToken } = getServiceMetadata(constructor);
 
-    const versioner = registerVersioner(Entity, serviceToken);
+    const versioningService = registerVersioningService(
+      VersionedEntity,
+      serviceToken,
+    );
 
     @Injectable()
-    class VersionedRepository extends constructor {
-      @Inject(versioner.versioningServiceToken)
-      versionerService: VersioningService<unknown>;
+    class VersionedService extends constructor {
+      @Inject(versioningService.versioningServiceToken)
+      versioningService: VersioningService<unknown>;
     }
 
-    return VersionedRepository;
+    return VersionedService;
   };
 }

@@ -1,5 +1,5 @@
 import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
-import { Type } from '@nestjs/common';
+import { Logger, Type } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
@@ -35,7 +35,12 @@ export function SimpleEntityInputFactory<E>(
 ): Type<Partial<E>> {
   const entityMetadata = getEntityMetadata(Entity);
 
-  const { entityDescription } = entityMetadata;
+  const { entityToken, entityDescription } = entityMetadata;
+
+  Logger.verbose(
+    `SimpleEntityInput for ${entityToken.description}`,
+    'SimpleEntityInputFactory',
+  );
 
   @InputType({ isAbstract: true })
   class OptionalIdField {

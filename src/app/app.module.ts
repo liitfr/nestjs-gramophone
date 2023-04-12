@@ -27,7 +27,7 @@ import { BlogModule } from '../blog/blog.module';
       'mongodb://localhost:27017/eSocnaDb?replicaSet=eSocnaRs',
       { dbName: 'poc' },
     ),
-    DataServicesModule,
+    DataServicesModule.forRoot(),
     ReferencesModule,
     BlogModule,
   ],

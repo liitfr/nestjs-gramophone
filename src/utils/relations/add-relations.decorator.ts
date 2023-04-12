@@ -10,12 +10,13 @@ import {
   getEntityMetadata,
 } from '../entities/entity.util';
 import { IdScalar } from '../scalars/id.scalar';
-import { lowerCaseFirstLetter } from '../string.util';
+import { lowerCaseFirstLetter, pluralize } from '../string.util';
 
 const defaultOptions = {
   nullable: false,
   resolve: true,
   partitionQueries: false,
+  multiple: false,
 };
 
 type Input = (Type<unknown> | EntityRelation)[];
@@ -26,18 +27,16 @@ interface CreatePropInput {
   entityDescription: string;
 }
 
-function createProp({ Relation, options, entityDescription }: CreatePropInput) {
-  const { entityToken: relationToken, entityDescription: relationDescription } =
-    getEntityMetadata(Relation);
+function createProp({ Relation, options }: CreatePropInput) {
+  const { entityToken: relationToken } = getEntityMetadata(Relation);
 
-  const { nullable = false, idName } = { ...defaultOptions, ...options };
+  const { nullable, idName, idDescription, multiple } = {
+    ...defaultOptions,
+    ...options,
+  };
 
-  const relationIdPropName = lowerCaseFirstLetter(
-    idName ?? `${relationToken.description}Id`,
-  );
-
-  if (!this.hasOwnProperty(relationIdPropName)) {
-    Object.defineProperty(this, relationIdPropName, {
+  if (!this.hasOwnProperty(idName)) {
+    Object.defineProperty(this, idName, {
       writable: true,
       enumerable: true,
       configurable: true,
@@ -45,19 +44,19 @@ function createProp({ Relation, options, entityDescription }: CreatePropInput) {
   }
 
   Prop({
-    type: MongooseSchema.Types.ObjectId,
+    type: multiple
+      ? [MongooseSchema.Types.ObjectId]
+      : MongooseSchema.Types.ObjectId,
     ref: relationToken.description,
     autopopulate: false,
     required: !nullable,
-  })(this, relationIdPropName);
+  })(this, idName);
 
-  Field(() => IdScalar, {
-    name: relationIdPropName,
+  Field(() => (multiple ? [IdScalar] : IdScalar), {
+    name: idName,
     nullable: nullable ?? true,
-    description: `${entityDescription}'s ${lowerCaseFirstLetter(
-      relationDescription,
-    )} id`,
-  })(this, relationIdPropName);
+    description: idDescription,
+  })(this, idName);
 }
 
 export function AddRelations(inputs: Input) {
@@ -80,8 +79,12 @@ export function AddRelations(inputs: Input) {
           ...defaultOptions,
           idName: lowerCaseFirstLetter(`${relationToken.description}Id`),
           resolvedName: lowerCaseFirstLetter(relationToken.description),
-          idDescription: relationDescription,
-          resolvedDescription: relationDescription,
+          idDescription: `${entityDescription}'s ${lowerCaseFirstLetter(
+            relationDescription,
+          )} id`,
+          resolvedDescription: `${entityDescription}'s ${lowerCaseFirstLetter(
+            relationDescription,
+          )}`,
         };
         createProp.call(constructor.prototype, {
           Relation,
@@ -100,10 +103,30 @@ export function AddRelations(inputs: Input) {
         } = getEntityMetadata(Relation);
         const options = {
           ...defaultOptions,
-          idName: lowerCaseFirstLetter(`${relationToken.description}Id`),
-          resolvedName: lowerCaseFirstLetter(relationToken.description),
-          idDescription: relationDescription,
-          resolvedDescription: relationDescription,
+          idName:
+            input.idName ??
+            lowerCaseFirstLetter(
+              `${relationToken.description}Id${input.multiple ? 's' : ''}`,
+            ),
+          resolvedName:
+            input.resolvedName ??
+            lowerCaseFirstLetter(
+              input.multiple
+                ? pluralize(`${relationToken.description}`)
+                : `${relationToken.description}`,
+            ),
+          idDescription:
+            input.idDescription ??
+            `${entityDescription}'s ${lowerCaseFirstLetter(
+              relationDescription,
+            )} id${input.multiple ? 's' : ''}`,
+          resolvedDescription:
+            input.resolvedDescription ??
+            `${entityDescription}'s ${lowerCaseFirstLetter(
+              input.multiple
+                ? pluralize(relationDescription)
+                : relationDescription,
+            )}`,
           ...otherOptions,
         };
         createProp.call(constructor.prototype, {

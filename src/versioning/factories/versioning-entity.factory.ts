@@ -1,4 +1,4 @@
-import { SetMetadata, Type } from '@nestjs/common';
+import { Logger, SetMetadata, Type } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -12,6 +12,9 @@ import {
 import { generateCollectionName } from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
+import { CreateRepository } from '../../data/decorators/create-repository.decorator';
+
+import { versioningServices } from '../decorators/versioned.decorator';
 
 export function VersioningEntityFactory(Entity: Type<unknown>) {
   const originalMetadata = getEntityMetadata(Entity);
@@ -25,24 +28,38 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
   const versioningEntityToken = Symbol(
     `${versionedEntityToken.description}Version`,
   );
-  const versioningEntityServiceToken = Symbol(
-    `${versionedEntityToken.description}VersionsService`,
+
+  Logger.verbose(
+    `VersioningEntity for ${versioningEntityToken.description}`,
+    'VersioningEntityFactory',
   );
-  const versioningEntityRepositoryToken = Symbol(
-    `${versionedEntityToken.description}VersionsRepository`,
-  );
+
+  const versioningEntityServiceToken = versioningServices.find((vS) => {
+    const { entityToken } = getEntityMetadata(vS.VersionedEntity);
+    return entityToken === versionedEntityToken;
+  })?.versioningServiceToken;
+
+  if (!versioningEntityServiceToken) {
+    throw new Error('Versioning service not found');
+  }
+
   const versioningEntityDescription = `${versionedEntityDescription} Version`;
 
   @ObjectType(versioningEntityToken.description)
   @Schema({
     collection: generateCollectionName(versioningEntityToken.description),
   })
+  @CreateRepository({
+    SchemaFactory: (Schema: MongooseSchema) =>
+      Schema.index({ originalId: 1, versionedAt: 1 }, { unique: true })
+        .index({ originalId: 1 })
+        .index({ versionedAt: 1 }),
+  })
   // set metadata after simple entity decorator
   @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
     entityToken: versioningEntityToken,
     entityDescription: versioningEntityDescription,
     entityServiceToken: versioningEntityServiceToken,
-    entityRepositoryToken: versioningEntityRepositoryToken,
   })
   @SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
   // set metadata before simple entity decorator
@@ -50,9 +67,8 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
     entityToken: versioningEntityToken,
     entityDescription: versioningEntityDescription,
     entityServiceToken: versioningEntityServiceToken,
-    entityRepositoryToken: versioningEntityRepositoryToken,
   })
-  class EntityVersion {
+  class VersioningEntity {
     @Field(() => IdScalar, {
       nullable: false,
       description: `${versioningEntityDescription}'s original id`,
@@ -73,9 +89,5 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
     version: typeof Entity;
   }
 
-  const EntityVersionSchemas = {
-    noIndex: SchemaFactory.createForClass(EntityVersion),
-  };
-
-  return { EntityVersion, EntityVersionSchemas };
+  return VersioningEntity;
 }

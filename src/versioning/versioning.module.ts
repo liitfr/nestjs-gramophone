@@ -1,14 +1,14 @@
 import { DynamicModule, Module } from '@nestjs/common';
 
-import { createVersioners } from './factories/versioners.factory';
+import { VersioningProvidersFactory } from './factories/versioning-providers.factory';
 
 @Module({})
 export class VersioningModule {
   static forRoot(): DynamicModule {
-    const { imports, providers } = createVersioners();
+    const providers = VersioningProvidersFactory();
+
     return {
       module: VersioningModule,
-      imports: imports,
       providers,
       exports: providers,
     };

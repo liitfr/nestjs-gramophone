@@ -123,10 +123,6 @@ export function SimpleReference(
       `${pluralize(pascalCase(entityToken.description))}Service`,
     );
 
-    const entityRepositoryToken = Symbol(
-      `${pluralize(pascalCase(entityToken.description))}Repository`,
-    );
-
     SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
       ...entityMetadata,
       entityToken,
@@ -134,7 +130,6 @@ export function SimpleReference(
       EntityPartition: Partition,
       entityPartitioner: partitioner,
       entityServiceToken,
-      entityRepositoryToken,
     })(constructor);
 
     SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {

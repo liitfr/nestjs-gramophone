@@ -1,4 +1,4 @@
-import { Injectable, Optional, Scope } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 
 import {
   CreatedModel,
@@ -6,7 +6,7 @@ import {
   UpdatedModel,
 } from './operations.abstract';
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export abstract class Repository<D> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(@Optional() readonly model?: any) {
