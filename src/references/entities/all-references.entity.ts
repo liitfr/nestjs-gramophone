@@ -1,3 +1,4 @@
 import { ObjectType } from '@nestjs/graphql';
-@ObjectType()
+
+@ObjectType({ description: 'All References' })
 export class AllReferences {}
