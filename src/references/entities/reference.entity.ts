@@ -2,17 +2,16 @@ import { Field, Int } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-import { CreateRepository } from '../../data/decorators/create-repository.decorator';
-
 import { ReferenceEnum } from '../enums/reference.enum';
 import {
   ISimpleReference,
   SimpleReference,
 } from '../decorators/simple-reference.decorator';
+import { CreateReferenceRepository } from '../decorators/create-reference-repository.decorator';
 
 export type ReferenceDocument = HydratedDocument<Reference>;
 
-@CreateRepository()
+@CreateReferenceRepository()
 @SimpleReference(ReferenceEnum)
 export class Reference {
   @Field(() => Int, {
