@@ -8,7 +8,7 @@ import {
   Int,
   ResolveField,
 } from '@nestjs/graphql';
-import { Inject, Logger, Type } from '@nestjs/common';
+import { Inject, Logger, PipeTransform, Type } from '@nestjs/common';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import { CheckRelations } from '../../data/pipes/check-relations.pipe';
@@ -19,9 +19,30 @@ import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
 import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
 import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
+import { checkIfIsTrackable } from '../entities/simple-entity.decorator';
 
 interface Options {
   noMutation?: boolean;
+  FindSomeFilterType?: Type<unknown>;
+  findSomeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
+  CountSomeFilterType?: Type<unknown>;
+  countSomeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
+  CreateType?: Type<unknown>;
+  createPipes?: (Type<PipeTransform> | PipeTransform)[];
+  UpdateOneFilterType?: Type<unknown>;
+  updateOneFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
+  UpdateOneUpdateType?: Type<unknown>;
+  updateOneUpdatePipes?: (Type<PipeTransform> | PipeTransform)[];
+  UpdateManyFilterType?: Type<unknown>;
+  updateManyFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
+  UpdateManyUpdateType?: Type<unknown>;
+  updateManyUpdatePipes?: (Type<PipeTransform> | PipeTransform)[];
+  FindOneAndUpdateFilterType?: Type<unknown>;
+  findOneAndUpdateFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
+  FindOneAndUpdateUpdateType?: Type<unknown>;
+  findOneAndUpdateUpdatePipes?: (Type<PipeTransform> | PipeTransform)[];
+  RemoveFilterType?: Type<unknown>;
+  removeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
 }
 
 const addRelationResolvers = (
@@ -205,11 +226,10 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
   Entity: Type<unknown>,
   Input: Type<unknown>,
   Service: Type<S>,
-  { noMutation = false }: Options = {
-    noMutation: false,
-  },
+  options?: Options,
 ) {
-  const { entityToken, entityDescription } = getEntityMetadata(Entity);
+  const { entityToken, entityDescription, entityRelations } =
+    getEntityMetadata(Entity);
 
   Logger.verbose(
     `SimpleResolver for ${entityToken.description}`,
@@ -235,8 +255,62 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
   //   }
   // }
 
+  const isTrackable = checkIfIsTrackable(Entity);
+
+  const hasRelations = entityRelations?.length > 0;
+
   @InputType(`${entityToken.description}PartialInput`)
   class PartialInput extends PartialType(Input) {}
+
+  const {
+    noMutation,
+    FindSomeFilterType,
+    findSomeFilterPipes,
+    CountSomeFilterType,
+    countSomeFilterPipes,
+    CreateType,
+    createPipes,
+    UpdateOneFilterType,
+    updateOneFilterPipes,
+    UpdateOneUpdateType,
+    updateOneUpdatePipes,
+    UpdateManyFilterType,
+    updateManyFilterPipes,
+    UpdateManyUpdateType,
+    updateManyUpdatePipes,
+    FindOneAndUpdateFilterType,
+    findOneAndUpdateFilterPipes,
+    FindOneAndUpdateUpdateType,
+    findOneAndUpdateUpdatePipes,
+    RemoveFilterType,
+    removeFilterPipes,
+  } = Object.assign(
+    {},
+    {
+      noMutation: false,
+      FindSomeFilterType: PartialInput,
+      findSomeFilterPipes: [],
+      CountSomeFilterType: PartialInput,
+      countSomeFilterPipes: [],
+      CreateType: Input,
+      createPipes: [],
+      UpdateOneFilterType: PartialInput,
+      updateOneFilterPipes: [],
+      UpdateOneUpdateType: PartialInput,
+      updateOneUpdatePipes: [],
+      UpdateManyFilterType: PartialInput,
+      updateManyFilterPipes: [],
+      UpdateManyUpdateType: PartialInput,
+      updateManyUpdatePipes: [],
+      FindOneAndUpdateFilterType: PartialInput,
+      findOneAndUpdateFilterPipes: [],
+      FindOneAndUpdateUpdateType: PartialInput,
+      findOneAndUpdateUpdatePipes: [],
+      RemoveFilterType: PartialInput,
+      removeFilterPipes: [],
+    },
+    options,
+  );
 
   @Resolver(() => Entity)
   class ResolverWithAutoGetters {
@@ -267,7 +341,12 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       name: `findSome${pluralize(pascalCase(entityToken.description))}`,
     })
     async findSome(
-      @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+      @Args(
+        'filter',
+        { type: () => FindSomeFilterType },
+        ...findSomeFilterPipes,
+      )
+      filter: typeof FindSomeFilterType,
     ): Promise<D[]> {
       return this.simpleService.find(filter);
     }
@@ -287,7 +366,12 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       name: `countSome${pluralize(pascalCase(entityToken.description))}`,
     })
     async countSome(
-      @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+      @Args(
+        'filter',
+        { type: () => CountSomeFilterType },
+        ...countSomeFilterPipes,
+      )
+      filter: typeof CountSomeFilterType,
     ): Promise<number> {
       return this.simpleService.count(filter);
     }
@@ -307,12 +391,13 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         @Args(
           camelCase(entityToken.description),
           {
-            type: () => Input,
+            type: () => CreateType,
           },
-          CheckEntityRelations,
-          AddTrackableCreationFields,
+          ...createPipes,
+          ...(hasRelations ? [CheckEntityRelations] : []),
+          ...(isTrackable ? [AddTrackableCreationFields] : []),
         )
-        doc: typeof Input,
+        doc: typeof CreateType,
       ) {
         return this.simpleService.create(doc);
       }
@@ -323,14 +408,20 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `updateOne${pascalCase(entityToken.description)}`,
       })
       async updateOne(
-        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args(
+          'filter',
+          { type: () => UpdateOneFilterType },
+          ...updateOneFilterPipes,
+        )
+        filter: typeof UpdateOneFilterType,
         @Args(
           'update',
-          { type: () => PartialInput },
-          CheckEntityRelations,
-          AddTrackableUpdateFields,
+          { type: () => UpdateOneUpdateType },
+          ...updateOneUpdatePipes,
+          ...(hasRelations ? [CheckEntityRelations] : []),
+          ...(isTrackable ? [AddTrackableUpdateFields] : []),
         )
-        update: PartialInput,
+        update: typeof UpdateOneUpdateType,
       ) {
         return this.simpleService.updateOne(filter, update);
       }
@@ -341,14 +432,20 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `updateMany${pluralize(pascalCase(entityToken.description))}`,
       })
       async updateMany(
-        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args(
+          'filter',
+          { type: () => UpdateManyFilterType },
+          ...updateManyFilterPipes,
+        )
+        filter: typeof UpdateManyFilterType,
         @Args(
           'update',
-          { type: () => PartialInput },
-          CheckEntityRelations,
-          AddTrackableUpdateFields,
+          { type: () => UpdateManyUpdateType },
+          ...updateManyUpdatePipes,
+          ...(hasRelations ? [CheckEntityRelations] : []),
+          ...(isTrackable ? [AddTrackableUpdateFields] : []),
         )
-        update: PartialInput,
+        update: typeof UpdateManyUpdateType,
       ) {
         return this.simpleService.updateMany(filter, update);
       }
@@ -359,14 +456,20 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `findOneAndUpdate${pascalCase(entityToken.description)}`,
       })
       async findOneAndUpdte(
-        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args(
+          'filter',
+          { type: () => FindOneAndUpdateFilterType },
+          ...findOneAndUpdateFilterPipes,
+        )
+        filter: typeof FindOneAndUpdateFilterType,
         @Args(
           'update',
-          { type: () => PartialInput },
-          CheckEntityRelations,
-          AddTrackableUpdateFields,
+          { type: () => FindOneAndUpdateUpdateType },
+          ...findOneAndUpdateUpdatePipes,
+          ...(hasRelations ? [CheckEntityRelations] : []),
+          ...(isTrackable ? [AddTrackableUpdateFields] : []),
         )
-        update: PartialInput,
+        update: typeof FindOneAndUpdateUpdateType,
       ) {
         return this.simpleService.findOneAndUpdate(filter, update);
       }
@@ -377,7 +480,8 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `remove${pluralize(pascalCase(entityToken.description))}`,
       })
       async remove(
-        @Args('filter', { type: () => PartialInput }) filter: PartialInput,
+        @Args('filter', { type: () => RemoveFilterType }, ...removeFilterPipes)
+        filter: typeof RemoveFilterType,
       ) {
         return this.simpleService.remove(filter);
       }
