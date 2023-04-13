@@ -4,12 +4,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { DbSession } from './abstracts/db-session.abstract';
 import { Repository } from './abstracts/repository.abstract';
-import { DbSessionPlugin } from './plugins';
+import { DbSessionPlugin } from './plugins/db-session.plugin';
 import { MongoDbSession } from './mongo/services/db-session.service';
 import { MongoRepositoriesFactory } from './mongo/factories/repositories.factory';
 import { MongoRepository } from './mongo/services/repository.service';
 import { MongoModelsFactory } from './mongo/factories/models.factory';
-import { RepositoryFinder } from './services/repository-finder';
+import { RepositoryFinder } from './services/repository-finder.service';
 import { CheckRelations } from './pipes/check-relations.pipe';
 
 @Global()

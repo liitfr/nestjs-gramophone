@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { ApolloServerPlugin } from 'apollo-server-plugin-base';
+import { ApolloServerPlugin } from '@apollo/server';
 import { Plugin } from '@nestjs/apollo';
 
 import { DbSession } from '../abstracts/db-session.abstract';

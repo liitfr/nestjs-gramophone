@@ -3,9 +3,9 @@ import {
   SchemaFactory as MongooseSchemaFactory,
 } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
+import { identity } from 'lodash';
 
 import { repositories } from '../../decorators/create-repository.decorator';
-import { identity } from 'rxjs';
 
 export const MongoModelsFactory = () => {
   const result: ModelDefinition[] = [];

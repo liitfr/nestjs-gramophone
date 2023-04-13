@@ -141,7 +141,9 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
           );
         }
 
-        const relationServicePropertyName = camelCase(relationServiceName);
+        const relationServicePropertyName = camelCase(
+          relationServiceName.description,
+        );
 
         if (!SimpleService[relationServicePropertyName]) {
           Object.defineProperty(

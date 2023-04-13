@@ -2,7 +2,7 @@ import { Injectable, Optional, PipeTransform, Type } from '@nestjs/common';
 
 import { getEntityMetadata } from '../../utils/entities/entity.util';
 
-import { RepositoryFinder } from '../services/repository-finder';
+import { RepositoryFinder } from '../services/repository-finder.service';
 
 @Injectable()
 export class CheckRelations implements PipeTransform<any> {

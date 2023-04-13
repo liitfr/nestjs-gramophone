@@ -2,9 +2,10 @@ import mongoose, { Document, Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { Logger, Provider } from '@nestjs/common';
 
-import { MongoRepository } from '../services/repository.service';
 import { DbSession } from '../../abstracts/db-session.abstract';
 import { repositories } from '../../decorators/create-repository.decorator';
+
+import { MongoRepository } from '../services/repository.service';
 
 export const MongoRepositoriesFactory = () => {
   const result: Provider[] = [];

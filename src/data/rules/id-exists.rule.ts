@@ -9,7 +9,7 @@ import {
 
 import { Id } from '../../utils/id.type';
 
-import { RepositoryFinder } from '../services/repository-finder';
+import { RepositoryFinder } from '../services/repository-finder.service';
 
 @ValidatorConstraint({ name: 'IdExists', async: true })
 @Injectable()
