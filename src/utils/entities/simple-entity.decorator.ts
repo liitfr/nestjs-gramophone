@@ -1,18 +1,13 @@
 import { Field, GraphQLISODateTime } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
-import { SetMetadata } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
 import { pascalCase, pluralize } from '../string.util';
 
-import {
-  ENTITY_METADATA,
-  EntityMetadata,
-  enhancerCheckerFactory,
-  getEntityMetadata,
-} from './entity.util';
+import { enhancerCheckerFactory, getEntityMetadata } from './entity.util';
+import { SetEntityMetadata } from './set-entity-metadata.decorator';
 
 interface Options {
   isTrackable?: boolean;
@@ -150,11 +145,11 @@ export function SimpleEntity(
       `${pluralize(pascalCase(entityToken.description))}Service`,
     );
 
-    SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-      ...originalMetadata,
+    SetEntityMetadata({
       entityToken,
       entityDescription,
       entityEnhancers: [
+        ...(originalMetadata.entityEnhancers ?? []),
         ...(isTrackable ? [IS_TRACKABLE] : []),
         ...(isMemoable ? [IS_MEMOABLE] : []),
         ...(isIdable ? [IS_IDABLE] : []),

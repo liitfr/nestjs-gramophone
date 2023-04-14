@@ -1,18 +1,15 @@
-import { Logger, SetMetadata, Type } from '@nestjs/common';
+import { Logger, Type } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import {
-  ENTITY_METADATA,
-  EntityMetadata,
-  getEntityMetadata,
-} from '../../utils/entities/entity.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { generateCollectionName } from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
+import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 
 import { versioningServices } from '../decorators/versioned.decorator';
 
@@ -56,14 +53,14 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
         .index({ versionedAt: 1 }),
   })
   // set metadata after simple entity decorator
-  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+  @SetEntityMetadata({
     entityToken: versioningEntityToken,
     entityDescription: versioningEntityDescription,
     entityServiceToken: versioningEntityServiceToken,
   })
   @SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
   // set metadata before simple entity decorator
-  @SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
+  @SetEntityMetadata({
     entityToken: versioningEntityToken,
     entityDescription: versioningEntityDescription,
     entityServiceToken: versioningEntityServiceToken,

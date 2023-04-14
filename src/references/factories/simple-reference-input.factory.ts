@@ -1,13 +1,13 @@
 import { Type } from '@nestjs/common';
 import { Field, InputType } from '@nestjs/graphql';
 
-import { getReferenceMetadata } from '../../utils/references/reference.util';
 import {
   SimpleEntityInputFactory,
   SimpleEntityInputFactoryOptions,
 } from '../../utils/dtos/simple-entity-input.factory';
 import { getEntityMetadata } from '../../utils/entities/entity.util';
 
+import { getReferenceMetadata } from '../utils/reference.util';
 import { ChipInput } from '../dtos/chip.input';
 
 // BUG : fix typing that is brut force casted to Partial<R>

@@ -1,14 +1,10 @@
-import { SetMetadata, Type } from '@nestjs/common';
 import { Field } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+import { Type } from '@nestjs/common';
 
-import {
-  ENTITY_METADATA,
-  EntityMetadata,
-  EntityRelation,
-  getEntityMetadata,
-} from '../entities/entity.util';
+import { EntityRelation, getEntityMetadata } from '../entities/entity.util';
+import { SetEntityMetadata } from '../entities/set-entity-metadata.decorator';
 import { IdScalar } from '../scalars/id.scalar';
 import { lowerCaseFirstLetter, pluralize } from '../string.util';
 
@@ -64,7 +60,7 @@ export function AddRelations(inputs: Input) {
   return <T extends { new (...args: any[]): {} }>(constructor: T) => {
     const originalMetadata = getEntityMetadata(constructor);
 
-    const { entityDescription } = originalMetadata;
+    const { entityToken, entityDescription } = originalMetadata;
 
     const entityRelationsMetadata: EntityRelation[] = [];
 
@@ -138,8 +134,8 @@ export function AddRelations(inputs: Input) {
       }
     });
 
-    SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-      ...originalMetadata,
+    SetEntityMetadata({
+      entityToken,
       entityRelations: [
         ...(originalMetadata.entityRelations || []),
         ...entityRelationsMetadata,

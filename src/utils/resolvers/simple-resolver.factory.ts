@@ -12,13 +12,12 @@ import { Inject, Logger, PipeTransform, Type } from '@nestjs/common';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import { CheckRelations } from '../../data/pipes/check-relations.pipe';
+import { CurrentUserId } from '../../users/decorators/current-user-id.decorator';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { getEntityMetadata } from '../entities/entity.util';
 import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
-import { AddTrackableCreationFields } from '../pipes/add-trackable-creation-fields.pipe';
-import { AddTrackableUpdateFields } from '../pipes/add-trackable-update-fields.pipe';
 import { checkIfIsTrackable } from '../entities/simple-entity.decorator';
 
 interface Options {
@@ -69,7 +68,7 @@ const addRelationResolvers = (
           entityToken: relationToken,
           entityDescription: relationDescription,
           EntityPartition: RelationPartition,
-          entityPartitioner: RelationPartitioner,
+          entityPartitioner: relationPartitioner,
           entityServiceToken: relationServiceToken,
         } = getEntityMetadata(Relation);
 
@@ -135,7 +134,7 @@ const addRelationResolvers = (
         }
 
         if (partitionQueries) {
-          if (!RelationPartition || !RelationPartitioner) {
+          if (!RelationPartition || !relationPartitioner) {
             throw new Error(
               `The entity ${relationServiceToken.description} does not have a partitioner`,
             );
@@ -388,6 +387,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `create${pascalCase(entityToken.description)}`,
       })
       async create(
+        @CurrentUserId() userId: Id,
         @Args(
           camelCase(entityToken.description),
           {
@@ -395,11 +395,20 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           },
           ...createPipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
-          ...(isTrackable ? [AddTrackableCreationFields] : []),
         )
         doc: typeof CreateType,
       ) {
-        return this.simpleService.create(doc);
+        return this.simpleService.create({
+          ...doc,
+          ...(isTrackable
+            ? {
+                createdBy: userId,
+                createdAt: new Date(),
+                updatedBy: userId,
+                updatedAt: new Date(),
+              }
+            : {}),
+        });
       }
 
       @Mutation(() => Entity, {
@@ -408,6 +417,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `updateOne${pascalCase(entityToken.description)}`,
       })
       async updateOne(
+        @CurrentUserId() userId: Id,
         @Args(
           'filter',
           { type: () => UpdateOneFilterType },
@@ -419,11 +429,13 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           { type: () => UpdateOneUpdateType },
           ...updateOneUpdatePipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
-          ...(isTrackable ? [AddTrackableUpdateFields] : []),
         )
         update: typeof UpdateOneUpdateType,
       ) {
-        return this.simpleService.updateOne(filter, update);
+        return this.simpleService.updateOne(filter, {
+          ...update,
+          ...(isTrackable ? { updatedBy: userId, updatedAt: new Date() } : {}),
+        });
       }
 
       @Mutation(() => Entity, {
@@ -432,6 +444,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `updateMany${pluralize(pascalCase(entityToken.description))}`,
       })
       async updateMany(
+        @CurrentUserId() userId: Id,
         @Args(
           'filter',
           { type: () => UpdateManyFilterType },
@@ -443,11 +456,13 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           { type: () => UpdateManyUpdateType },
           ...updateManyUpdatePipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
-          ...(isTrackable ? [AddTrackableUpdateFields] : []),
         )
         update: typeof UpdateManyUpdateType,
       ) {
-        return this.simpleService.updateMany(filter, update);
+        return this.simpleService.updateMany(filter, {
+          ...update,
+          ...(isTrackable ? { updatedBy: userId, updatedAt: new Date() } : {}),
+        });
       }
 
       @Mutation(() => Entity, {
@@ -456,6 +471,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         name: `findOneAndUpdate${pascalCase(entityToken.description)}`,
       })
       async findOneAndUpdte(
+        @CurrentUserId() userId: Id,
         @Args(
           'filter',
           { type: () => FindOneAndUpdateFilterType },
@@ -467,11 +483,13 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           { type: () => FindOneAndUpdateUpdateType },
           ...findOneAndUpdateUpdatePipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
-          ...(isTrackable ? [AddTrackableUpdateFields] : []),
         )
         update: typeof FindOneAndUpdateUpdateType,
       ) {
-        return this.simpleService.findOneAndUpdate(filter, update);
+        return this.simpleService.findOneAndUpdate(filter, {
+          ...update,
+          ...(isTrackable ? { updatedBy: userId, updatedAt: new Date() } : {}),
+        });
       }
 
       @Mutation(() => Entity, {

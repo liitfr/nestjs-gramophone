@@ -1,19 +1,13 @@
-import { Inject, SetMetadata, Type } from '@nestjs/common';
+import { Inject, Type } from '@nestjs/common';
 
 import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
-import {
-  ENTITY_METADATA,
-  EntityMetadata,
-  getEntityMetadata,
-} from '../../utils/entities/entity.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
+import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
+import { SetServiceMetadata } from '../../utils/services/set-service-metadata.decorator';
 
 import { ReferencesService } from '../services/references.service';
-import {
-  SERVICE_METADATA,
-  ServiceMetadata,
-} from '../../utils/services/service.util';
 
 export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
   const entityMetadata = getEntityMetadata(Reference);
@@ -83,7 +77,7 @@ export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
     );
   }
 
-  Object.entries(EntityPartition).forEach(([key]) => {
+  Object.entries(EntityPartition ?? []).forEach(([key]) => {
     const pCKey = pascalCase(key);
 
     Object.defineProperty(SimpleReferenceService.prototype, `find${pCKey}`, {
@@ -109,12 +103,12 @@ export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
     `${pluralize(pascalCase(entityToken.description))}Service`,
   );
 
-  SetMetadata<symbol, ServiceMetadata>(SERVICE_METADATA, {
+  SetServiceMetadata({
     serviceToken,
   })(SimpleReferenceService);
 
-  SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-    ...entityMetadata,
+  SetEntityMetadata({
+    entityToken,
     entityServiceToken: serviceToken,
   })(Reference);
 

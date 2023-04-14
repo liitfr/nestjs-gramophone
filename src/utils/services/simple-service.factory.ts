@@ -1,4 +1,4 @@
-import { Inject, Logger, SetMetadata, Type } from '@nestjs/common';
+import { Inject, Logger, Type } from '@nestjs/common';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import {
@@ -11,7 +11,7 @@ import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-i
 import { getEntityMetadata } from '../entities/entity.util';
 import { camelCase, pascalCase } from '../string.util';
 
-import { SERVICE_METADATA, ServiceMetadata } from './service.util';
+import { SetServiceMetadata } from './set-service-metadata.decorator';
 
 type SimpleServiceObj<D> = Repository<D> & {
   repository: Repository<D>;
@@ -214,7 +214,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
     });
   }
 
-  SetMetadata<symbol, ServiceMetadata>(SERVICE_METADATA, {
+  SetServiceMetadata({
     serviceToken: entityServiceToken,
   })(SimpleService);
 

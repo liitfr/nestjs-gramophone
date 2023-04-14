@@ -3,6 +3,7 @@ import { Type } from '@nestjs/common';
 export const REFERENCE_METADATA = Symbol('referenceMetadata');
 
 export interface ReferenceMetadata {
+  referenceToken: symbol;
   addChip?: boolean;
 }
 

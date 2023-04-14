@@ -1,25 +1,15 @@
-import { SetMetadata } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
-import {
-  ENTITY_METADATA,
-  EntityMetadata,
-  getEntityMetadata,
-} from '../../utils/entities/entity.util';
+import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
-import {
-  REFERENCE_METADATA,
-  ReferenceMetadata,
-} from '../../utils/references/reference.util';
-import {
-  generateCollectionName,
-  pascalCase,
-  pluralize,
-} from '../../utils/string.util';
+import { generateCollectionName } from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
+import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 
 import { Chip, ChipSchemas } from '../entities/chip.entity';
+
+import { SetReferenceMetadata } from './set-reference-metadata.decorator';
 
 interface Options {
   addChip?: boolean;
@@ -117,26 +107,21 @@ export function SimpleReference(
       );
     }
 
-    const entityToken = Symbol(constructor.name);
+    SimpleEntity({ isIdable: true })(constructor);
 
-    const entityServiceToken = Symbol(
-      `${pluralize(pascalCase(entityToken.description))}Service`,
-    );
+    const { entityToken } = getEntityMetadata(constructor);
 
-    SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, {
-      ...entityMetadata,
+    SetReferenceMetadata({
+      referenceToken: entityToken,
+      addChip,
+    })(constructor);
+
+    SetEntityMetadata({
       entityToken,
       entityDescription,
       EntityPartition: Partition,
       entityPartitioner: partitioner,
-      entityServiceToken,
     })(constructor);
-
-    SetMetadata<symbol, ReferenceMetadata>(REFERENCE_METADATA, {
-      addChip,
-    })(constructor);
-
-    SimpleEntity({ isIdable: true })(constructor);
 
     Schema({ collection: generateCollectionName(entityToken.description) })(
       constructor,
