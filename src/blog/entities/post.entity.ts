@@ -1,6 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
 
 import { Type } from '../../references/entities/type.entity';
 import { AddRelations } from '../../utils/relations/add-relations.decorator';
@@ -14,8 +13,6 @@ import {
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 
 import { Author } from './author.entity';
-
-export type PostDocument = HydratedDocument<Post>;
 
 @ObjectType()
 @Schema()

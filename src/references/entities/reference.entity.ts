@@ -1,6 +1,5 @@
 import { Field, Int } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
 
 import { ReferenceEnum } from '../enums/reference.enum';
 import {
@@ -8,8 +7,6 @@ import {
   SimpleReference,
 } from '../decorators/simple-reference.decorator';
 import { CreateReferenceRepository } from '../decorators/create-reference-repository.decorator';
-
-export type ReferenceDocument = HydratedDocument<Reference>;
 
 @CreateReferenceRepository()
 @SimpleReference(ReferenceEnum)

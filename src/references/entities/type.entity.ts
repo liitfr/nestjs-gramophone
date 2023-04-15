@@ -1,13 +1,9 @@
-import { HydratedDocument } from 'mongoose';
-
 import {
   ISimpleReference,
   SimpleReference,
 } from '../decorators/simple-reference.decorator';
 import { TypeEnum } from '../enums/type.enum';
 import { CreateReferenceRepository } from '../decorators/create-reference-repository.decorator';
-
-export type TypeDocument = HydratedDocument<Type>;
 
 @CreateReferenceRepository()
 @SimpleReference(TypeEnum)

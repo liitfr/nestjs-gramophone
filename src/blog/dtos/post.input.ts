@@ -4,5 +4,5 @@ import { SimpleVersionedEntityInputFactory } from '../../versioning/factories/si
 
 import { Post } from '../entities/post.entity';
 
-@InputType()
+@InputType({ description: 'Post Input' })
 export class PostInput extends SimpleVersionedEntityInputFactory(Post) {}

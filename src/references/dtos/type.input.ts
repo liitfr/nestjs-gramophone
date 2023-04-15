@@ -4,5 +4,5 @@ import { SimpleEntityInputFactory } from '../../utils/dtos/simple-entity-input.f
 
 import { Type } from '../entities/type.entity';
 
-@InputType()
+@InputType({ description: 'Type Input' })
 export class TypeInput extends SimpleEntityInputFactory(Type) {}

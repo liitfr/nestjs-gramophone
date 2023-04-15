@@ -4,5 +4,5 @@ import { SimpleEntityInputFactory } from '../../utils/dtos/simple-entity-input.f
 
 import { Reference } from '../entities/reference.entity';
 
-@InputType()
+@InputType({ description: 'Reference Input' })
 export class ReferenceInput extends SimpleEntityInputFactory(Reference) {}

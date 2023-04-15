@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-@InputType()
+@InputType({ isAbstract: true })
 export class VersionDataInput {
   @Field(() => String, {
     nullable: true,
