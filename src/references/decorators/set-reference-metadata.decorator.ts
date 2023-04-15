@@ -1,18 +1,17 @@
 import { SetMetadata } from '@nestjs/common';
 
 import { REFERENCE_METADATA, ReferenceMetadata } from '../utils/reference.util';
-
-export const entities = new Map<symbol, ReferenceMetadata>();
+import { ReferenceStore } from '../services/reference-store.service';
 
 export function SetReferenceMetadata(metadata: ReferenceMetadata) {
   const { referenceToken } = metadata;
 
   const newMetadata = {
-    ...(entities.get(referenceToken) ?? {}),
+    ...(ReferenceStore.get(referenceToken) ?? {}),
     ...metadata,
   };
 
-  entities.set(referenceToken, newMetadata);
+  ReferenceStore.set(referenceToken, newMetadata);
 
   return SetMetadata<symbol, ReferenceMetadata>(
     REFERENCE_METADATA,

@@ -1,18 +1,17 @@
 import { SetMetadata } from '@nestjs/common';
 
 import { SERVICE_METADATA, ServiceMetadata } from './service.util';
-
-export const entities = new Map<symbol, ServiceMetadata>();
+import { ServiceStore } from './service-store.service';
 
 export function SetServiceMetadata(metadata: ServiceMetadata) {
   const { serviceToken } = metadata;
 
   const newMetadata = {
-    ...(entities.get(serviceToken) ?? {}),
+    ...(ServiceStore.get(serviceToken) ?? {}),
     ...metadata,
   };
 
-  entities.set(serviceToken, newMetadata);
+  ServiceStore.set(serviceToken, newMetadata);
 
   return SetMetadata<symbol, ServiceMetadata>(SERVICE_METADATA, newMetadata);
 }
