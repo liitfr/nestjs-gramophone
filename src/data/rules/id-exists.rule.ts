@@ -9,7 +9,7 @@ import {
 
 import { Id } from '../../utils/id.type';
 
-import { RepositoryFinder } from '../services/repository-finder.service';
+import { RepositoryStore } from '../services/repository-store.service';
 
 @ValidatorConstraint({ name: 'IdExists', async: true })
 @Injectable()
@@ -22,7 +22,7 @@ export class IdExistsRule implements ValidatorConstraintInterface {
         return true;
       }
 
-      const entityRepository = RepositoryFinder.findByEntityToken(entityToken);
+      const entityRepository = RepositoryStore.get(entityToken);
 
       const result = await entityRepository.findById(id);
 

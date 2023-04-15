@@ -3,14 +3,14 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Logger, Provider } from '@nestjs/common';
 
 import { DbSession } from '../../abstracts/db-session.abstract';
-import { repositories } from '../../decorators/create-repository.decorator';
+import { RepositoryStore } from '../../services/repository-store.service';
 
 import { MongoRepository } from '../services/repository.service';
 
 export const MongoRepositoriesFactory = () => {
   const result: Provider[] = [];
 
-  for (const repository of repositories) {
+  for (const repository of RepositoryStore.getAll()) {
     const { entityToken, entityRepositoryToken } = repository;
 
     if (!entityToken) {

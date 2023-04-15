@@ -42,6 +42,9 @@ type Author {
   posts: [Post!]!
 }
 
+"""
+Author Input
+"""
 input AuthorInput {
   """
   Author's id
@@ -293,6 +296,9 @@ type Post {
   updaterId: Id!
 }
 
+"""
+Post Input
+"""
 input PostInput {
   """
   Post's id

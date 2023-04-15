@@ -2,7 +2,7 @@ import { Injectable, Optional, PipeTransform, Type } from '@nestjs/common';
 
 import { getEntityMetadata } from '../../utils/entities/entity.util';
 
-import { RepositoryFinder } from '../services/repository-finder.service';
+import { RepositoryStore } from '../services/repository-store.service';
 
 @Injectable()
 export class CheckRelations implements PipeTransform<any> {
@@ -30,8 +30,7 @@ export class CheckRelations implements PipeTransform<any> {
 
         const { entityToken: relationToken } = getEntityMetadata(Relation);
 
-        const relationRepository =
-          RepositoryFinder.findByEntityToken(relationToken);
+        const relationRepository = RepositoryStore.get(relationToken);
 
         let result;
 

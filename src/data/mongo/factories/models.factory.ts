@@ -5,12 +5,12 @@ import {
 import { Logger } from '@nestjs/common';
 import { identity } from 'lodash';
 
-import { repositories } from '../../decorators/create-repository.decorator';
+import { RepositoryStore } from '../../services/repository-store.service';
 
 export const MongoModelsFactory = () => {
   const result: ModelDefinition[] = [];
 
-  for (const repository of repositories) {
+  for (const repository of RepositoryStore.getAll()) {
     const { entityToken, Entity, options: { SchemaFactory } = {} } = repository;
 
     Logger.verbose(

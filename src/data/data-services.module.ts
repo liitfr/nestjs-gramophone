@@ -9,7 +9,7 @@ import { MongoDbSession } from './mongo/services/db-session.service';
 import { MongoRepositoriesFactory } from './mongo/factories/repositories.factory';
 import { MongoRepository } from './mongo/services/repository.service';
 import { MongoModelsFactory } from './mongo/factories/models.factory';
-import { RepositoryFinder } from './services/repository-finder.service';
+import { RepositoryStore } from './services/repository-store.service';
 import { CheckRelations } from './pipes/check-relations.pipe';
 
 @Global()
@@ -33,14 +33,14 @@ export class DataServicesModule {
           useClass: MongoRepository,
         },
         ...MongoRepositories,
-        RepositoryFinder,
+        RepositoryStore,
         CheckRelations,
       ],
       exports: [
         DbSession,
         Repository,
         ...MongoRepositories,
-        RepositoryFinder,
+        RepositoryStore,
         CheckRelations,
       ],
     };
