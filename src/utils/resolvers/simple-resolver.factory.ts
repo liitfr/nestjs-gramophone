@@ -402,9 +402,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           ...doc,
           ...(isTrackable
             ? {
-                createdBy: userId,
+                creatorId: userId,
                 createdAt: new Date(),
-                updatedBy: userId,
+                updaterId: userId,
                 updatedAt: new Date(),
               }
             : {}),
