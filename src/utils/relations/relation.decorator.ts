@@ -1,6 +1,7 @@
 import { Prop } from '@nestjs/mongoose';
 import { Field } from '@nestjs/graphql';
 import { Schema as MongooseSchema } from 'mongoose';
+import { Logger } from '@nestjs/common';
 
 import {
   splitPascalWithSpaces,
@@ -74,6 +75,16 @@ export function Relation(
     if (relationOptions?.reversible && !relationOptions?.reversedIdName) {
       throw new Error(
         `The relation "${propertyKey}" is reversible but has no reversedIdName.`,
+      );
+    }
+
+    if (relationOptions?.reversible) {
+      Logger.warn(
+        `
+You are using a reversible relation. Please remember that :
+- You should not use reversible relations between modules.
+- If you use weak relations, you have to import your module's services before its resolvers in order to register all entity metadata first. If you don't do so, your target entity may not find any source entity in EntityStore.`,
+        'RelationDecorator',
       );
     }
 
