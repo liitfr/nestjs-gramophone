@@ -1,4 +1,3 @@
-// import { Type } from '@nestjs/common';
 import { Prop } from '@nestjs/mongoose';
 import { Field } from '@nestjs/graphql';
 import { Schema as MongooseSchema } from 'mongoose';
@@ -8,6 +7,7 @@ import {
   camelCase,
   lowerCaseFirstLetter,
   pascalCase,
+  pluralize,
 } from '../string.util';
 import { IdScalar } from '../scalars/id.scalar';
 import { EntityStore } from '../entities/entity-store.service';
@@ -51,7 +51,7 @@ export function Relation(
       );
     }
 
-    const relationTargetMetadata = EntityStore.get(relationTarget);
+    const relationTargetMetadata = EntityStore.uncertainGet(relationTarget);
 
     const idSuffix = relationOptions?.multiple ? 'Ids' : 'Id';
 
@@ -99,22 +99,26 @@ export function Relation(
     let reversedResolvedDescription: string | undefined = undefined;
 
     if (relationOptions?.reversedIdName) {
-      reversedResolvedName = relationOptions?.reversedIdName?.replace(
+      const reversedBaseName = relationOptions?.reversedIdName?.replace(
         new RegExp('Ids$'),
         '',
       );
 
-      const reversedRelationDescription =
-        splitPascalWithSpaces(reversedResolvedName);
+      reversedResolvedName = pluralize(reversedBaseName);
+
+      const reversedRelationIdDescription =
+        splitPascalWithSpaces(reversedBaseName);
+      const reversedRelationResolvedDescription = splitPascalWithSpaces(
+        pluralize(reversedBaseName),
+      );
 
       const targetDescription =
         typeof relationTarget === 'string'
           ? splitPascalWithSpaces(relationTarget)
-          : relationTargetMetadata.entityDescription;
+          : relationTargetMetadata?.entityDescription ?? relationTarget.name;
 
-      reversedIdDescription = `${targetDescription}'s ${reversedRelationDescription} ids`;
-      reversedResolvedName = `${targetDescription}'s ${reversedResolvedName}`;
-      reversedResolvedDescription = `${targetDescription}'s ${reversedRelationDescription}`;
+      reversedIdDescription = `${targetDescription}'s ${reversedRelationIdDescription} ids`;
+      reversedResolvedDescription = `${targetDescription}'s ${reversedRelationResolvedDescription}`;
     }
 
     const relationDetails: RelationDetails = {
@@ -134,7 +138,8 @@ export function Relation(
     const targetRef =
       typeof relationTarget === 'string'
         ? relationTarget
-        : relationTargetMetadata.entityToken.description;
+        : relationTargetMetadata?.entityToken?.description ??
+          relationTarget.name;
 
     Prop({
       type: relationOptions?.multiple

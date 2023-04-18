@@ -3,18 +3,21 @@ import { Module } from '@nestjs/common';
 import { VersioningModule } from '../versioning/versioning.module';
 import { ReferencesModule } from '../references/references.module';
 
-import { AuthorsResolver } from './resolvers/authors.resolver';
-import { PostsResolver } from './resolvers/posts.resolver';
+// 1. Services
 import { PostsServiceProviders } from './services/posts.service';
 import { AuthorsServiceProviders } from './services/authors.service';
+
+// 2. Resolvers
+import { AuthorsResolver } from './resolvers/authors.resolver';
+import { PostsResolver } from './resolvers/posts.resolver';
 
 @Module({
   imports: [VersioningModule.forRoot(), ReferencesModule],
   providers: [
     ...PostsServiceProviders,
     ...AuthorsServiceProviders,
-    PostsResolver,
     AuthorsResolver,
+    PostsResolver,
   ],
   exports: [],
 })

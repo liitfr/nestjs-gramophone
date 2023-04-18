@@ -13,6 +13,7 @@ import { Inject, Logger, PipeTransform, Type } from '@nestjs/common';
 import { Repository } from '../../data/abstracts/repository.abstract';
 import { CheckRelations } from '../../data/pipes/check-relations.pipe';
 import { CurrentUserId } from '../../users/decorators/current-user-id.decorator';
+import { RepositoryStore } from '../../data/services/repository-store.service';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { camelCase, pascalCase, pluralize } from '../string.util';
@@ -50,7 +51,7 @@ const addRelationResolvers = (
 ) => {
   const metadata = EntityStore.get(Entity);
 
-  const { entityRelations, entityDescription, entityToken } = metadata;
+  const { entityRelations, entityToken } = metadata;
 
   const entityTokenDescription = entityToken.description;
 
@@ -81,7 +82,6 @@ const addRelationResolvers = (
           entityDescription: relationDescription,
           EntityPartition: RelationPartition,
           entityPartitioner: relationPartitioner,
-          entityServiceToken: relationServiceToken,
         } = targetMetadata;
 
         const relationTokenDescription = relationToken.description;
@@ -92,50 +92,21 @@ const addRelationResolvers = (
           );
         }
 
-        if (!relationServiceToken) {
-          throw new Error(
-            `The entity ${relationTokenDescription} does not have a service`,
-          );
-        }
-
-        const relationServicePropertyName = camelCase(
-          relationServiceToken.description,
-        ) as keyof typeof Resolver;
-
-        if (!Resolver[relationServicePropertyName]) {
-          Object.defineProperty(
-            Resolver.prototype,
-            relationServicePropertyName,
-            {
-              writable: true,
-              enumerable: true,
-              configurable: true,
-            },
-          );
-
-          const relationServiceInjector = Inject(relationServiceToken);
-          relationServiceInjector(
-            Resolver.prototype,
-            relationServicePropertyName,
-          );
-        }
-
         if (resolve) {
           Object.defineProperty(Resolver.prototype, resolvedName, {
             value: async function (parent: Record<string, unknown>) {
-              if (!parent[idName]) {
-                throw new Error(
-                  'The parent object does not have the property ' + idName,
+              if (parent[idName]) {
+                const parentId = parent['idName'] as Id;
+                if (multiple) {
+                  return RepositoryStore.getByEntity(relationToken).find({
+                    _id: { $in: parentId ?? [] },
+                  });
+                }
+                return RepositoryStore.getByEntity(relationToken).findById(
+                  parentId,
                 );
               }
-              if (multiple) {
-                return this[relationServicePropertyName].find({
-                  _id: { $in: parent?.[idName] ?? [] },
-                });
-              }
-              return this[relationServicePropertyName].findById(
-                parent?.[idName],
-              );
+              return undefined;
             },
             writable: true,
             enumerable: true,
@@ -163,7 +134,7 @@ const addRelationResolvers = (
         if (partitionQueries) {
           if (!RelationPartition || !relationPartitioner) {
             throw new Error(
-              `The entity ${relationServiceToken.description} does not have a partitioner`,
+              `The relation ${relationTokenDescription} does not have a partitioner`,
             );
           }
 
@@ -182,7 +153,7 @@ const addRelationResolvers = (
                 value: async function () {
                   if (!this.simpleService[serviceFindAllMethodName]) {
                     throw new Error(
-                      `The method ${serviceFindAllMethodName} does not exist in the service ${relationServiceToken.description}`,
+                      `The method ${serviceFindAllMethodName} does not exist in the ${entityTokenDescription} related service`,
                     );
                   }
                   return this.simpleService[serviceFindAllMethodName]();
@@ -206,7 +177,7 @@ const addRelationResolvers = (
 
             Query(() => [Entity], {
               nullable: false,
-              description: `${entityDescription}: Find all with ${pCPartition} ${relationDescription} query`,
+              description: `${entityTokenDescription}: Find all with ${pCPartition} ${relationDescription} query`,
               name: resolverFindAllMethodName,
             })(
               Resolver.prototype,
@@ -226,7 +197,7 @@ const addRelationResolvers = (
                 value: async function () {
                   if (!this.simpleService[serviceCountAllMethodName]) {
                     throw new Error(
-                      `The method ${serviceCountAllMethodName} does not exist in the service ${relationServiceToken.description}`,
+                      `The method ${serviceCountAllMethodName} does not exist in the ${entityTokenDescription} related service`,
                     );
                   }
                   return this.simpleService[serviceCountAllMethodName]();
@@ -251,7 +222,7 @@ const addRelationResolvers = (
 
             Query(() => Int, {
               nullable: false,
-              description: `${entityDescription} : Count all with ${pCPartition} ${relationDescription} query`,
+              description: `${entityTokenDescription} : Count all with ${pCPartition} ${relationDescription} query`,
               name: resolverCountAllMethodName,
             })(
               Resolver.prototype,
@@ -262,6 +233,167 @@ const addRelationResolvers = (
         }
       }
     });
+  }
+};
+
+const addReversedRelationResolvers = (
+  Resolver: Type<unknown>,
+  Entity: Type<unknown>,
+) => {
+  const metadata = EntityStore.get(Entity);
+
+  const { entityToken } = metadata;
+
+  const entityTokenDescription = entityToken.description;
+
+  if (!entityTokenDescription) {
+    throw new Error(
+      'Description not found for token ' + entityToken.toString(),
+    );
+  }
+
+  const reversedRelationMetadatas =
+    EntityStore.getReversedRelationMetadata(entityToken);
+
+  if (reversedRelationMetadatas) {
+    for (const { details, sourceMetadata } of reversedRelationMetadatas) {
+      const {
+        idName,
+        multiple,
+        reversible,
+        reversedResolvedName,
+        reversedResolvedDescription,
+        reversedIdName,
+        reversedIdDescription,
+        reverseResolve,
+      } = details;
+
+      if (reversible) {
+        if (!reversedIdName) {
+          throw new Error(
+            'The relation is reversible but reversedIdName is not defined.',
+          );
+        }
+
+        Object.defineProperty(Resolver.prototype, reversedIdName, {
+          value: async function (parent: Record<string, unknown>) {
+            if (!parent['_id']) {
+              throw new Error(
+                'The parent object does not have the property _id',
+              );
+            }
+
+            const parentId = parent['_id'] as Id;
+
+            if (multiple) {
+              return (
+                await RepositoryStore.getByEntity(
+                  sourceMetadata.entityToken,
+                ).find(
+                  {
+                    [idName]: { $in: parentId },
+                  },
+                  { errorIfUnknown: false },
+                )
+              ).map((item: Record<string, unknown>) => {
+                if (!item['_id']) {
+                  throw new Error('The item does not have the property _id');
+                }
+                return item['_id'];
+              });
+            }
+
+            return (
+              await RepositoryStore.getByEntity(
+                sourceMetadata.entityToken,
+              ).find({ [idName]: parentId }, { errorIfUnknown: false })
+            ).map((item: Record<string, unknown>) => {
+              if (!item['_id']) {
+                throw new Error('The item does not have the property _id');
+              }
+              return item['_id'];
+            });
+          },
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+
+        const descriptorReversedId = Object.getOwnPropertyDescriptor(
+          Resolver.prototype,
+          reversedIdName,
+        );
+
+        if (!descriptorReversedId) {
+          throw new Error(
+            `The descriptor for the method ${reversedIdName} does not exist in the resolver ${Resolver.name}`,
+          );
+        }
+
+        ResolveField(() => [IdScalar], {
+          name: reversedIdName,
+          description: reversedIdDescription,
+        })(Resolver.prototype, reversedIdName, descriptorReversedId);
+
+        if (reverseResolve) {
+          if (!reversedResolvedName) {
+            throw new Error(
+              'The reversed relation is resolved but reversedResolvedName is not defined.',
+            );
+          }
+
+          Object.defineProperty(Resolver.prototype, reversedResolvedName, {
+            value: async function (parent: Record<string, unknown>) {
+              if (!parent['_id']) {
+                throw new Error(
+                  'The parent object does not have the property _id',
+                );
+              }
+
+              const parentId = parent['_id'] as Id;
+
+              if (multiple) {
+                return RepositoryStore.getByEntity(
+                  sourceMetadata.entityToken,
+                ).find(
+                  {
+                    [idName]: { $in: parentId },
+                  },
+                  { errorIfUnknown: false },
+                );
+              }
+
+              return RepositoryStore.getByEntity(
+                sourceMetadata.entityToken,
+              ).find({ [idName]: parentId }, { errorIfUnknown: false });
+            },
+            writable: true,
+            enumerable: true,
+            configurable: true,
+          });
+
+          const descriptorReversedResolved = Object.getOwnPropertyDescriptor(
+            Resolver.prototype,
+            reversedResolvedName,
+          );
+
+          if (!descriptorReversedResolved) {
+            throw new Error(
+              `The descriptor for the method ${reversedResolvedName} does not exist in the resolver ${Resolver.name}`,
+            );
+          }
+
+          ResolveField(() => [sourceMetadata.Entity], {
+            name: reversedResolvedName,
+            description: reversedResolvedDescription,
+          })(
+            Resolver.prototype,
+            reversedResolvedName,
+            descriptorReversedResolved,
+          );
+        }
+      }
+    }
   }
 };
 
@@ -555,9 +687,11 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     }
 
     addRelationResolvers(ResolverWithAutoSetters, Entity);
+    addReversedRelationResolvers(ResolverWithAutoSetters, Entity);
     return ResolverWithAutoSetters;
   }
 
   addRelationResolvers(ResolverWithAutoGetters, Entity);
+  addReversedRelationResolvers(ResolverWithAutoGetters, Entity);
   return ResolverWithAutoGetters;
 }

@@ -37,7 +37,7 @@ export class Post {
   })
   colorId?: Id;
 
-  @Relation('Author')
+  @Relation('Author', { reversible: true, reversedIdName: 'postIds' })
   authorId: Id;
 }
 

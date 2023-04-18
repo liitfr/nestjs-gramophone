@@ -1,12 +1,17 @@
 import { Injectable, Type } from '@nestjs/common';
 
-import { RelationOptions } from '../relations/relation.util';
+import { RelationDetails } from '../relations/relation.util';
 
 import { EntityMetadata, getEntityToken } from './entity.util';
 
 type RelationMetadata = {
-  metadata: EntityMetadata;
-  options?: RelationOptions;
+  targetMetadata: EntityMetadata;
+  details: RelationDetails;
+};
+
+type ReversedRelationMetadata = {
+  sourceMetadata: EntityMetadata;
+  details: RelationDetails;
 };
 
 @Injectable()
@@ -87,23 +92,26 @@ export class EntityStore {
     const entityMetadata = EntityStore.get(entity);
     const relations = entityMetadata?.entityRelations ?? [];
     return relations.map(({ target, details }) => {
-      const metadata = EntityStore.get(target);
-      return { metadata, details };
+      const targetMetadata = EntityStore.get(target);
+      return { targetMetadata, details };
     });
   }
 
-  public static getReversedRelationMetadata(target: symbol | string) {
+  public static getReversedRelationMetadata(
+    target: symbol | string,
+  ): ReversedRelationMetadata[] {
     const targetMetadata = EntityStore.get(target);
-    const result: RelationMetadata[] = [];
+    const result: ReversedRelationMetadata[] = [];
     for (const [sourceToken, sourceMetadata] of EntityStore.entities) {
       const relations = EntityStore.getRelationMetadata(sourceToken).filter(
-        ({ metadata }) => metadata.entityToken === targetMetadata.entityToken,
+        ({ targetMetadata: sourceTargetMetadata }) =>
+          sourceTargetMetadata.entityToken === targetMetadata.entityToken,
       );
       if (relations) {
         result.push(
-          ...relations.map((relation) => ({
-            metadata: sourceMetadata,
-            options: relation.options,
+          ...relations.map(({ details }) => ({
+            sourceMetadata,
+            details,
           })),
         );
       }

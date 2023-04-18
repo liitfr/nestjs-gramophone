@@ -3,6 +3,7 @@ import { Injectable, Type } from '@nestjs/common';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
+import { getEntityToken } from '../../utils/entities/entity.util';
 
 import { Repository as IRepository } from '../abstracts/repository.abstract';
 
@@ -10,13 +11,17 @@ interface Options {
   SchemaFactory?: (Schema: unknown) => unknown;
 }
 
-interface Repository {
+type Repository = {
   Entity: Type<unknown>;
   entityToken: symbol;
   entityRepositoryToken: symbol;
   instance?: IRepository<unknown>;
   options?: Options;
-}
+};
+
+type RegisteredRepository = Repository & {
+  instance: IRepository<unknown>;
+};
 
 export { Options as RepositoryStoreRegisterOptions };
 
@@ -72,18 +77,33 @@ export class RepositoryStore {
     return newRepository;
   }
 
-  public static getByEntity(entity: symbol | string) {
-    const repository = RepositoryStore.repositories.find((r) =>
-      typeof entity === 'string'
-        ? r.entityToken.description === entity
-        : r.entityToken === entity,
-    );
+  public static getByEntity(
+    entity: symbol | string | Type<unknown>,
+  ): IRepository<unknown> {
+    let repository: Repository | undefined;
+    let description: string | undefined;
+    if (typeof entity === 'string') {
+      repository = RepositoryStore.repositories.find(
+        (r) => r.entityToken.description === entity,
+      );
+      description = entity;
+    } else if (typeof entity === 'symbol') {
+      repository = RepositoryStore.repositories.find(
+        (r) => r.entityToken === entity,
+      );
+      description = entity.description;
+    } else {
+      const resolvedEntityToken = getEntityToken(entity);
+      if (resolvedEntityToken) {
+        repository = RepositoryStore.repositories.find(
+          (r) => r.entityToken === resolvedEntityToken,
+        );
+        description = resolvedEntityToken.description;
+      }
+    }
 
-    const description =
-      typeof entity === 'string' ? entity : entity.description;
-
-    if (!repository) {
-      throw new Error(`Repository for entity ${description} not found`);
+    if (!repository || !description) {
+      throw new Error(`Repository not found for entity ` + entity.toString());
     }
 
     if (!repository.entityRepositoryToken) {
@@ -98,7 +118,7 @@ export class RepositoryStore {
       throw new Error(`Repository for entity ${description} not registered`);
     }
 
-    return repository.instance;
+    return (repository as RegisteredRepository).instance;
   }
 
   public static getAll() {

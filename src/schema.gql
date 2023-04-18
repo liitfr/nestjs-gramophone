@@ -39,6 +39,15 @@ type Author {
   _id: Id!
   firstName: String!
   lastName: String!
+
+  """
+  Author's post ids
+  """
+  postIds: [Id!]!
+
+  """
+  Author's posts
+  """
   posts: [Post!]!
 }
 
@@ -595,11 +604,6 @@ type Query {
   Post : Find all query
   """
   findAllPosts: [Post!]!
-
-  """
-  Find all posts for one author
-  """
-  findAllPostsForOneAuthor(id: Id!): [Post!]!
 
   """
   Post: Find all with CoverPage Type query
