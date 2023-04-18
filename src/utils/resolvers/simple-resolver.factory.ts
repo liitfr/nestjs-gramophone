@@ -15,10 +15,10 @@ import { CheckRelations } from '../../data/pipes/check-relations.pipe';
 import { CurrentUserId } from '../../users/decorators/current-user-id.decorator';
 
 import { IdScalar } from '../scalars/id.scalar';
-import { getEntityMetadata } from '../entities/entity.util';
 import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
 import { checkIfIsTrackable } from '../entities/simple-entity.decorator';
+import { EntityStore } from '../entities/entity-store.service';
 
 interface Options {
   noMutation?: boolean;
@@ -48,39 +48,59 @@ const addRelationResolvers = (
   Resolver: Type<unknown>,
   Entity: Type<unknown>,
 ) => {
-  const { entityRelations, entityDescription, entityToken } =
-    getEntityMetadata(Entity);
+  const metadata = EntityStore.get(Entity);
+
+  const { entityRelations, entityDescription, entityToken } = metadata;
+
+  const entityTokenDescription = entityToken.description;
+
+  if (!entityTokenDescription) {
+    throw new Error(
+      'Description not found for token ' + entityToken.toString(),
+    );
+  }
 
   if (entityRelations && entityRelations.length) {
-    entityRelations.forEach((relation) => {
+    entityRelations.forEach(({ target, details }) => {
       const {
-        Relation,
         idName,
         partitionQueries,
         resolve,
         resolvedName,
         resolvedDescription,
         nullable,
-      } = relation;
+        multiple,
+      } = details;
 
       if (resolve || partitionQueries) {
+        const targetMetadata = EntityStore.get(target);
+
         const {
+          Entity: Relation,
           entityToken: relationToken,
           entityDescription: relationDescription,
           EntityPartition: RelationPartition,
           entityPartitioner: relationPartitioner,
           entityServiceToken: relationServiceToken,
-        } = getEntityMetadata(Relation);
+        } = targetMetadata;
+
+        const relationTokenDescription = relationToken.description;
+
+        if (!relationTokenDescription) {
+          throw new Error(
+            'Description not found for token ' + entityToken.toString(),
+          );
+        }
 
         if (!relationServiceToken) {
           throw new Error(
-            `The entity ${relationToken.description} does not have a service`,
+            `The entity ${relationTokenDescription} does not have a service`,
           );
         }
 
         const relationServicePropertyName = camelCase(
           relationServiceToken.description,
-        );
+        ) as keyof typeof Resolver;
 
         if (!Resolver[relationServicePropertyName]) {
           Object.defineProperty(
@@ -102,13 +122,13 @@ const addRelationResolvers = (
 
         if (resolve) {
           Object.defineProperty(Resolver.prototype, resolvedName, {
-            value: async function (parent: unknown) {
+            value: async function (parent: Record<string, unknown>) {
               if (!parent[idName]) {
                 throw new Error(
                   'The parent object does not have the property ' + idName,
                 );
               }
-              if (relation.multiple) {
+              if (multiple) {
                 return this[relationServicePropertyName].find({
                   _id: { $in: parent?.[idName] ?? [] },
                 });
@@ -122,15 +142,22 @@ const addRelationResolvers = (
             configurable: true,
           });
 
-          ResolveField(() => (relation.multiple ? [Relation] : Relation), {
+          const descriptorResolveField = Object.getOwnPropertyDescriptor(
+            Resolver.prototype,
+            resolvedName,
+          );
+
+          if (!descriptorResolveField) {
+            throw new Error(
+              `The descriptor for the method ${resolvedName} does not exist in the resolver ${Resolver.name}`,
+            );
+          }
+
+          ResolveField(() => (multiple ? [Relation] : Relation), {
             name: resolvedName,
             nullable,
             description: resolvedDescription,
-          })(
-            Resolver.prototype,
-            resolvedName,
-            Object.getOwnPropertyDescriptor(Resolver.prototype, resolvedName),
-          );
+          })(Resolver.prototype, resolvedName, descriptorResolveField);
         }
 
         if (partitionQueries) {
@@ -140,11 +167,11 @@ const addRelationResolvers = (
             );
           }
 
-          const pCRelationName = pascalCase(relationToken.description);
+          const pCRelationName = pascalCase(relationTokenDescription);
           Object.entries(RelationPartition).forEach(([key]) => {
             const pCPartition = pascalCase(key);
             const resolverFindAllMethodName = `findAll${pascalCase(
-              pluralize(entityToken.description),
+              pluralize(entityTokenDescription),
             )}With${pCPartition}${pCRelationName}`;
             const serviceFindAllMethodName = `findAllWith${pCPartition}${pCRelationName}`;
 
@@ -166,6 +193,17 @@ const addRelationResolvers = (
               },
             );
 
+            const descriptorFindAllMethodName = Object.getOwnPropertyDescriptor(
+              Resolver.prototype,
+              resolverFindAllMethodName,
+            );
+
+            if (!descriptorFindAllMethodName) {
+              throw new Error(
+                `The method ${resolverFindAllMethodName} does not exist in the resolver ${Resolver.name}`,
+              );
+            }
+
             Query(() => [Entity], {
               nullable: false,
               description: `${entityDescription}: Find all with ${pCPartition} ${relationDescription} query`,
@@ -173,14 +211,11 @@ const addRelationResolvers = (
             })(
               Resolver.prototype,
               resolverFindAllMethodName,
-              Object.getOwnPropertyDescriptor(
-                Resolver.prototype,
-                resolverFindAllMethodName,
-              ),
+              descriptorFindAllMethodName,
             );
 
             const resolverCountAllMethodName = `countAll${pascalCase(
-              pluralize(entityToken.description),
+              pluralize(entityTokenDescription),
             )}With${pCPartition}${pCRelationName}`;
             const serviceCountAllMethodName = `countAllWith${pCPartition}${pCRelationName}`;
 
@@ -202,6 +237,18 @@ const addRelationResolvers = (
               },
             );
 
+            const descriptorCountAllMethodName =
+              Object.getOwnPropertyDescriptor(
+                Resolver.prototype,
+                resolverCountAllMethodName,
+              );
+
+            if (!descriptorCountAllMethodName) {
+              throw new Error(
+                `The method ${resolverCountAllMethodName} does not exist in the resolver ${Resolver.name}`,
+              );
+            }
+
             Query(() => Int, {
               nullable: false,
               description: `${entityDescription} : Count all with ${pCPartition} ${relationDescription} query`,
@@ -209,10 +256,7 @@ const addRelationResolvers = (
             })(
               Resolver.prototype,
               resolverCountAllMethodName,
-              Object.getOwnPropertyDescriptor(
-                Resolver.prototype,
-                resolverCountAllMethodName,
-              ),
+              descriptorCountAllMethodName,
             );
           });
         }
@@ -228,37 +272,26 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
   options?: Options,
 ) {
   const { entityToken, entityDescription, entityRelations } =
-    getEntityMetadata(Entity);
+    EntityStore.get(Entity);
+
+  const entityTokenDescription = entityToken.description;
+
+  if (!entityTokenDescription) {
+    throw new Error(
+      'Description not found for token ' + entityToken.toString(),
+    );
+  }
 
   Logger.verbose(
-    `SimpleResolver for ${entityToken.description}`,
+    `SimpleResolver for ${entityTokenDescription}`,
     'SimpleResolverFactory',
   );
 
-  // MHO : can't make it work ...  2 issues :
-  // 1. ExpectedType isn't respected by class-transformer
-  // 2. It looks like this validation generates new Ids ?! instead of ids received
-  // So I disabled it for now and use a "CheckRelations" pipe
-  // If you want to try, I kept rules IdExistsRule & IdsExistRule in codebase
-  // and then use these decorators in createProp in AddRelations
-  // class InputValidation extends ValidationPipe {
-  //   constructor() {
-  //     super({
-  //       whitelist: true,
-  //       forbidNonWhitelisted: true,
-  //       forbidUnknownValues: true,
-  //       transform: false,
-  //       // transform: true,
-  //       // expectedType: Input,
-  //     });
-  //   }
-  // }
-
   const isTrackable = checkIfIsTrackable(Entity);
 
-  const hasRelations = entityRelations?.length > 0;
+  const hasRelations = entityRelations && entityRelations?.length > 0;
 
-  @InputType(`${entityToken.description}PartialInput`)
+  @InputType(`${entityTokenDescription}PartialInput`)
   class PartialInput extends PartialType(Input) {}
 
   const {
@@ -314,21 +347,25 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
   @Resolver(() => Entity)
   class ResolverWithAutoGetters {
     @Inject(Service)
-    readonly simpleService: S;
+    readonly simpleService!: S;
 
     @Query(() => Entity, {
       nullable: false,
       description: `${entityDescription} : Find one query`,
-      name: `findOne${pascalCase(entityToken.description)}`,
+      name: `findOne${pascalCase(entityTokenDescription ?? 'unknown')}`,
     })
-    async findOne(@Args('id', { type: () => IdScalar }) id: Id): Promise<D> {
+    async findOne(
+      @Args('id', { type: () => IdScalar }) id: Id,
+    ): Promise<D | null> {
       return this.simpleService.findById(id);
     }
 
     @Query(() => [Entity], {
       nullable: false,
       description: `${entityDescription} : Find all query`,
-      name: `findAll${pluralize(pascalCase(entityToken.description))}`,
+      name: `findAll${pluralize(
+        pascalCase(entityTokenDescription ?? 'unknown'),
+      )}`,
     })
     async findAll(): Promise<D[]> {
       return this.simpleService.findAll();
@@ -337,7 +374,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => [Entity], {
       nullable: false,
       description: `${entityDescription} : Find some query`,
-      name: `findSome${pluralize(pascalCase(entityToken.description))}`,
+      name: `findSome${pluralize(
+        pascalCase(entityTokenDescription ?? 'unknown'),
+      )}`,
     })
     async findSome(
       @Args(
@@ -353,7 +392,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => Int, {
       nullable: false,
       description: `${entityDescription} : Count all query`,
-      name: `countAll${pluralize(pascalCase(entityToken.description))}`,
+      name: `countAll${pluralize(
+        pascalCase(entityTokenDescription ?? 'unknown'),
+      )}`,
     })
     async countAll(): Promise<number> {
       return this.simpleService.countAll();
@@ -362,7 +403,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
     @Query(() => Int, {
       nullable: false,
       description: `${entityDescription} : Count some query`,
-      name: `countSome${pluralize(pascalCase(entityToken.description))}`,
+      name: `countSome${pluralize(
+        pascalCase(entityTokenDescription ?? 'unknown'),
+      )}`,
     })
     async countSome(
       @Args(
@@ -384,12 +427,12 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Create mutation`,
-        name: `create${pascalCase(entityToken.description)}`,
+        name: `create${pascalCase(entityTokenDescription ?? 'unknown')}`,
       })
       async create(
         @CurrentUserId() userId: Id,
         @Args(
-          camelCase(entityToken.description),
+          camelCase(entityTokenDescription ?? 'unknown'),
           {
             type: () => CreateType,
           },
@@ -414,7 +457,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Update one mutation`,
-        name: `updateOne${pascalCase(entityToken.description)}`,
+        name: `updateOne${pascalCase(entityTokenDescription ?? 'unknown')}`,
       })
       async updateOne(
         @CurrentUserId() userId: Id,
@@ -441,7 +484,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Update many mutation`,
-        name: `updateMany${pluralize(pascalCase(entityToken.description))}`,
+        name: `updateMany${pluralize(
+          pascalCase(entityTokenDescription ?? 'unknown'),
+        )}`,
       })
       async updateMany(
         @CurrentUserId() userId: Id,
@@ -468,7 +513,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Find one and update mutation`,
-        name: `findOneAndUpdate${pascalCase(entityToken.description)}`,
+        name: `findOneAndUpdate${pascalCase(
+          entityTokenDescription ?? 'unknown',
+        )}`,
       })
       async findOneAndUpdte(
         @CurrentUserId() userId: Id,
@@ -495,7 +542,9 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Remove mutation`,
-        name: `remove${pluralize(pascalCase(entityToken.description))}`,
+        name: `remove${pluralize(
+          pascalCase(entityTokenDescription ?? 'unknown'),
+        )}`,
       })
       async remove(
         @Args('filter', { type: () => RemoveFilterType }, ...removeFilterPipes)

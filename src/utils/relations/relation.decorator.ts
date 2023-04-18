@@ -1,0 +1,162 @@
+// import { Type } from '@nestjs/common';
+import { Prop } from '@nestjs/mongoose';
+import { Field } from '@nestjs/graphql';
+import { Schema as MongooseSchema } from 'mongoose';
+
+import {
+  splitPascalWithSpaces,
+  camelCase,
+  lowerCaseFirstLetter,
+  pascalCase,
+} from '../string.util';
+import { IdScalar } from '../scalars/id.scalar';
+import { EntityStore } from '../entities/entity-store.service';
+import { SetEntityMetadata } from '../entities/set-entity-metadata.decorator';
+import { SetEntityToken } from '../entities/set-entity-token.decorator';
+import { EntityMetadata, getEntityToken } from '../entities/entity.util';
+
+import {
+  RelationDetails,
+  RelationEntity,
+  RelationOptions,
+  defaultRelationOptions,
+} from './relation.util';
+
+export function Relation(
+  relationTarget: RelationEntity,
+  relationOptions?: RelationOptions,
+) {
+  return function (decoratorTarget: any, propertyKey: string) {
+    let originalMetadata: Partial<EntityMetadata>;
+    if (!getEntityToken(decoratorTarget.constructor)) {
+      const token = Symbol(decoratorTarget.constructor.name);
+      SetEntityToken(token)(decoratorTarget.constructor);
+      SetEntityMetadata({
+        entityToken: Symbol(decoratorTarget.constructor.name),
+      })(decoratorTarget.constructor);
+      originalMetadata = {
+        entityToken: token,
+        entityDescription: pascalCase(decoratorTarget.constructor.name),
+      };
+    } else {
+      originalMetadata = EntityStore.get(decoratorTarget.constructor);
+    }
+
+    if (
+      typeof relationTarget === 'string' &&
+      relationTarget !== pascalCase(relationTarget)
+    ) {
+      throw new Error(
+        `The relation target "${relationTarget}" is not a valid entity name. Please use PascalCase.`,
+      );
+    }
+
+    const relationTargetMetadata = EntityStore.get(relationTarget);
+
+    const idSuffix = relationOptions?.multiple ? 'Ids' : 'Id';
+
+    if (propertyKey !== camelCase(propertyKey)) {
+      throw new Error(
+        `The property "${propertyKey}" is not a valid property name. Please use camelCase.`,
+      );
+    }
+
+    if (!propertyKey.endsWith(idSuffix)) {
+      throw new Error(
+        `The property "${propertyKey}" should end with "${idSuffix}".`,
+      );
+    }
+
+    const resolvedName = propertyKey.replace(new RegExp(`${idSuffix}$`), '');
+
+    const relationDescription = splitPascalWithSpaces(resolvedName);
+
+    if (relationOptions?.reversible && !relationOptions?.reversedIdName) {
+      throw new Error(
+        `The relation "${propertyKey}" is reversible but has no reversedIdName.`,
+      );
+    }
+
+    if (relationOptions?.reversedIdName) {
+      if (
+        relationOptions?.reversedIdName !==
+        camelCase(relationOptions?.reversedIdName)
+      ) {
+        throw new Error(
+          `The reversedIdName "${relationOptions?.reversedIdName}" is not a valid property name. Please use camelCase.`,
+        );
+      }
+
+      if (!relationOptions?.reversedIdName.endsWith('Ids')) {
+        throw new Error(
+          `The reversedIdName "${relationOptions?.reversedIdName}" should end with "Ids".`,
+        );
+      }
+    }
+
+    let reversedIdDescription: string | undefined = undefined;
+    let reversedResolvedName: string | undefined = undefined;
+    let reversedResolvedDescription: string | undefined = undefined;
+
+    if (relationOptions?.reversedIdName) {
+      reversedResolvedName = relationOptions?.reversedIdName?.replace(
+        new RegExp('Ids$'),
+        '',
+      );
+
+      const reversedRelationDescription =
+        splitPascalWithSpaces(reversedResolvedName);
+
+      const targetDescription =
+        typeof relationTarget === 'string'
+          ? splitPascalWithSpaces(relationTarget)
+          : relationTargetMetadata.entityDescription;
+
+      reversedIdDescription = `${targetDescription}'s ${reversedRelationDescription} ids`;
+      reversedResolvedName = `${targetDescription}'s ${reversedResolvedName}`;
+      reversedResolvedDescription = `${targetDescription}'s ${reversedRelationDescription}`;
+    }
+
+    const relationDetails: RelationDetails = {
+      ...defaultRelationOptions,
+      idName: propertyKey,
+      idDescription: `${
+        originalMetadata.entityDescription
+      }'s ${relationDescription} ${lowerCaseFirstLetter(idSuffix)}`,
+      resolvedName,
+      resolvedDescription: `${originalMetadata.entityDescription}'s ${relationDescription}`,
+      reversedIdDescription,
+      reversedResolvedName,
+      reversedResolvedDescription,
+      ...relationOptions,
+    };
+
+    const targetRef =
+      typeof relationTarget === 'string'
+        ? relationTarget
+        : relationTargetMetadata.entityToken.description;
+
+    Prop({
+      type: relationOptions?.multiple
+        ? [MongooseSchema.Types.ObjectId]
+        : MongooseSchema.Types.ObjectId,
+      ref: targetRef,
+      autopopulate: false,
+      required: !relationOptions?.nullable,
+    })(decoratorTarget, propertyKey);
+
+    Field(() => (relationOptions?.multiple ? [IdScalar] : IdScalar), {
+      name: propertyKey,
+      nullable: relationOptions?.nullable,
+      description: relationDetails.idDescription,
+    })(decoratorTarget, propertyKey);
+
+    SetEntityMetadata({
+      ...originalMetadata,
+      entityRelations: [
+        ...(originalMetadata.entityRelations || []),
+        { target: relationTarget, details: relationDetails },
+      ],
+    })(decoratorTarget.constructor);
+  };
+}

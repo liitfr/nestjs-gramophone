@@ -5,18 +5,19 @@ import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { generateCollectionName, pascalCase } from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
-import {
-  SetEntityMetadata,
-  SetEntityToken,
-} from '../../utils/entities/set-entity-metadata.decorator';
+import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
+import { SetEntityToken } from '../../utils/entities/set-entity-token.decorator';
 import {
   EntityMetadata,
   getEntityToken,
 } from '../../utils/entities/entity.util';
 
 import { Chip, ChipSchemas } from '../entities/chip.entity';
+import { ReferenceStore } from '../services/reference-store.service';
+import { ReferenceMetadata, getReferenceToken } from '../utils/reference.util';
 
 import { SetReferenceMetadata } from './set-reference-metadata.decorator';
+import { SetReferenceToken } from './set-reference-token.decorator';
 
 interface Options {
   addChip?: boolean;
@@ -37,18 +38,30 @@ export function SimpleReference(
   },
 ) {
   return <T extends { new (...args: any[]): object }>(constructor: T) => {
-    let originalMetadata: Partial<EntityMetadata>;
+    let originalEntityMetadata: Partial<EntityMetadata>;
+    let originalReferenceMetadata: Partial<ReferenceMetadata>;
+
+    const defaultToken = Symbol(constructor.name);
 
     if (!getEntityToken(constructor)) {
-      const token = Symbol(constructor.name);
-      SetEntityToken(token)(constructor);
-      originalMetadata = {
-        entityToken: token,
+      SetEntityToken(defaultToken)(constructor);
+      originalEntityMetadata = {
+        entityToken: defaultToken,
         entityDescription: pascalCase(constructor.name),
       };
-      SetEntityMetadata(originalMetadata)(constructor);
+      SetEntityMetadata(originalEntityMetadata)(constructor);
     } else {
-      originalMetadata = EntityStore.get(constructor);
+      originalEntityMetadata = EntityStore.get(constructor);
+    }
+
+    if (!getReferenceToken(constructor)) {
+      SetReferenceToken(defaultToken)(constructor);
+      originalReferenceMetadata = {
+        referenceToken: defaultToken,
+      };
+      SetReferenceMetadata(originalReferenceMetadata)(constructor);
+    } else {
+      originalReferenceMetadata = ReferenceStore.get(constructor);
     }
 
     Object.defineProperties(constructor.prototype, {
@@ -65,7 +78,7 @@ export function SimpleReference(
 
     Field(() => Partition, {
       nullable: false,
-      description: `${originalMetadata.entityDescription}'s ${partitionerDescription}`,
+      description: `${originalEntityMetadata.entityDescription}'s ${partitionerDescription}`,
     })(constructor.prototype, partitioner);
 
     Prop({
@@ -78,28 +91,28 @@ export function SimpleReference(
 
     Field(() => Int, {
       nullable: false,
-      description: `${originalMetadata.entityDescription}'s version`,
+      description: `${originalEntityMetadata.entityDescription}'s version`,
     })(constructor.prototype, 'version');
 
     Prop({ type: Number, required: true })(constructor.prototype, 'version');
 
     Field(() => Int, {
       nullable: false,
-      description: `${originalMetadata.entityDescription}'s index`,
+      description: `${originalEntityMetadata.entityDescription}'s index`,
     })(constructor.prototype, 'index');
 
     Prop({ type: Number, required: true })(constructor.prototype, 'index');
 
     Field(() => String, {
       nullable: false,
-      description: `${originalMetadata.entityDescription}'s label`,
+      description: `${originalEntityMetadata.entityDescription}'s label`,
     })(constructor.prototype, 'label');
 
     Prop({ type: String, required: true })(constructor.prototype, 'label');
 
     Field(() => Boolean, {
       nullable: false,
-      description: `${originalMetadata.entityDescription}'s is selected by default ?`,
+      description: `${originalEntityMetadata.entityDescription}'s is selected by default ?`,
     })(constructor.prototype, 'isSelectedByDefault');
 
     Prop({ type: Boolean, required: true })(
@@ -116,7 +129,7 @@ export function SimpleReference(
 
       Field(() => Chip, {
         nullable: false,
-        description: `${originalMetadata.entityDescription}'s chip`,
+        description: `${originalEntityMetadata.entityDescription}'s chip`,
       })(constructor.prototype, 'chip');
 
       Prop({ type: ChipSchemas.noIndex, required: true })(
@@ -143,7 +156,7 @@ export function SimpleReference(
     })(constructor);
 
     SetEntityMetadata({
-      ...originalMetadata,
+      ...originalEntityMetadata,
       EntityPartition: Partition,
       entityPartitioner: partitioner,
     })(constructor);
@@ -157,7 +170,7 @@ export function SimpleReference(
     Schema({ collection: collectionName })(constructor);
 
     ObjectType(entityTokenDescription, {
-      description: originalMetadata.entityDescription,
+      description: originalEntityMetadata.entityDescription,
     })(constructor);
   };
 }

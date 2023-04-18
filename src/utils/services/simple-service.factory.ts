@@ -8,10 +8,12 @@ import {
 } from '../../data/abstracts/operations.abstract';
 import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
 
-import { getEntityMetadata } from '../entities/entity.util';
 import { camelCase, pascalCase } from '../string.util';
+import { EntityStore } from '../entities/entity-store.service';
 
 import { SetServiceMetadata } from './set-service-metadata.decorator';
+import { getServiceToken } from './service.util';
+import { SetServiceToken } from './set-service-token.decorator';
 
 type SimpleServiceObj<D> = Repository<D> & {
   repository: Repository<D>;
@@ -25,7 +27,8 @@ interface Return<E> {
 }
 
 export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
-  const entityMetadata = getEntityMetadata(Entity);
+  const entityMetadata = EntityStore.get(Entity);
+
   const {
     entityToken,
     entityRelations,
@@ -33,20 +36,34 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
     entityServiceToken,
   } = entityMetadata;
 
+  const entityTokenDescription = entityToken.description;
+
+  if (!entityTokenDescription) {
+    throw new Error(
+      'Description not found for token ' + entityToken.toString(),
+    );
+  }
+
+  if (!entityServiceToken) {
+    throw new Error(
+      'Service token not found for entity ' + entityTokenDescription,
+    );
+  }
+
   if (!entityRepositoryToken) {
     throw new Error(
-      'Repository token not found for entity ' + entityToken.description,
+      'Repository token not found for entity ' + entityTokenDescription,
     );
   }
 
   Logger.verbose(
-    `SimpleService for ${entityToken.description}`,
+    `SimpleService for ${entityTokenDescription}`,
     'SimpleServiceFactory',
   );
 
   class SimpleService<D> implements Repository<D> {
     @Inject(entityRepositoryToken)
-    public readonly repository: Repository<D>;
+    public readonly repository!: Repository<D>;
 
     @SaveVersionIfEnabled()
     public create(
@@ -119,7 +136,9 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
   if (entityRelations && entityRelations.length) {
     entityRelations.forEach((relation) => {
-      const { Relation, idName, partitionQueries } = relation;
+      const { target, details } = relation;
+
+      const { partitionQueries, multiple, idName } = details;
 
       if (partitionQueries) {
         const {
@@ -127,23 +146,31 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
           entityPartitioner: relationPartitioner,
           EntityPartition: RelationPartition,
           entityServiceToken: relationServiceName,
-        } = getEntityMetadata(Relation);
+        } = EntityStore.get(target);
+
+        const relationTokenDescription = relationToken.description;
+
+        if (!relationTokenDescription) {
+          throw new Error(
+            'Description not found for token ' + relationToken.toString(),
+          );
+        }
 
         if (!RelationPartition || !relationPartitioner) {
           throw new Error(
-            `The entity ${relationToken.description} does not have a partitioner`,
+            `The entity ${relationTokenDescription} does not have a partitioner`,
           );
         }
 
         if (!relationServiceName) {
           throw new Error(
-            `The entity ${relationToken.description} does not have a service`,
+            `The entity ${relationTokenDescription} does not have a service`,
           );
         }
 
         const relationServicePropertyName = camelCase(
           relationServiceName.description,
-        );
+        ) as keyof typeof SimpleService;
 
         if (!SimpleService[relationServicePropertyName]) {
           Object.defineProperty(
@@ -163,7 +190,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
           );
         }
 
-        const pCRelationName = pascalCase(relationToken.description);
+        const pCRelationName = pascalCase(relationTokenDescription);
 
         Object.entries(RelationPartition).forEach(([key]) => {
           const pCPartition = pascalCase(key);
@@ -178,7 +205,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
                     [relationPartitioner]: key,
                   })
                 )?.[0]?._id;
-                if (relation.multiple) {
+                if (multiple) {
                   return this.find({ [idName]: { $in: [partitionerId] } });
                 }
                 return this.find({ [idName]: partitionerId });
@@ -199,7 +226,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
                     [relationPartitioner]: key,
                   })
                 )?.[0]?._id;
-                if (relation.multiple) {
+                if (multiple) {
                   return this.count({ [idName]: { $in: [partitionerId] } });
                 }
                 return this.count({ [idName]: partitionerId });
@@ -212,6 +239,10 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
         });
       }
     });
+  }
+
+  if (!getServiceToken(SimpleService)) {
+    SetServiceToken(entityServiceToken)(SimpleService);
   }
 
   SetServiceMetadata({

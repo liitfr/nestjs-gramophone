@@ -6,8 +6,14 @@ import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
 import { pascalCase, pluralize } from '../string.util';
 
-import { enhancerCheckerFactory, getEntityMetadata } from './entity.util';
+import {
+  EntityMetadata,
+  enhancerCheckerFactory,
+  getEntityToken,
+} from './entity.util';
 import { SetEntityMetadata } from './set-entity-metadata.decorator';
+import { SetEntityToken } from './set-entity-token.decorator';
+import { EntityStore } from './entity-store.service';
 
 interface Options {
   isTrackable?: boolean;
@@ -26,9 +32,20 @@ export function SimpleEntity(
     isIdable: false,
   },
 ) {
-  return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const originalMetadata = getEntityMetadata(constructor);
-    const { entityDescription } = originalMetadata;
+  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+    let originalMetadata: Partial<EntityMetadata>;
+
+    if (!getEntityToken(constructor)) {
+      const token = Symbol(constructor.name);
+      SetEntityToken(token)(constructor);
+      SetEntityMetadata({ entityToken: Symbol(constructor.name) })(constructor);
+      originalMetadata = {
+        entityToken: token,
+        entityDescription: pascalCase(constructor.name),
+      };
+    } else {
+      originalMetadata = EntityStore.get(constructor);
+    }
 
     if (isTrackable) {
       Object.defineProperties(constructor.prototype, {
@@ -40,7 +57,7 @@ export function SimpleEntity(
 
       Field(() => IdScalar, {
         nullable: false,
-        description: `${entityDescription}'s creator id`,
+        description: `${originalMetadata.entityDescription}'s creator id`,
       })(constructor.prototype, 'creatorId');
 
       Prop({
@@ -52,7 +69,7 @@ export function SimpleEntity(
 
       Field(() => IdScalar, {
         nullable: false,
-        description: `${entityDescription}'s updater id`,
+        description: `${originalMetadata.entityDescription}'s updater id`,
       })(constructor.prototype, 'updaterId');
 
       Prop({
@@ -64,7 +81,7 @@ export function SimpleEntity(
 
       Field(() => GraphQLISODateTime, {
         nullable: false,
-        description: `${entityDescription}'s created at`,
+        description: `${originalMetadata.entityDescription}'s created at`,
         defaultValue: new Date(),
       })(constructor.prototype, 'createdAt');
 
@@ -76,7 +93,7 @@ export function SimpleEntity(
 
       Field(() => GraphQLISODateTime, {
         nullable: false,
-        description: `${entityDescription}'s updated at`,
+        description: `${originalMetadata.entityDescription}'s updated at`,
         defaultValue: new Date(),
       })(constructor.prototype, 'updatedAt');
 
@@ -96,7 +113,7 @@ export function SimpleEntity(
 
       Field(() => String, {
         nullable: true,
-        description: `${entityDescription}'s memo`,
+        description: `${originalMetadata.entityDescription}'s memo`,
       })(constructor.prototype, 'memo');
 
       Prop({
@@ -106,7 +123,7 @@ export function SimpleEntity(
 
       Field(() => String, {
         nullable: true,
-        description: `${entityDescription}'s internal memo`,
+        description: `${originalMetadata.entityDescription}'s internal memo`,
       })(constructor.prototype, 'internalMemo');
 
       Prop({
@@ -116,7 +133,7 @@ export function SimpleEntity(
 
       Field(() => String, {
         nullable: true,
-        description: `${entityDescription}'s automatic memo`,
+        description: `${originalMetadata.entityDescription}'s automatic memo`,
       })(constructor.prototype, 'automaticMemo');
 
       Prop({
@@ -135,19 +152,25 @@ export function SimpleEntity(
 
       Field(() => IdScalar, {
         nullable: false,
-        description: `${entityDescription}'s id`,
+        description: `${originalMetadata.entityDescription}'s id`,
       })(constructor.prototype, '_id');
     }
 
-    const entityToken = Symbol(constructor.name);
+    const entityTokenDescription = originalMetadata?.entityToken?.description;
+
+    if (!entityTokenDescription) {
+      throw new Error(
+        'Description not found for token ' +
+          originalMetadata?.entityToken?.toString?.() ?? 'undefined',
+      );
+    }
 
     const entityServiceToken = Symbol(
-      `${pluralize(pascalCase(entityToken.description))}Service`,
+      `${pluralize(pascalCase(entityTokenDescription))}Service`,
     );
 
     SetEntityMetadata({
-      entityToken,
-      entityDescription,
+      ...originalMetadata,
       entityEnhancers: [
         ...(originalMetadata.entityEnhancers ?? []),
         ...(isTrackable ? [IS_TRACKABLE] : []),
