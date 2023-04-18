@@ -1,26 +1,20 @@
 import { Type } from '@nestjs/common';
 
-import { addSpaceToPascalCase } from '../string.util';
+import { RelationDetails, RelationEntity } from '../relations/relation.util';
+
+import { EntityStore } from './entity-store.service';
 
 export const ENTITY_METADATA = Symbol('entityMetadata');
 
-export interface EntityRelation {
-  Relation: Type<unknown>;
-  nullable?: boolean;
-  resolve?: boolean;
-  partitionQueries?: boolean;
-  idName?: string;
-  idDescription?: string;
-  resolvedName?: string;
-  resolvedDescription?: string;
-  multiple?: boolean;
-}
-
 export interface EntityMetadata {
+  Entity: Type<unknown>;
   entityToken: symbol;
   entityDescription?: string;
   entityEnhancers?: string[];
-  entityRelations?: EntityRelation[];
+  entityRelations?: {
+    target: RelationEntity;
+    details: RelationDetails;
+  }[];
   EntityPartition?: Record<string, string>;
   entityPartitioner?: string;
   entityServiceToken?: symbol;
@@ -30,7 +24,7 @@ export interface EntityMetadata {
 export const enhancerCheckerFactory =
   <E>(enhancerName: string) =>
   (Entity: Type): Entity is Type<E> => {
-    const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
+    const entityMetadata = EntityStore.get(Entity);
 
     const { entityEnhancers } = entityMetadata ?? { entityEnhancers: [] };
 
@@ -49,10 +43,7 @@ export const enhancerCheckerFactory =
 export const isEntityDecorated = (Entity: Type): boolean =>
   !!Reflect.getMetadata(ENTITY_METADATA, Entity);
 
-export const getEntityMetadata = (Entity: Type): EntityMetadata => {
-  const entityMetadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
-  return {
-    entityDescription: addSpaceToPascalCase(Entity.name),
-    ...entityMetadata,
-  };
+export const getEntityToken = (Entity: Type): symbol | undefined => {
+  const metadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
+  return metadata?.entityToken;
 };

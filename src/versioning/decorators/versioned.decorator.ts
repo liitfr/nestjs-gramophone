@@ -1,8 +1,8 @@
 import { Inject, Injectable, Type } from '@nestjs/common';
 
 import { checkIfIsTrackable } from '../../utils/entities/simple-entity.decorator';
-import { getServiceMetadata } from '../../utils/services/service.util';
-import { getEntityMetadata } from '../../utils/entities/entity.util';
+import { EntityStore } from '../../utils/entities/entity-store.service';
+import { ServiceStore } from '../../utils/services/service-store.service';
 
 import { VersioningService } from '../services/versioning.service';
 
@@ -40,18 +40,17 @@ export function registerVersioningService(
 }
 
 export function Versioned(VersionedEntity: Type<unknown>) {
-  const entityMetadata = getEntityMetadata(VersionedEntity);
+  const { entityToken } = EntityStore.get(VersionedEntity);
 
   if (!checkIfIsTrackable(VersionedEntity)) {
     throw new Error(
-      'Entity ' +
-        entityMetadata.entityToken.description +
-        ' must be trackable to be versioned',
+      'Entity ' + entityToken.description ??
+        entityToken.toString() + ' must be trackable to be versioned',
     );
   }
 
-  return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const { serviceToken } = getServiceMetadata(constructor);
+  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+    const { serviceToken } = ServiceStore.get(constructor);
 
     const versioningService = registerVersioningService(
       VersionedEntity,

@@ -1,17 +1,22 @@
-import { SetMetadata } from '@nestjs/common';
-
-import { ENTITY_METADATA, EntityMetadata } from './entity.util';
+import { EntityMetadata, getEntityToken } from './entity.util';
 import { EntityStore } from './entity-store.service';
 
-export function SetEntityMetadata(metadata: EntityMetadata) {
-  const { entityToken } = metadata;
+export function SetEntityMetadata(metadata: Partial<EntityMetadata>) {
+  return <T extends { new (...args: any[]): unknown }>(constructor: T) => {
+    const entityToken = getEntityToken(constructor);
 
-  const newMetadata = {
-    ...(EntityStore.get(entityToken) ?? {}),
-    ...metadata,
+    if (!entityToken) {
+      throw new Error('Entity token not found');
+    }
+
+    const newMetadata = {
+      ...(EntityStore.uncertainGet(entityToken) ?? {}),
+      Entity: constructor,
+      ...metadata,
+    };
+
+    EntityStore.set(entityToken, newMetadata);
+
+    return constructor;
   };
-
-  EntityStore.set(entityToken, newMetadata);
-
-  return SetMetadata<symbol, EntityMetadata>(ENTITY_METADATA, newMetadata);
 }

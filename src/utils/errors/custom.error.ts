@@ -17,7 +17,7 @@ export enum ErrorCode {
   FORBIDDEN = 'FORBIDDEN',
 }
 
-export const errorMapping = {
+export const errorMapping: Record<string, string> = {
   [ErrorCode.UNKNOWN_ERROR]: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
   [ErrorCode.INVALID_ARGUMENT]: ApolloServerErrorCode.BAD_USER_INPUT,
   [ErrorCode.NOT_FOUND]: ApolloServerErrorCode.BAD_USER_INPUT,
@@ -25,11 +25,11 @@ export const errorMapping = {
   [ErrorCode.PERMISSION_DENIED]: ApolloServerErrorCode.BAD_REQUEST,
   [ErrorCode.USER_INPUT_ERROR]: ApolloServerErrorCode.BAD_USER_INPUT,
   [ErrorCode.VALIDATION_ERROR]: ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED,
-} as const;
+};
 
 export class CustomError extends GraphQLError {
   constructor(
-    public readonly message: string,
+    public override readonly message: string,
     public readonly code: ErrorCode,
     public readonly userFriendlyMessage?: UserFriendlyMessage,
     public readonly details?: Record<string, unknown>,

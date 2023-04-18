@@ -1,6 +1,6 @@
 import { Logger, Provider } from '@nestjs/common';
 
-import { getEntityMetadata } from '../../utils/entities/entity.util';
+import { EntityStore } from '../../utils/entities/entity-store.service';
 
 import { versioningServices } from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';
@@ -18,11 +18,7 @@ export const VersioningProvidersFactory = () => {
     const VersioningEntity = VersioningEntityFactory(VersionedEntity);
 
     const { entityToken, entityRepositoryToken } =
-      getEntityMetadata(VersioningEntity);
-
-    if (!entityToken) {
-      throw new Error('Versioning entity name not found');
-    }
+      EntityStore.get(VersioningEntity);
 
     if (!entityRepositoryToken) {
       throw new Error(

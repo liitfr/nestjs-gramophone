@@ -3,15 +3,10 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Logger as ApolloLogger } from '@apollo/utils.logger';
-
+import { identity } from 'lodash';
 import { join } from 'path';
 
-// <!> ORDER MATTERS <!>
 import { DataServicesModule } from '../data/data-services.module';
-// Reference Service adds itselft as service in its entity metadata.
-// This metadata (ReferenceService) is used by other providers that
-// consum references with decorator AddRelations
-// So we need to build Reference before any other module
 import { ReferencesModule } from '../references/references.module';
 import { BlogModule } from '../blog/blog.module';
 
@@ -23,7 +18,7 @@ import { BlogModule } from '../blog/blog.module';
       sortSchema: true,
       playground: true,
       csrfPrevention: true,
-      context: ({ req, res }) => ({ req, res }),
+      context: identity,
       // resolvers: { Long: LongScalar, Id: IdScalar },
       logger: Logger as unknown as ApolloLogger,
       // fieldResolverEnhancers: ['filters', 'guards', 'interceptors'],

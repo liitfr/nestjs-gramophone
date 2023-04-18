@@ -3,30 +3,36 @@ import { Inject, Type } from '@nestjs/common';
 import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
-import { getEntityMetadata } from '../../utils/entities/entity.util';
-import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { SetServiceMetadata } from '../../utils/services/set-service-metadata.decorator';
+import { EntityStore } from '../../utils/entities/entity-store.service';
+import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 
 import { ReferencesService } from '../services/references.service';
 
 export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
-  const entityMetadata = getEntityMetadata(Reference);
+  const entityMetadata = EntityStore.get(Reference);
 
   const { entityToken, entityDescription, EntityPartition, entityPartitioner } =
     entityMetadata;
+
+  const entityTokenDescription = entityToken.description;
+
+  if (!entityTokenDescription) {
+    throw new Error('Entity token description not found.');
+  }
 
   const { Service } = SimpleServiceFactory(Reference);
 
   class SimpleReferenceService extends Service {
     @Inject(ReferencesService)
-    public readonly referencesService?: ReferencesService;
+    public readonly referencesService: ReferencesService;
 
     public async findAllForAVersion(requestedVersion?: number) {
       let version = requestedVersion;
       if (!version) {
         const reference = (
           await this.referencesService.find({
-            code: entityToken.description,
+            code: entityTokenDescription,
           })
         )?.[0];
         if (!reference) {
@@ -80,6 +86,10 @@ export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
   Object.entries(EntityPartition ?? []).forEach(([key]) => {
     const pCKey = pascalCase(key);
 
+    if (!entityPartitioner) {
+      throw new Error('Entity partitioner not found.');
+    }
+
     Object.defineProperty(SimpleReferenceService.prototype, `find${pCKey}`, {
       value: async function () {
         return (await this.repository.find({ [entityPartitioner]: key }))?.[0];
@@ -100,7 +110,7 @@ export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
   });
 
   const serviceToken = Symbol(
-    `${pluralize(pascalCase(entityToken.description))}Service`,
+    `${pluralize(pascalCase(entityTokenDescription))}Service`,
   );
 
   SetServiceMetadata({

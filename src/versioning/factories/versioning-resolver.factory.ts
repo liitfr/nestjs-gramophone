@@ -2,8 +2,8 @@ import { Inject, Type } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { Id } from '../../utils/id.type';
+import { EntityStore } from '../../utils/entities/entity-store.service';
 
 import { VersioningService } from '../services/versioning.service';
 
@@ -11,7 +11,7 @@ export function VersioningResolverFactory(
   EntityVersion: Type<unknown>,
   versioningServiceToken: symbol,
 ) {
-  const { entityToken, entityDescription } = getEntityMetadata(EntityVersion);
+  const { entityToken, entityDescription } = EntityStore.get(EntityVersion);
   const entityTokenDescription = entityToken.description;
 
   const findAllVersionsForOneOriginalIdName = `findAll${entityTokenDescription}sForOneOriginalId`;

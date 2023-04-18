@@ -1,17 +1,22 @@
-import { SetMetadata } from '@nestjs/common';
+import { ServiceMetadata, getServiceToken } from './service.util';
+import { ServiceStore } from '../services/service-store.service';
 
-import { SERVICE_METADATA, ServiceMetadata } from './service.util';
-import { ServiceStore } from './service-store.service';
+export function SetServiceMetadata(metadata: Partial<ServiceMetadata>) {
+  return <T extends { new (...args: any[]): unknown }>(constructor: T) => {
+    const serviceToken = getServiceToken(constructor);
 
-export function SetServiceMetadata(metadata: ServiceMetadata) {
-  const { serviceToken } = metadata;
+    if (!serviceToken) {
+      throw new Error('Service token not found');
+    }
 
-  const newMetadata = {
-    ...(ServiceStore.get(serviceToken) ?? {}),
-    ...metadata,
+    const newMetadata = {
+      ...(ServiceStore.uncertainGet(serviceToken) ?? {}),
+      Service: constructor,
+      ...metadata,
+    };
+
+    ServiceStore.set(serviceToken, newMetadata);
+
+    return constructor;
   };
-
-  ServiceStore.set(serviceToken, newMetadata);
-
-  return SetMetadata<symbol, ServiceMetadata>(SERVICE_METADATA, newMetadata);
 }

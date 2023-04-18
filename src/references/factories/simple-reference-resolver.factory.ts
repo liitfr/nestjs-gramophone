@@ -3,9 +3,9 @@ import { Query, Resolver } from '@nestjs/graphql';
 
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
-import { getServiceMetadata } from '../../utils/services/service.util';
-import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { Repository } from '../../data/abstracts/repository.abstract';
+import { EntityStore } from '../../utils/entities/entity-store.service';
+import { ServiceStore } from '../../utils/services/service-store.service';
 
 interface Options {
   noMutation?: boolean;
@@ -32,8 +32,8 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     options,
   );
 
-  const referenceMetadata = getEntityMetadata(Reference);
-  const serviceMetadata = getServiceMetadata(Service);
+  const referenceMetadata = EntityStore.get(Reference);
+  const serviceMetadata = ServiceStore.get(Service);
 
   const {
     entityToken: referenceToken,
@@ -42,7 +42,15 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     EntityPartition: ReferencePartition,
   } = referenceMetadata;
 
-  const pCPName = pluralize(pascalCase(referenceToken.description));
+  const referenceTokenDescription = referenceToken.description;
+
+  if (!referenceTokenDescription) {
+    throw new Error(
+      'Description not found for token ' + referenceToken.toString(),
+    );
+  }
+
+  const pCPName = pluralize(pascalCase(referenceTokenDescription));
   const findAllActiveQueryName = `findAllActive${pCPName}`;
 
   @Resolver(() => Reference)
@@ -50,7 +58,7 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     @Query(() => [Reference], {
       name: findAllActiveQueryName,
       nullable: false,
-      description: `${referenceToken.description} : Find all active query`,
+      description: `${referenceTokenDescription} : Find all active query`,
     })
     async [findAllActiveQueryName]() {
       if (!this.simpleService[findAllActiveQueryName]) {
@@ -69,14 +77,14 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     if (!ReferencePartition || !referencePartitioner) {
       throw new Error(
         "Can't partition query since partition or partitioner is missing for " +
-          referenceToken.description,
+          referenceTokenDescription,
       );
     }
 
     Object.entries(ReferencePartition).forEach(([key]) => {
       const pCKey = pascalCase(key);
       const serviceMethodName = `find${pCKey}`;
-      const queryName = `find${referenceToken.description}${pCKey}`;
+      const queryName = `find${referenceTokenDescription}${pCKey}`;
 
       Object.defineProperty(SimpleReferenceResolver.prototype, queryName, {
         value: async function () {
@@ -92,18 +100,20 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
         configurable: true,
       });
 
+      const descriptor = Object.getOwnPropertyDescriptor(
+        SimpleReferenceResolver.prototype,
+        queryName,
+      );
+
+      if (!descriptor) {
+        throw new Error('Descriptor not found.');
+      }
+
       Query(() => Reference, {
         name: queryName,
         nullable: true,
         description: `${referenceDescription} : Find ${key} query`,
-      })(
-        SimpleReferenceResolver.prototype,
-        queryName,
-        Object.getOwnPropertyDescriptor(
-          SimpleReferenceResolver.prototype,
-          queryName,
-        ),
-      );
+      })(SimpleReferenceResolver.prototype, queryName, descriptor);
     });
   }
 

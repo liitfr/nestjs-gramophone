@@ -1,11 +1,18 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
-import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
-import { generateCollectionName } from '../../utils/string.util';
+import { generateCollectionName, pascalCase } from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
-import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
+import { EntityStore } from '../../utils/entities/entity-store.service';
+import {
+  SetEntityMetadata,
+  SetEntityToken,
+} from '../../utils/entities/set-entity-metadata.decorator';
+import {
+  EntityMetadata,
+  getEntityToken,
+} from '../../utils/entities/entity.util';
 
 import { Chip, ChipSchemas } from '../entities/chip.entity';
 
@@ -29,9 +36,20 @@ export function SimpleReference(
     partitionerDescription: 'code',
   },
 ) {
-  return <T extends { new (...args: any[]): {} }>(constructor: T) => {
-    const entityMetadata = getEntityMetadata(constructor);
-    const { entityDescription } = entityMetadata;
+  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+    let originalMetadata: Partial<EntityMetadata>;
+
+    if (!getEntityToken(constructor)) {
+      const token = Symbol(constructor.name);
+      SetEntityToken(token)(constructor);
+      originalMetadata = {
+        entityToken: token,
+        entityDescription: pascalCase(constructor.name),
+      };
+      SetEntityMetadata(originalMetadata)(constructor);
+    } else {
+      originalMetadata = EntityStore.get(constructor);
+    }
 
     Object.defineProperties(constructor.prototype, {
       [partitioner]: { enumerable: true, configurable: true, writable: true },
@@ -47,7 +65,7 @@ export function SimpleReference(
 
     Field(() => Partition, {
       nullable: false,
-      description: `${entityDescription}'s ${partitionerDescription}`,
+      description: `${originalMetadata.entityDescription}'s ${partitionerDescription}`,
     })(constructor.prototype, partitioner);
 
     Prop({
@@ -60,28 +78,28 @@ export function SimpleReference(
 
     Field(() => Int, {
       nullable: false,
-      description: `${entityDescription}'s version`,
+      description: `${originalMetadata.entityDescription}'s version`,
     })(constructor.prototype, 'version');
 
     Prop({ type: Number, required: true })(constructor.prototype, 'version');
 
     Field(() => Int, {
       nullable: false,
-      description: `${entityDescription}'s index`,
+      description: `${originalMetadata.entityDescription}'s index`,
     })(constructor.prototype, 'index');
 
     Prop({ type: Number, required: true })(constructor.prototype, 'index');
 
     Field(() => String, {
       nullable: false,
-      description: `${entityDescription}'s label`,
+      description: `${originalMetadata.entityDescription}'s label`,
     })(constructor.prototype, 'label');
 
     Prop({ type: String, required: true })(constructor.prototype, 'label');
 
     Field(() => Boolean, {
       nullable: false,
-      description: `${entityDescription}'s is selected by default ?`,
+      description: `${originalMetadata.entityDescription}'s is selected by default ?`,
     })(constructor.prototype, 'isSelectedByDefault');
 
     Prop({ type: Boolean, required: true })(
@@ -98,7 +116,7 @@ export function SimpleReference(
 
       Field(() => Chip, {
         nullable: false,
-        description: `${entityDescription}'s chip`,
+        description: `${originalMetadata.entityDescription}'s chip`,
       })(constructor.prototype, 'chip');
 
       Prop({ type: ChipSchemas.noIndex, required: true })(
@@ -109,7 +127,15 @@ export function SimpleReference(
 
     SimpleEntity({ isIdable: true })(constructor);
 
-    const { entityToken } = getEntityMetadata(constructor);
+    const { entityToken } = EntityStore.get(constructor);
+
+    const entityTokenDescription = entityToken.description;
+
+    if (!entityTokenDescription) {
+      throw new Error(
+        'Description not found for token ' + entityToken.toString(),
+      );
+    }
 
     SetReferenceMetadata({
       referenceToken: entityToken,
@@ -117,19 +143,22 @@ export function SimpleReference(
     })(constructor);
 
     SetEntityMetadata({
-      entityToken,
-      entityDescription,
+      ...originalMetadata,
       EntityPartition: Partition,
       entityPartitioner: partitioner,
     })(constructor);
 
-    Schema({ collection: generateCollectionName(entityToken.description) })(
-      constructor,
-    );
+    if (!generateCollectionName) {
+      throw new Error('generateCollectionName not found');
+    }
 
-    ObjectType(entityToken.description, { description: entityDescription })(
-      constructor,
-    );
+    const collectionName = generateCollectionName(entityTokenDescription);
+
+    Schema({ collection: collectionName })(constructor);
+
+    ObjectType(entityTokenDescription, {
+      description: originalMetadata.entityDescription,
+    })(constructor);
   };
 }
 

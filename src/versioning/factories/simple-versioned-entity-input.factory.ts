@@ -1,11 +1,11 @@
 import { Field, InputType, IntersectionType } from '@nestjs/graphql';
 import { Logger, Type } from '@nestjs/common';
 
-import { getEntityMetadata } from '../../utils/entities/entity.util';
 import {
   SimpleEntityInputFactory,
   SimpleEntityInputFactoryOptions,
 } from '../../utils/dtos/simple-entity-input.factory';
+import { EntityStore } from '../../utils/entities/entity-store.service';
 
 import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.decorator';
 
@@ -16,7 +16,7 @@ export function SimpleVersionedEntityInputFactory<E>(
   Entity: Type<E>,
   options?: SimpleEntityInputFactoryOptions<E>,
 ): Type<Partial<E>> {
-  const { entityToken, entityDescription } = getEntityMetadata(Entity);
+  const { entityToken, entityDescription } = EntityStore.get(Entity);
 
   Logger.verbose(
     `SimpleVersionedEntityInput for ${entityToken.description}`,

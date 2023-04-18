@@ -17,6 +17,12 @@ export const MongoRepositoriesFactory = () => {
       throw new Error('Entity token not found');
     }
 
+    if (!entityToken.description) {
+      throw new Error(
+        'Description not found for token ' + entityToken.toString(),
+      );
+    }
+
     if (!entityRepositoryToken) {
       throw new Error(
         'Entity repository token not found for entity ' +

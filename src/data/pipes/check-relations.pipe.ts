@@ -1,6 +1,7 @@
 import { Injectable, Optional, PipeTransform, Type } from '@nestjs/common';
 
-import { getEntityMetadata } from '../../utils/entities/entity.util';
+import { EntityStore } from '../../utils/entities/entity-store.service';
+import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 
 import { RepositoryStore } from '../services/repository-store.service';
 
@@ -10,56 +11,83 @@ export class CheckRelations implements PipeTransform<any> {
 
   async transform(value: any) {
     if (!this.Entity) {
-      throw new Error('Entity is not defined');
+      new CustomError(
+        'Entity is not defined.',
+        ErrorCode.UNKNOWN_ERROR,
+        {
+          fr: "L'entité n'est pas définie.",
+        },
+        {
+          service: 'checkRelationsPipe',
+          method: 'transform',
+        },
+      );
     }
 
-    const entityMetadata = getEntityMetadata(this.Entity);
+    const entityMetadata = EntityStore.get(this.Entity);
 
     if (!entityMetadata || !entityMetadata.entityRelations) {
       return value;
     }
 
-    for (const entityRelation of entityMetadata.entityRelations) {
-      const { idName, nullable, multiple, Relation, idDescription } =
-        entityRelation;
+    for (const { target, details } of entityMetadata.entityRelations) {
+      const { idName, multiple, idDescription } = details;
 
-      if (value[idName]) {
-        if (value[idName] === null && !nullable) {
-          throw new Error(`${idName} cannot be null`);
+      if (!value[idName]) {
+        return value;
+      }
+
+      const { entityToken: relationToken } = EntityStore.get(target);
+
+      const relationRepository = RepositoryStore.getByEntity(relationToken);
+
+      let result;
+
+      if (multiple) {
+        const error = new CustomError(
+          `Some if not all ${idDescription} do not exist. List: ${value[idName]}`,
+          ErrorCode.USER_INPUT_ERROR,
+          {
+            fr: `Certains ou tous les ${idDescription} n'existent pas. Liste: ${value[idName]}`,
+          },
+          {
+            service: 'checkRelationsPipe',
+            method: 'transform',
+          },
+        );
+
+        try {
+          result = await relationRepository.find({
+            _id: { $in: value[idName] },
+          });
+        } catch (e) {
+          throw error;
         }
 
-        const { entityToken: relationToken } = getEntityMetadata(Relation);
+        if (result !== value[idName].length) {
+          throw error;
+        }
+      } else {
+        const error = new CustomError(
+          `${idDescription} does not exist. Id: ${value[idName]}`,
+          ErrorCode.USER_INPUT_ERROR,
+          {
+            fr: `${idDescription} n'existe pas. Id: ${value[idName]}`,
+          },
+          {
+            service: 'checkRelationsPipe',
+            method: 'transform',
+          },
+        );
 
-        const relationRepository = RepositoryStore.get(relationToken);
+        try {
+          result = await relationRepository.findById(value[idName]);
+        } catch (e) {
+          throw error;
+        }
 
-        let result;
-
-        if (multiple) {
-          const errorMessage = `Some if not all ${idDescription} do not exist. List: ${value[idName]}`;
-
-          try {
-            result = await relationRepository.find({
-              _id: { $in: value[idName] },
-            });
-          } catch (e) {
-            throw new Error(errorMessage);
-          }
-
-          if (result !== value[idName].length) {
-            throw new Error(errorMessage);
-          }
-        } else {
-          const errorMessage = `${idDescription} does not exist. Id: ${value[idName]}`;
-
-          try {
-            result = await relationRepository.findById(value[idName]);
-          } catch (e) {
-            throw new Error(errorMessage);
-          }
-
-          if (!result) {
-            throw new Error(errorMessage);
-          }
+        if (!result) {
+          throw error;
         }
       }
     }

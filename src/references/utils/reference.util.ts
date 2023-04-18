@@ -3,6 +3,7 @@ import { Type } from '@nestjs/common';
 export const REFERENCE_METADATA = Symbol('referenceMetadata');
 
 export interface ReferenceMetadata {
+  Reference: Type<unknown>;
   referenceToken: symbol;
   addChip?: boolean;
 }
@@ -10,10 +11,7 @@ export interface ReferenceMetadata {
 export const isReferenceDecorated = (Reference: Type): boolean =>
   !!Reflect.getMetadata(REFERENCE_METADATA, Reference);
 
-export const getReferenceMetadata = (Reference: Type): ReferenceMetadata => {
-  const referenceMetadata = Reflect.getMetadata(REFERENCE_METADATA, Reference);
-  return {
-    addChip: false,
-    ...referenceMetadata,
-  };
+export const getReferenceToken = (Reference: Type): symbol | undefined => {
+  const metadata = Reflect.getMetadata(REFERENCE_METADATA, Reference);
+  return metadata?.referenceToken;
 };

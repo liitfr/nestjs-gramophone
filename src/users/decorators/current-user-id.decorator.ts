@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { GqlExecutionContext } from '@nestjs/graphql';
+// import { GqlExecutionContext } from '@nestjs/graphql';
 import mongoose from 'mongoose';
 
 import { Id } from '../../utils/id.type';
@@ -7,7 +7,8 @@ import { Id } from '../../utils/id.type';
 // import { User } from '../entities/user.entity';
 
 export const CurrentUserId = createParamDecorator(
-  (_: undefined, context: ExecutionContext): Id => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (_: undefined, _context: ExecutionContext): Id => {
     // const ctx = GqlExecutionContext.create(context);
     // const req = ctx.getContext().req;
     // const user = req.user as User;

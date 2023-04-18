@@ -13,6 +13,12 @@ export const MongoModelsFactory = () => {
   for (const repository of RepositoryStore.getAll()) {
     const { entityToken, Entity, options: { SchemaFactory } = {} } = repository;
 
+    if (!entityToken.description) {
+      throw new Error(
+        'Description not found for token ' + entityToken.toString(),
+      );
+    }
+
     Logger.verbose(
       `MongoModel for ${entityToken.description}`,
       'MongoModelsFactory',

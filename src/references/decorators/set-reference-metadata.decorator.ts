@@ -1,20 +1,22 @@
-import { SetMetadata } from '@nestjs/common';
-
-import { REFERENCE_METADATA, ReferenceMetadata } from '../utils/reference.util';
+import { ReferenceMetadata, getReferenceToken } from '../utils/reference.util';
 import { ReferenceStore } from '../services/reference-store.service';
 
-export function SetReferenceMetadata(metadata: ReferenceMetadata) {
-  const { referenceToken } = metadata;
+export function SetReferenceMetadata(metadata: Partial<ReferenceMetadata>) {
+  return <T extends { new (...args: any[]): unknown }>(constructor: T) => {
+    const referenceToken = getReferenceToken(constructor);
 
-  const newMetadata = {
-    ...(ReferenceStore.get(referenceToken) ?? {}),
-    ...metadata,
+    if (!referenceToken) {
+      throw new Error('Reference token not found');
+    }
+
+    const newMetadata = {
+      ...(ReferenceStore.uncertainGet(referenceToken) ?? {}),
+      Reference: constructor,
+      ...metadata,
+    };
+
+    ReferenceStore.set(referenceToken, newMetadata);
+
+    return constructor;
   };
-
-  ReferenceStore.set(referenceToken, newMetadata);
-
-  return SetMetadata<symbol, ReferenceMetadata>(
-    REFERENCE_METADATA,
-    newMetadata,
-  );
 }

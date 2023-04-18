@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, Optional } from '@nestjs/common';
 
 import {
@@ -13,22 +14,25 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public create(doc: object, saveOptions?: unknown): Promise<CreatedModel | D> {
+  public create(
+    _doc: object,
+    _saveOptions?: unknown,
+  ): Promise<CreatedModel | D> {
     throw new Error('Not implemented');
   }
 
   public createMany(
-    docs: object[],
-    insertManyOptions?: unknown,
+    _docs: object[],
+    _insertManyOptions?: unknown,
   ): Promise<CreatedModel[] | D[]> {
     throw new Error('Not implemented');
   }
 
-  public find(filter: unknown, options?: unknown): Promise<D[]> {
+  public find(_filter: unknown, _options?: unknown): Promise<D[]> {
     throw new Error('Not implemented');
   }
 
-  public findById(id: unknown): Promise<D | null> {
+  public findById(_id: unknown): Promise<D | null> {
     throw new Error('Not implemented');
   }
 
@@ -36,30 +40,30 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public remove(filter: unknown): Promise<RemovedModel> {
+  public remove(_filter: unknown): Promise<RemovedModel> {
     throw new Error('Not implemented');
   }
 
   public updateOne(
-    filter: unknown,
-    update: unknown,
-    options?: unknown,
+    _filter: unknown,
+    _update: unknown,
+    _options?: unknown,
   ): Promise<UpdatedModel> {
     throw new Error('Not implemented');
   }
 
   public updateMany(
-    filter: unknown,
-    update: unknown,
-    options?: unknown,
+    _filter: unknown,
+    _update: unknown,
+    _options?: unknown,
   ): Promise<UpdatedModel> {
     throw new Error('Not implemented');
   }
 
   public findOneAndUpdate(
-    filter: unknown,
-    udpate: unknown,
-    options?: unknown,
+    _filter: unknown,
+    _udpate: unknown,
+    _options?: unknown,
   ): Promise<D | null> {
     throw new Error('Not implemented');
   }
@@ -68,7 +72,7 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public count(filter: unknown, options?: unknown): Promise<number> {
+  public count(_filter: unknown, _options?: unknown): Promise<number> {
     throw new Error('Not implemented');
   }
 }

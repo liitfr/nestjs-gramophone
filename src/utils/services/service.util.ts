@@ -1,10 +1,9 @@
 import { Type } from '@nestjs/common';
 
-import { addSpaceToPascalCase } from '../string.util';
-
 export const SERVICE_METADATA = Symbol('serviceMetadata');
 
 export interface ServiceMetadata {
+  Service: Type<unknown>;
   serviceToken: symbol;
   serviceDescription?: string;
 }
@@ -12,10 +11,7 @@ export interface ServiceMetadata {
 export const isServiceDecorated = (Service: Type) =>
   !!Reflect.getMetadata(SERVICE_METADATA, Service);
 
-export const getServiceMetadata = (Service: Type): ServiceMetadata => {
-  const serviceMetadata = Reflect.getMetadata(SERVICE_METADATA, Service);
-  return {
-    serviceDescription: addSpaceToPascalCase(Service.name),
-    ...serviceMetadata,
-  };
+export const getServiceToken = (Service: Type): symbol | undefined => {
+  const metadata = Reflect.getMetadata(SERVICE_METADATA, Service);
+  return metadata?.serviceToken;
 };

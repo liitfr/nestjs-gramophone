@@ -8,10 +8,10 @@ export { camelCase };
 export const pascalCase = (str: string) =>
   startCase(camelCase(str)).replace(/ /g, '');
 
-export const addSpaceToPascalCase = (str: string) =>
+export const splitPascalWithSpaces = (str: string) =>
   str.replace(/([A-Z])/g, ' $1').trim();
 
-const pluralization = [
+const pluralization: [RegExp, string][] = [
   [/human$/gi, 'humans'],
   [/(m)an$/gi, '$1en'],
   [/(pe)rson$/gi, '$1ople'],
@@ -70,7 +70,7 @@ const uncountables = [
   'media',
 ];
 
-export function pluralize(str) {
+export function pluralize(str: string) {
   let found;
   if (!~uncountables.indexOf(str)) {
     found = rules.filter(function (rule) {

@@ -5,7 +5,7 @@ export const VERSION_DATA_PATH = `[0].${VERSION_DATA_FIELDNAME}`;
 
 export const SaveVersionIfEnabled = (versionDataPath = VERSION_DATA_PATH) => {
   return function decorator(
-    target: any,
+    _target: any,
     _propertyKey: string,
     descriptor: any, // PropertyDescriptor
   ): void {

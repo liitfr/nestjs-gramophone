@@ -22,11 +22,11 @@ export class IdsExistRule implements ValidatorConstraintInterface {
         return true;
       }
 
-      const entityRepository = RepositoryStore.get(entityToken);
+      const entityRepository = RepositoryStore.getByEntity(entityToken);
 
       const result = await entityRepository.find({ id: { $in: ids } });
 
-      return result.length === ids.length;
+      return result.length === (ids ?? []).length;
     } catch (e) {
       return false;
     }

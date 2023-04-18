@@ -1,4 +1,4 @@
-import { Inject, Injectable, Optional, Scope } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import {
   FilterQuery,
@@ -39,11 +39,29 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     @Optional() readonly model?: Model<D>,
   ) {}
 
+  private getModel() {
+    if (!this.model) {
+      throw new CustomError(
+        'Model not found',
+        ErrorCode.UNKNOWN_ERROR,
+        {
+          fr: "Le modèle n'a pas été trouvé.",
+        },
+        {
+          service: 'repositoryService',
+          method: 'checkModel',
+        },
+      );
+    }
+    return this.model;
+  }
+
   async create(
     doc: object,
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
   ): Promise<CreatedModel | D> {
-    const createdEntity = new this.model(doc);
+    const model = this.getModel();
+    const createdEntity = new model(doc);
     const savedResult = await createdEntity.save({
       ...saveOptions,
       session: this.dbSession.get(),
@@ -58,7 +76,8 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     docs: object[],
     insertManyOptions?: InsertManyOptions,
   ): Promise<CreatedModel[]> {
-    const createdEntities = await this.model.insertMany(docs, {
+    const model = this.getModel();
+    const createdEntities = await model.insertMany(docs, {
       session: this.dbSession.get(),
       ...insertManyOptions,
     });
@@ -73,7 +92,8 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     filter: FilterQuery<D>,
     options?: QueryOptions<D> & Throwable,
   ): Promise<D[]> {
-    const result = await this.model
+    const model = this.getModel();
+    const result = await model
       .find(filter, null, options)
       .session(this.dbSession.get());
 
@@ -87,7 +107,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'find',
-          model: this.model.name,
+          model: model.name,
           filter,
           options,
         },
@@ -101,7 +121,8 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     id: Id,
     options?: QueryOptions<D> & Throwable,
   ): Promise<D | null> {
-    const result = await this.model
+    const model = this.getModel();
+    const result = await model
       .findById(id, null, options)
       .session(this.dbSession.get());
     if (mustThrowError(options) && !result) {
@@ -114,7 +135,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'findById',
-          model: this.model.name,
+          model: model.name,
           options,
         },
       );
@@ -124,11 +145,13 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async findAll(): Promise<D[]> {
-    return this.model.find().session(this.dbSession.get());
+    const model = this.getModel();
+    return model.find().session(this.dbSession.get());
   }
 
   async remove(filter: FilterQuery<D>): Promise<RemovedModel> {
-    const { deletedCount } = await this.model
+    const model = this.getModel();
+    const { deletedCount } = await model
       .deleteMany(filter)
       .session(this.dbSession.get());
     return { deletedCount, deleted: !!deletedCount };
@@ -139,7 +162,8 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     update: UpdateWithAggregationPipeline | UpdateQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
-    return this.model
+    const model = this.getModel();
+    return model
       .updateOne(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
   }
@@ -149,7 +173,8 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     update: UpdateWithAggregationPipeline | UpdateQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
-    return this.model
+    const model = this.getModel();
+    return model
       .updateMany(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
   }
@@ -159,7 +184,8 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     update: UpdateQuery<D>,
     options?: QueryOptions<D> & Throwable,
   ): Promise<D | null> {
-    const result = await this.model.findOneAndUpdate(filter, update, {
+    const model = this.getModel();
+    const result = await model.findOneAndUpdate(filter, update, {
       new: true,
       ...options,
     });
@@ -173,7 +199,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'findOneAndUpdate',
-          model: this.model.name,
+          model: model.name,
           options,
         },
       );
@@ -182,15 +208,15 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async countAll(): Promise<number> {
-    return this.model.countDocuments().session(this.dbSession.get());
+    const model = this.getModel();
+    return model.countDocuments().session(this.dbSession.get());
   }
 
   async count(
     filter: FilterQuery<D>,
     options?: QueryOptions<D>,
   ): Promise<number> {
-    return this.model
-      .countDocuments(filter, options)
-      .session(this.dbSession.get());
+    const model = this.getModel();
+    return model.countDocuments(filter, options).session(this.dbSession.get());
   }
 }

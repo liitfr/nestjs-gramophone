@@ -1,5 +1,6 @@
 import { Type } from '@nestjs/common';
-import { addSpaceToPascalCase } from '../string.util';
+
+import { splitPascalWithSpaces } from '../string.util';
 
 export const RESOLVER_METADATA = Symbol('resolverMetadata');
 
@@ -15,7 +16,7 @@ export const getResolverMetadata = (Resolver: Type): ResolverMetadata => {
   const resolverMetadata = Reflect.getMetadata(RESOLVER_METADATA, Resolver);
   return {
     resolverName: Resolver.name,
-    resolverDescription: addSpaceToPascalCase(Resolver.name),
+    resolverDescription: splitPascalWithSpaces(Resolver.name),
     ...resolverMetadata,
   };
 };

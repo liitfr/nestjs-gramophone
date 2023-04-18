@@ -3,13 +3,13 @@ import { Logger, Type } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
-import { getEntityMetadata } from '../entities/entity.util';
 import {
   Idable,
   Trackable,
   checkIfIsIdable,
   checkIfIsTrackable,
 } from '../entities/simple-entity.decorator';
+import { EntityStore } from '../entities/entity-store.service';
 
 interface Options<E> {
   isIdMandatory?: boolean;
@@ -33,7 +33,7 @@ export function SimpleEntityInputFactory<E>(
     removeTrackable: true,
   },
 ): Type<Partial<E>> {
-  const entityMetadata = getEntityMetadata(Entity);
+  const entityMetadata = EntityStore.get(Entity);
 
   const { entityToken, entityDescription } = entityMetadata;
 

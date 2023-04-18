@@ -5,10 +5,10 @@ import {
   SimpleEntityInputFactory,
   SimpleEntityInputFactoryOptions,
 } from '../../utils/dtos/simple-entity-input.factory';
-import { getEntityMetadata } from '../../utils/entities/entity.util';
+import { EntityStore } from '../../utils/entities/entity-store.service';
 
-import { getReferenceMetadata } from '../utils/reference.util';
 import { ChipInput } from '../dtos/chip.input';
+import { ReferenceStore } from '../services/reference-store.service';
 
 // BUG : fix typing that is brut force casted to Partial<R>
 export function SimpleReferenceInputFactory<
@@ -17,8 +17,8 @@ export function SimpleReferenceInputFactory<
   Reference: Type<R>,
   options?: SimpleEntityInputFactoryOptions<R>,
 ): Type<Partial<R>> {
-  const { addChip } = getReferenceMetadata(Reference);
-  const { entityDescription } = getEntityMetadata(Reference);
+  const { addChip } = ReferenceStore.get(Reference);
+  const { entityDescription } = EntityStore.get(Reference);
 
   if (addChip) {
     @InputType({ isAbstract: true })

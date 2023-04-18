@@ -1,7 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 
-import { getEntityMetadata } from '../../utils/entities/entity.util';
 import { pascalCase, pluralize } from '../../utils/string.util';
+import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 
 import { Repository as IRepository } from '../abstracts/repository.abstract';
@@ -28,25 +28,32 @@ export class RepositoryStore {
     const {
       entityToken,
       entityRepositoryToken: existingEntityRepositoryToken,
-    } = getEntityMetadata(Entity);
+    } = EntityStore.get(Entity);
 
     const existingRepository = RepositoryStore.repositories.find(
       (r) => r.entityToken === entityToken,
     );
 
+    const entityTokenDescription = entityToken.description;
+
+    if (!entityTokenDescription) {
+      throw new Error(
+        'Description not found for token ' + entityToken.toString(),
+      );
+    }
+
     const entityRepositoryToken =
       existingEntityRepositoryToken ??
-      Symbol(`${pluralize(pascalCase(entityToken.description))}Repository`);
+      Symbol(`${pluralize(pascalCase(entityTokenDescription))}Repository`);
 
     SetEntityMetadata({
-      entityToken,
       entityRepositoryToken,
     })(Entity);
 
     if (existingRepository) {
       if (existingRepository.entityRepositoryToken !== entityRepositoryToken) {
         throw new Error(
-          `Repository for entity ${entityToken.description} already exists with token ${existingRepository.entityRepositoryToken.description}`,
+          `Repository for entity ${entityTokenDescription} already exists with token ${existingRepository.entityRepositoryToken.description}`,
         );
       }
 
@@ -65,7 +72,7 @@ export class RepositoryStore {
     return newRepository;
   }
 
-  public static get(entity: symbol | string) {
+  public static getByEntity(entity: symbol | string) {
     const repository = RepositoryStore.repositories.find((r) =>
       typeof entity === 'string'
         ? r.entityToken.description === entity
