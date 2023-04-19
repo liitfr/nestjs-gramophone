@@ -4,7 +4,7 @@ import { Schema as MongooseSchema } from 'mongoose';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../id.type';
-import { pascalCase, pluralize } from '../string.util';
+import { pascalCase, pluralize, splitPascalWithSpaces } from '../string.util';
 
 import {
   EntityMetadata,
@@ -41,7 +41,7 @@ export function SimpleEntity(
       SetEntityMetadata({ entityToken: Symbol(constructor.name) })(constructor);
       originalMetadata = {
         entityToken: token,
-        entityDescription: pascalCase(constructor.name),
+        entityDescription: splitPascalWithSpaces(pascalCase(constructor.name)),
       };
     } else {
       originalMetadata = EntityStore.get(constructor);

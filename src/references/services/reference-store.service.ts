@@ -20,12 +20,12 @@ export class ReferenceStore {
     } else {
       const resolvedReferenceToken = getReferenceToken(reference);
       if (!resolvedReferenceToken) {
-        throw new Error(`Reference not found`);
+        throw new Error('Reference not found');
       }
       referenceToken = resolvedReferenceToken;
     }
     if (!referenceToken) {
-      throw new Error(`Reference not found`);
+      throw new Error('Reference not found');
     }
     const existingMetadata = ReferenceStore.references.get(referenceToken);
     const newMetadata = {
@@ -72,7 +72,9 @@ export class ReferenceStore {
   public static get(reference: symbol | string | Type): ReferenceMetadata {
     const result = ReferenceStore.uncertainGet(reference);
     if (!result) {
-      throw new Error(`Reference not found in ReferenceStore.`);
+      throw new Error(
+        `Reference not found in ReferenceStore : ${reference.toString()}`,
+      );
     }
     return result;
   }

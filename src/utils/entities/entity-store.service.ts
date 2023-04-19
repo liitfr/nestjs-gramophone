@@ -32,12 +32,12 @@ export class EntityStore {
     } else {
       const resolvedEntityToken = getEntityToken(entity);
       if (!resolvedEntityToken) {
-        throw new Error(`Entity not found`);
+        throw new Error('Entity not found');
       }
       entityToken = resolvedEntityToken;
     }
     if (!entityToken) {
-      throw new Error(`Entity not found`);
+      throw new Error('Entity not found');
     }
     const existingMetadata = EntityStore.entities.get(entityToken);
     const newMetadata = {

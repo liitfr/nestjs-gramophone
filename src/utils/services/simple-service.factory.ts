@@ -90,7 +90,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
     }
 
     async uncertainFindById(id: unknown): Promise<D | null> {
-      return this.repository.findById(id);
+      return this.repository.uncertainFindById(id);
     }
 
     async findById(id: unknown): Promise<D> {

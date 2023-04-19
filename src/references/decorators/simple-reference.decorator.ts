@@ -2,7 +2,11 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
-import { generateCollectionName, pascalCase } from '../../utils/string.util';
+import {
+  generateCollectionName,
+  pascalCase,
+  splitPascalWithSpaces,
+} from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
@@ -47,7 +51,7 @@ export function SimpleReference(
       SetEntityToken(defaultToken)(constructor);
       originalEntityMetadata = {
         entityToken: defaultToken,
-        entityDescription: pascalCase(constructor.name),
+        entityDescription: splitPascalWithSpaces(pascalCase(constructor.name)),
       };
       SetEntityMetadata(originalEntityMetadata)(constructor);
     } else {

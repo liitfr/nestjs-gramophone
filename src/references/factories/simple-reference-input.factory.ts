@@ -6,6 +6,7 @@ import {
   SimpleEntityInputFactoryOptions,
 } from '../../utils/dtos/simple-entity-input.factory';
 import { EntityStore } from '../../utils/entities/entity-store.service';
+import { pascalCase, splitPascalWithSpaces } from '../../utils/string.util';
 
 import { ChipInput } from '../dtos/chip.input';
 import { ReferenceStore } from '../services/reference-store.service';
@@ -17,14 +18,17 @@ export function SimpleReferenceInputFactory<
   Reference: Type<R>,
   options?: SimpleEntityInputFactoryOptions<R>,
 ): Type<Partial<R>> {
-  const { addChip } = ReferenceStore.get(Reference);
-  const { entityDescription } = EntityStore.get(Reference);
+  const reference = ReferenceStore.uncertainGet(Reference);
 
-  if (addChip) {
+  if (reference?.addChip) {
+    const { entityDescription } = EntityStore.get(Reference);
+
     @InputType({ isAbstract: true })
     class MandatoryChipField {
       @Field(() => ChipInput, {
-        description: `${entityDescription}'s chip`,
+        description: `${
+          entityDescription ?? splitPascalWithSpaces(pascalCase(Reference.name))
+        }'s chip`,
         nullable: false,
       })
       readonly chip: ChipInput;

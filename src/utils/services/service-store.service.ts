@@ -20,12 +20,12 @@ export class ServiceStore {
     } else {
       const resolvedServiceToken = getServiceToken(service);
       if (!resolvedServiceToken) {
-        throw new Error(`Service not found`);
+        throw new Error('Service not found');
       }
       serviceToken = resolvedServiceToken;
     }
     if (!serviceToken) {
-      throw new Error(`Service not found`);
+      throw new Error('Service not found');
     }
     const existingMetadata = ServiceStore.services.get(serviceToken);
     const newMetadata = {
@@ -69,7 +69,7 @@ export class ServiceStore {
   public static get(service: symbol | string | Type): ServiceMetadata {
     const result = ServiceStore.uncertainGet(service);
     if (!result) {
-      throw new Error(`Service not found in ServiceStore.`);
+      throw new Error('Service not found in ServiceStore.');
     }
     return result;
   }

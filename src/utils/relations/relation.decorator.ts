@@ -37,7 +37,9 @@ export function Relation(
       })(decoratorTarget.constructor);
       originalMetadata = {
         entityToken: token,
-        entityDescription: pascalCase(decoratorTarget.constructor.name),
+        entityDescription: splitPascalWithSpaces(
+          pascalCase(decoratorTarget.constructor.name),
+        ),
       };
     } else {
       originalMetadata = EntityStore.get(decoratorTarget.constructor);
@@ -70,7 +72,8 @@ export function Relation(
 
     const resolvedName = propertyKey.replace(new RegExp(`${idSuffix}$`), '');
 
-    const relationDescription = splitPascalWithSpaces(resolvedName);
+    const relationDescription =
+      splitPascalWithSpaces(resolvedName).toLowerCase();
 
     if (relationOptions?.reversible && !relationOptions?.reversedIdName) {
       throw new Error(
@@ -118,10 +121,10 @@ You are using a reversible relation. Please remember that :
       reversedResolvedName = pluralize(reversedBaseName);
 
       const reversedRelationIdDescription =
-        splitPascalWithSpaces(reversedBaseName);
+        splitPascalWithSpaces(reversedBaseName).toLowerCase();
       const reversedRelationResolvedDescription = splitPascalWithSpaces(
         pluralize(reversedBaseName),
-      );
+      ).toLowerCase();
 
       const targetDescription =
         typeof relationTarget === 'string'
