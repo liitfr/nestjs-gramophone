@@ -43,7 +43,7 @@ export class RepositoryStore {
 
     if (!entityTokenDescription) {
       throw new Error(
-        'Description not found for token ' + entityToken.toString(),
+        `Description not found for token ${entityToken.toString()}`,
       );
     }
 
@@ -103,14 +103,12 @@ export class RepositoryStore {
     }
 
     if (!repository || !description) {
-      throw new Error(`Repository not found for entity ` + entity.toString());
+      throw new Error(`Repository not found for entity ${entity.toString()}`);
     }
 
     if (!repository.entityRepositoryToken) {
       throw new Error(
-        'Entity repository token not found for entity ' +
-          description +
-          ' repository',
+        `Entity repository token not found for entity ${description} repository`,
       );
     }
 

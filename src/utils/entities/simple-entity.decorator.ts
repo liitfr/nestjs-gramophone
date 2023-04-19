@@ -160,8 +160,9 @@ export function SimpleEntity(
 
     if (!entityTokenDescription) {
       throw new Error(
-        'Description not found for token ' +
-          originalMetadata?.entityToken?.toString?.() ?? 'undefined',
+        `Description not found for token ${
+          originalMetadata?.entityToken?.toString?.() ?? 'undefined'
+        }`,
       );
     }
 

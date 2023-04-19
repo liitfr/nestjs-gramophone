@@ -40,19 +40,19 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
   if (!entityTokenDescription) {
     throw new Error(
-      'Description not found for token ' + entityToken.toString(),
+      `Description not found for token ${entityToken.toString()}`,
     );
   }
 
   if (!entityServiceToken) {
     throw new Error(
-      'Service token not found for entity ' + entityTokenDescription,
+      `Service token not found for entity ${entityTokenDescription}`,
     );
   }
 
   if (!entityRepositoryToken) {
     throw new Error(
-      'Repository token not found for entity ' + entityTokenDescription,
+      `Repository token not found for entity ${entityTokenDescription}`,
     );
   }
 
@@ -81,11 +81,19 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
       return this.repository.createMany(docs, insertManyOptions);
     }
 
+    async uncertainFind(filter: unknown, options?: unknown): Promise<D[]> {
+      return this.repository.uncertainFind(filter, options);
+    }
+
     async find(filter: unknown, options?: unknown): Promise<D[]> {
       return this.repository.find(filter, options);
     }
 
-    async findById(id: unknown): Promise<D | null> {
+    async uncertainFindById(id: unknown): Promise<D | null> {
+      return this.repository.findById(id);
+    }
+
+    async findById(id: unknown): Promise<D> {
       return this.repository.findById(id);
     }
 
@@ -117,11 +125,20 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
     }
 
     @SaveVersionIfEnabled()
-    async findOneAndUpdate(
+    async uncertainFindOneAndUpdate(
       filter: unknown,
       update: unknown,
       options?: unknown,
     ): Promise<D | null> {
+      return this.repository.uncertainFindOneAndUpdate(filter, update, options);
+    }
+
+    @SaveVersionIfEnabled()
+    async findOneAndUpdate(
+      filter: unknown,
+      update: unknown,
+      options?: unknown,
+    ): Promise<D> {
       return this.repository.findOneAndUpdate(filter, update, options);
     }
 
@@ -152,7 +169,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
         if (!relationTokenDescription) {
           throw new Error(
-            'Description not found for token ' + relationToken.toString(),
+            `Description not found for token ${relationToken.toString()}`,
           );
         }
 

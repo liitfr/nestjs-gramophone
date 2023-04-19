@@ -10,6 +10,7 @@ export type RelationOptions = {
   reversible?: boolean;
   reversedIdName?: string;
   reverseResolve?: boolean;
+  weak?: boolean;
 };
 
 export const defaultRelationOptions = {
@@ -19,6 +20,7 @@ export const defaultRelationOptions = {
   resolve: true,
   reversible: false,
   reverseResolve: true,
+  weak: false,
 };
 
 export type RelationDetails = RelationOptions & {

@@ -57,7 +57,7 @@ const addRelationResolvers = (
 
   if (!entityTokenDescription) {
     throw new Error(
-      'Description not found for token ' + entityToken.toString(),
+      `Description not found for token ${entityToken.toString()}`,
     );
   }
 
@@ -73,8 +73,16 @@ const addRelationResolvers = (
         multiple,
       } = details;
 
+      const targetMetadata = details.weak
+        ? EntityStore.uncertainGet(target)
+        : EntityStore.get(target);
+
       if (resolve || partitionQueries) {
-        const targetMetadata = EntityStore.get(target);
+        if (!targetMetadata) {
+          throw new Error(
+            `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`,
+          );
+        }
 
         const {
           Entity: Relation,
@@ -88,7 +96,7 @@ const addRelationResolvers = (
 
         if (!relationTokenDescription) {
           throw new Error(
-            'Description not found for token ' + entityToken.toString(),
+            `Description not found for token ${entityToken.toString()}`,
           );
         }
 
@@ -248,7 +256,7 @@ const addReversedRelationResolvers = (
 
   if (!entityTokenDescription) {
     throw new Error(
-      'Description not found for token ' + entityToken.toString(),
+      `Description not found for token ${entityToken.toString()}`,
     );
   }
 
@@ -289,12 +297,9 @@ const addReversedRelationResolvers = (
               return (
                 await RepositoryStore.getByEntity(
                   sourceMetadata.entityToken,
-                ).find(
-                  {
-                    [idName]: { $in: parentId },
-                  },
-                  { errorIfUnknown: false },
-                )
+                ).uncertainFind({
+                  [idName]: { $in: parentId },
+                })
               ).map((item: Record<string, unknown>) => {
                 if (!item['_id']) {
                   throw new Error('The item does not have the property _id');
@@ -306,7 +311,9 @@ const addReversedRelationResolvers = (
             return (
               await RepositoryStore.getByEntity(
                 sourceMetadata.entityToken,
-              ).find({ [idName]: parentId }, { errorIfUnknown: false })
+              ).uncertainFind({
+                [idName]: parentId,
+              })
             ).map((item: Record<string, unknown>) => {
               if (!item['_id']) {
                 throw new Error('The item does not have the property _id');
@@ -355,17 +362,16 @@ const addReversedRelationResolvers = (
               if (multiple) {
                 return RepositoryStore.getByEntity(
                   sourceMetadata.entityToken,
-                ).find(
-                  {
-                    [idName]: { $in: parentId },
-                  },
-                  { errorIfUnknown: false },
-                );
+                ).uncertainFind({
+                  [idName]: { $in: parentId },
+                });
               }
 
               return RepositoryStore.getByEntity(
                 sourceMetadata.entityToken,
-              ).find({ [idName]: parentId }, { errorIfUnknown: false });
+              ).uncertainFind({
+                [idName]: parentId,
+              });
             },
             writable: true,
             enumerable: true,
@@ -410,7 +416,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
 
   if (!entityTokenDescription) {
     throw new Error(
-      'Description not found for token ' + entityToken.toString(),
+      `Description not found for token ${entityToken.toString()}`,
     );
   }
 

@@ -146,7 +146,7 @@ export function SimpleReference(
 
     if (!entityTokenDescription) {
       throw new Error(
-        'Description not found for token ' + entityToken.toString(),
+        `Description not found for token ${entityToken.toString()}`,
       );
     }
 

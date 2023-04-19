@@ -15,7 +15,7 @@ export const MongoModelsFactory = () => {
 
     if (!entityToken.description) {
       throw new Error(
-        'Description not found for token ' + entityToken.toString(),
+        `Description not found for token ${entityToken.toString()}`,
       );
     }
 

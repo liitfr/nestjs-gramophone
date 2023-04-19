@@ -22,15 +22,6 @@ import {
 import { DbSession } from '../../abstracts/db-session.abstract';
 import { Repository } from '../../abstracts/repository.abstract';
 
-interface Throwable {
-  errorIfUnknown?: boolean | null;
-}
-
-const mustThrowError = (options?: Throwable) =>
-  typeof options?.errorIfUnknown === 'undefined' ||
-  options?.errorIfUnknown === null ||
-  options?.errorIfUnknown === true;
-
 @Injectable()
 export class MongoRepository<D extends Document> implements Repository<D> {
   constructor(
@@ -88,16 +79,19 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     }));
   }
 
-  async find(
+  async uncertainFind(
     filter: FilterQuery<D>,
-    options?: QueryOptions<D> & Throwable,
+    options?: QueryOptions<D>,
   ): Promise<D[]> {
     const model = this.getModel();
-    const result = await model
-      .find(filter, null, options)
-      .session(this.dbSession.get());
 
-    if (mustThrowError(options) && result.length === 0) {
+    return model.find(filter, null, options).session(this.dbSession.get());
+  }
+
+  async find(filter: FilterQuery<D>, options?: QueryOptions<D>): Promise<D[]> {
+    const result = await this.uncertainFind(filter, options);
+
+    if (!result || result.length === 0) {
       throw new CustomError(
         'No result with these filters.',
         ErrorCode.NOT_FOUND,
@@ -107,7 +101,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'find',
-          model: model.name,
+          model: this.getModel().name,
           filter,
           options,
         },
@@ -117,15 +111,19 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return result;
   }
 
-  async findById(
+  async uncertainFindById(
     id: Id,
-    options?: QueryOptions<D> & Throwable,
+    options?: QueryOptions<D>,
   ): Promise<D | null> {
     const model = this.getModel();
-    const result = await model
-      .findById(id, null, options)
-      .session(this.dbSession.get());
-    if (mustThrowError(options) && !result) {
+
+    return model.findById(id, null, options).session(this.dbSession.get());
+  }
+
+  async findById(id: Id, options?: QueryOptions<D>): Promise<D> {
+    const result = await this.uncertainFindById(id, options);
+
+    if (!result) {
       throw new CustomError(
         'No result with this id.',
         ErrorCode.NOT_FOUND,
@@ -135,7 +133,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'findById',
-          model: model.name,
+          model: this.getModel().name,
           options,
         },
       );
@@ -179,17 +177,31 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
   }
 
-  public async findOneAndUpdate(
+  public async uncertainFindOneAndUpdate(
     filter: FilterQuery<D>,
     update: UpdateQuery<D>,
-    options?: QueryOptions<D> & Throwable,
+    options?: QueryOptions<D>,
   ): Promise<D | null> {
     const model = this.getModel();
-    const result = await model.findOneAndUpdate(filter, update, {
+
+    return model.findOneAndUpdate(filter, update, {
       new: true,
       ...options,
     });
-    if (mustThrowError(options) && !result) {
+  }
+
+  public async findOneAndUpdate(
+    filter: FilterQuery<D>,
+    update: UpdateQuery<D>,
+    options?: QueryOptions<D>,
+  ): Promise<D> {
+    const result = await this.uncertainFindOneAndUpdate(
+      filter,
+      update,
+      options,
+    );
+
+    if (!result) {
       throw new CustomError(
         'No item with this id.',
         ErrorCode.NOT_FOUND,
@@ -199,11 +211,12 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'findOneAndUpdate',
-          model: model.name,
+          model: this.getModel().name,
           options,
         },
       );
     }
+
     return result;
   }
 

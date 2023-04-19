@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './app/app.module';
@@ -21,7 +21,9 @@ async function bootstrap() {
   // useContainer(app, { fallback: true });
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  await app.listen(3456);
+  const port = process.env?.['PORT'] || 3456;
+  await app.listen(port);
+  Logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }
 
 bootstrap();

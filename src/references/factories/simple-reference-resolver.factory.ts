@@ -46,7 +46,7 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
 
   if (!referenceTokenDescription) {
     throw new Error(
-      'Description not found for token ' + referenceToken.toString(),
+      `Description not found for token ${referenceToken.toString()}`,
     );
   }
 
@@ -63,10 +63,7 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
     async [findAllActiveQueryName]() {
       if (!this.simpleService[findAllActiveQueryName]) {
         throw new Error(
-          'The service ' +
-            serviceMetadata.serviceToken.description +
-            ' does not implement the method ' +
-            findAllActiveQueryName,
+          `The service ${serviceMetadata.serviceToken.description} does not implement the method ${findAllActiveQueryName}`,
         );
       }
       return this.simpleService[findAllActiveQueryName]();
@@ -76,8 +73,7 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
   if (!options.noPartition) {
     if (!ReferencePartition || !referencePartitioner) {
       throw new Error(
-        "Can't partition query since partition or partitioner is missing for " +
-          referenceTokenDescription,
+        `Can't partition query since partition or partitioner is missing for ${referenceTokenDescription}`,
       );
     }
 

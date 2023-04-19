@@ -28,11 +28,19 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
+  public uncertainFind(_filter: unknown, _options?: unknown): Promise<D[]> {
+    throw new Error('Not implemented');
+  }
+
   public find(_filter: unknown, _options?: unknown): Promise<D[]> {
     throw new Error('Not implemented');
   }
 
-  public findById(_id: unknown): Promise<D | null> {
+  public uncertainFindById(_id: unknown): Promise<D | null> {
+    throw new Error('Not implemented');
+  }
+
+  public findById(_id: unknown): Promise<D> {
     throw new Error('Not implemented');
   }
 
@@ -60,11 +68,19 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public findOneAndUpdate(
+  public uncertainFindOneAndUpdate(
     _filter: unknown,
     _udpate: unknown,
     _options?: unknown,
   ): Promise<D | null> {
+    throw new Error('Not implemented');
+  }
+
+  public findOneAndUpdate(
+    _filter: unknown,
+    _udpate: unknown,
+    _options?: unknown,
+  ): Promise<D> {
     throw new Error('Not implemented');
   }
 

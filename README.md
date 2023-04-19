@@ -12,3 +12,4 @@ Other features:
 
 - Versioning of entities
 - Simple References (LOVs) management
+- One request -> One MongoDB transaction

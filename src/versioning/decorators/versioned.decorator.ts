@@ -44,8 +44,9 @@ export function Versioned(VersionedEntity: Type<unknown>) {
 
   if (!checkIfIsTrackable(VersionedEntity)) {
     throw new Error(
-      'Entity ' + entityToken.description ??
-        entityToken.toString() + ' must be trackable to be versioned',
+      `Entity ${
+        entityToken.description ?? entityToken.toString()
+      } must be trackable to be versioned`,
     );
   }
 

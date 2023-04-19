@@ -5,7 +5,7 @@ import { RelationDetails } from '../relations/relation.util';
 import { EntityMetadata, getEntityToken } from './entity.util';
 
 type RelationMetadata = {
-  targetMetadata: EntityMetadata;
+  targetMetadata?: EntityMetadata;
   details: RelationDetails;
 };
 
@@ -81,7 +81,7 @@ export class EntityStore {
   public static get(entity: symbol | string | Type): EntityMetadata {
     const result = EntityStore.uncertainGet(entity);
     if (!result) {
-      throw new Error(`Entity not found in EntityStore.`);
+      throw new Error(`Entity not found in EntityStore : ${entity.toString()}`);
     }
     return result;
   }
@@ -92,7 +92,9 @@ export class EntityStore {
     const entityMetadata = EntityStore.get(entity);
     const relations = entityMetadata?.entityRelations ?? [];
     return relations.map(({ target, details }) => {
-      const targetMetadata = EntityStore.get(target);
+      const targetMetadata = details.weak
+        ? EntityStore.uncertainGet(target)
+        : EntityStore.get(target);
       return { targetMetadata, details };
     });
   }
@@ -105,6 +107,7 @@ export class EntityStore {
     for (const [sourceToken, sourceMetadata] of EntityStore.entities) {
       const relations = EntityStore.getRelationMetadata(sourceToken).filter(
         ({ targetMetadata: sourceTargetMetadata }) =>
+          sourceTargetMetadata &&
           sourceTargetMetadata.entityToken === targetMetadata.entityToken,
       );
       if (relations) {

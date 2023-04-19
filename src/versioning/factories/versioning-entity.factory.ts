@@ -27,7 +27,7 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
 
   if (!versionedEntityTokenDescription) {
     throw new Error(
-      'Description not found for token ' + versionedEntityToken.toString(),
+      `Description not found for token ${versionedEntityToken.toString()}`,
     );
   }
 
@@ -39,7 +39,7 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
 
   if (!versioningEntityTokenDescription) {
     throw new Error(
-      'Description not found for token ' + versioningEntityToken.toString(),
+      `Description not found for token ${versioningEntityToken.toString()}`,
     );
   }
 

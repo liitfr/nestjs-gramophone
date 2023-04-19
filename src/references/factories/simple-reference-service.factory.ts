@@ -54,7 +54,7 @@ export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
       const result = await this.repository.find({ version }, { index: 1 });
       if (result.length === 0) {
         throw new CustomError(
-          'No ' + entityDescription + ' for this version.',
+          `No ${entityDescription} for this version.`,
           ErrorCode.NOT_FOUND,
           {
             fr: "Il n'existe pas de référence pour cette version.",

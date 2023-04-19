@@ -9,7 +9,8 @@ import { VersioningEntityFactory } from './versioning-entity.factory';
 import { VersioningResolverFactory } from './versioning-resolver.factory';
 
 export const VersioningProvidersFactory = () => {
-  const providers: Provider[] = [VersioningService];
+  const serviceProviders: Provider[] = [VersioningService];
+  const resolverProviders: Provider[] = [VersioningService];
 
   for (const {
     versioningServiceToken,
@@ -22,8 +23,7 @@ export const VersioningProvidersFactory = () => {
 
     if (!entityRepositoryToken) {
       throw new Error(
-        'Versioning entity repository token not found for entity ' +
-          entityToken.description,
+        `Versioning entity repository token not found for entity ${entityToken.description}`,
       );
     }
 
@@ -34,7 +34,7 @@ export const VersioningProvidersFactory = () => {
       'VersioningModuleFactory',
     );
 
-    providers.push({
+    serviceProviders.push({
       provide: versioningServiceToken,
       useFactory: (repository) => new VersioningService(repository),
       inject: [{ token: entityRepositoryToken, optional: false }],
@@ -50,8 +50,8 @@ export const VersioningProvidersFactory = () => {
       'VersioningModuleFactory',
     );
 
-    providers.push(resolver);
+    resolverProviders.push(resolver);
   }
 
-  return providers;
+  return [...serviceProviders, ...resolverProviders];
 };
