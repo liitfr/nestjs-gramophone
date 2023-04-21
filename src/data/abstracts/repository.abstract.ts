@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, Optional } from '@nestjs/common';
 
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 
 import {
   CreatedModel,

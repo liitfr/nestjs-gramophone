@@ -1,8 +1,10 @@
+import { Constructor } from '../../utils/types/constructor.type';
+
 import { ReferenceMetadata, getReferenceToken } from '../utils/reference.util';
 import { ReferenceStore } from '../services/reference-store.service';
 
 export function SetReferenceMetadata(metadata: Partial<ReferenceMetadata>) {
-  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     const referenceToken = getReferenceToken(constructor);
 
     if (!referenceToken) {

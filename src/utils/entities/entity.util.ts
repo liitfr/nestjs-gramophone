@@ -22,8 +22,8 @@ export interface EntityMetadata {
 }
 
 export const enhancerCheckerFactory =
-  <E>(enhancerName: string) =>
-  (Entity: Type): Entity is Type<E> => {
+  <E extends object>(enhancerName: string) =>
+  (Entity: Type<object>): Entity is Type<E> => {
     const entityMetadata = EntityStore.get(Entity);
 
     const { entityEnhancers } = entityMetadata ?? { entityEnhancers: [] };
@@ -40,10 +40,10 @@ export const enhancerCheckerFactory =
     return true;
   };
 
-export const isEntityDecorated = (Entity: Type): boolean =>
+export const isEntityDecorated = (Entity: Type<object>): boolean =>
   !!Reflect.getMetadata(ENTITY_METADATA, Entity);
 
-export const getEntityToken = (Entity: Type): symbol | undefined => {
+export const getEntityToken = (Entity: Type<object>): symbol | undefined => {
   const metadata = Reflect.getMetadata(ENTITY_METADATA, Entity);
   return metadata?.entityToken;
 };

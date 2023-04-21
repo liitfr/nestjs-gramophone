@@ -3,8 +3,9 @@ import { Prop } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { IdScalar } from '../scalars/id.scalar';
-import { Id } from '../id.type';
+import { Id } from '../types/id.type';
 import { pascalCase, pluralize, splitPascalWithSpaces } from '../string.util';
+import { Constructor } from '../types/constructor.type';
 
 import {
   EntityMetadata,
@@ -32,7 +33,7 @@ export function SimpleEntity(
     isIdable: false,
   },
 ) {
-  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     let originalMetadata: Partial<EntityMetadata>;
 
     if (!getEntityToken(constructor)) {

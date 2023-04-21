@@ -8,10 +8,12 @@ export interface ReferenceMetadata {
   addChip?: boolean;
 }
 
-export const isReferenceDecorated = (Reference: Type): boolean =>
+export const isReferenceDecorated = (Reference: Type<unknown>): boolean =>
   !!Reflect.getMetadata(REFERENCE_METADATA, Reference);
 
-export const getReferenceToken = (Reference: Type): symbol | undefined => {
+export const getReferenceToken = (
+  Reference: Type<unknown>,
+): symbol | undefined => {
   const metadata = Reflect.getMetadata(REFERENCE_METADATA, Reference);
   return metadata?.referenceToken;
 };

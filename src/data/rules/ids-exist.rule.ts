@@ -7,7 +7,7 @@ import {
   registerDecorator,
 } from 'class-validator';
 
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 
 import { RepositoryStore } from '../services/repository-store.service';
 

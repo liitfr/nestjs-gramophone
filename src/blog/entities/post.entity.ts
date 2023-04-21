@@ -11,7 +11,7 @@ import {
   Trackable,
 } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 
 @ObjectType()
 @Schema()

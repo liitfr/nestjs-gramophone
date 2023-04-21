@@ -6,6 +6,7 @@ import {
 } from '../../utils/entities/simple-entity.decorator';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { ServiceStore } from '../../utils/services/service-store.service';
+import { Constructor } from '../../utils/types/constructor.type';
 
 import { VersioningService } from '../services/versioning.service';
 
@@ -53,7 +54,7 @@ export function Versioned<E extends Trackable>(VersionedEntity: Type<E>) {
     );
   }
 
-  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     const { serviceToken } = ServiceStore.get(constructor);
 
     const versioningService = registerVersioningService(

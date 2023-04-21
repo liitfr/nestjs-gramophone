@@ -10,7 +10,7 @@ import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-i
 
 import { camelCase, pascalCase } from '../string.util';
 import { EntityStore } from '../entities/entity-store.service';
-import { Id } from '../id.type';
+import { Id } from '../types/id.type';
 
 import { SetServiceMetadata } from './set-service-metadata.decorator';
 import { getServiceToken } from './service.util';
@@ -27,7 +27,9 @@ interface Return<E> {
   serviceToken: symbol;
 }
 
-export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
+export const SimpleServiceFactory = <E extends object>(
+  Entity: Type<E>,
+): Return<E> => {
   const entityMetadata = EntityStore.get(Entity);
 
   const {

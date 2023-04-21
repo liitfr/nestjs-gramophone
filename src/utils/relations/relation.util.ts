@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 
-export type RelationEntity = Type<unknown> | string;
+export type RelationEntity = Type<object> | string;
 
 export type RelationOptions = {
   nullable?: boolean;

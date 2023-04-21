@@ -1,9 +1,10 @@
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { RepositoryStore } from '../../data/services/repository-store.service';
+import { Constructor } from '../../utils/types/constructor.type';
 
 export function CreateReferenceRepository() {
-  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     RepositoryStore.register(constructor, {
       SchemaFactory: (Schema) =>
         (Schema as MongooseSchema).index(

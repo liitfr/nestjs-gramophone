@@ -5,7 +5,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { generateCollectionName } from '../../utils/string.util';
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 import {
   Idable,
   Memoable,

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HydratedDocument } from 'mongoose';
 
 import { Trackable } from '../../utils/entities/simple-entity.decorator';
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 import { Repository } from '../../data/abstracts/repository.abstract';
 
 import { IVersioningEntity } from '../factories/versioning-entity.factory';

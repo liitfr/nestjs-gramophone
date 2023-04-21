@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 
 import { getUserFromContext } from '../utils/get-user-from-context.util';
 

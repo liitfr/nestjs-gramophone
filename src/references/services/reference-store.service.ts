@@ -7,7 +7,7 @@ export class ReferenceStore {
   private static references = new Map<symbol, ReferenceMetadata>();
 
   public static set(
-    reference: symbol | string | Type,
+    reference: symbol | string | Type<unknown>,
     metadata: Partial<ReferenceMetadata>,
   ): ReferenceMetadata {
     let referenceToken: symbol | undefined;
@@ -45,7 +45,7 @@ export class ReferenceStore {
   }
 
   public static uncertainGet(
-    reference: symbol | string | Type,
+    reference: symbol | string | Type<unknown>,
   ): ReferenceMetadata | undefined {
     let referenceToken: symbol | undefined;
     if (typeof reference === 'string') {
@@ -66,10 +66,12 @@ export class ReferenceStore {
     return undefined;
   }
 
-  public static has = (reference: symbol | string | Type): boolean =>
+  public static has = (reference: symbol | string | Type<unknown>): boolean =>
     !!ReferenceStore.uncertainGet(reference);
 
-  public static get(reference: symbol | string | Type): ReferenceMetadata {
+  public static get(
+    reference: symbol | string | Type<unknown>,
+  ): ReferenceMetadata {
     const result = ReferenceStore.uncertainGet(reference);
     if (!result) {
       throw new Error(

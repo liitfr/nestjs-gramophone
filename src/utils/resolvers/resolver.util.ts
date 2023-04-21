@@ -9,10 +9,12 @@ export interface ResolverMetadata {
   resolverDescription?: string;
 }
 
-export const isResolverDecorated = (Resolver: Type): boolean =>
+export const isResolverDecorated = (Resolver: Type<unknown>): boolean =>
   !!Reflect.getMetadata(RESOLVER_METADATA, Resolver);
 
-export const getResolverMetadata = (Resolver: Type): ResolverMetadata => {
+export const getResolverMetadata = (
+  Resolver: Type<unknown>,
+): ResolverMetadata => {
   const resolverMetadata = Reflect.getMetadata(RESOLVER_METADATA, Resolver);
   return {
     resolverName: Resolver.name,

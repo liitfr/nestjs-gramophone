@@ -1,10 +1,12 @@
-import { ServiceMetadata, getServiceToken } from './service.util';
+import { Constructor } from '../types/constructor.type';
 import { ServiceStore } from '../services/service-store.service';
+
+import { ServiceMetadata, getServiceToken } from './service.util';
 
 export function SetServiceMetadata<E extends object>(
   metadata: Partial<ServiceMetadata<E>>,
 ) {
-  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     const serviceToken = getServiceToken(constructor);
 
     if (!serviceToken) {

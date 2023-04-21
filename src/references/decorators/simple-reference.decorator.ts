@@ -7,7 +7,7 @@ import {
   pascalCase,
   splitPascalWithSpaces,
 } from '../../utils/string.util';
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { SetEntityToken } from '../../utils/entities/set-entity-token.decorator';
@@ -15,6 +15,7 @@ import {
   EntityMetadata,
   getEntityToken,
 } from '../../utils/entities/entity.util';
+import { Constructor } from '../../utils/types/constructor.type';
 
 import { Chip, ChipSchemas } from '../entities/chip.entity';
 import { ReferenceStore } from '../services/reference-store.service';
@@ -41,7 +42,7 @@ export function SimpleReference(
     partitionerDescription: 'code',
   },
 ) {
-  return <T extends { new (...args: any[]): object }>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     let originalEntityMetadata: Partial<EntityMetadata>;
     let originalReferenceMetadata: Partial<ReferenceMetadata>;
 

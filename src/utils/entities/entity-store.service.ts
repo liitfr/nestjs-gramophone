@@ -38,7 +38,7 @@ export class EntityStore {
   }
 
   public static uncertainGet(
-    entity: symbol | string | Type,
+    entity: symbol | string | Type<object>,
   ): EntityMetadata | undefined {
     const entityToken = EntityStore.uncertainGetEntityToken(entity);
     if (entityToken) {
@@ -74,10 +74,10 @@ export class EntityStore {
     return entityToken;
   }
 
-  public static has = (entity: symbol | string | Type): boolean =>
+  public static has = (entity: symbol | string | Type<object>): boolean =>
     !!EntityStore.uncertainGet(entity);
 
-  public static get(entity: symbol | string | Type): EntityMetadata {
+  public static get(entity: symbol | string | Type<object>): EntityMetadata {
     const result = EntityStore.uncertainGet(entity);
     if (!result) {
       throw new Error(`Entity not found in EntityStore : ${entity.toString()}`);

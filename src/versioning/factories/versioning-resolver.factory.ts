@@ -2,7 +2,7 @@ import { Inject, Type } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
-import { Id } from '../../utils/id.type';
+import { Id } from '../../utils/types/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { Trackable } from '../../utils/entities/simple-entity.decorator';
 

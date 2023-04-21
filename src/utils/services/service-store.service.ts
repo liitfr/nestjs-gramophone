@@ -63,7 +63,7 @@ export class ServiceStore {
     return undefined;
   }
 
-  public static has = (service: symbol | string | Type): boolean =>
+  public static has = (service: symbol | string | Type<object>): boolean =>
     !!ServiceStore.uncertainGet(service);
 
   public static get<S extends object>(

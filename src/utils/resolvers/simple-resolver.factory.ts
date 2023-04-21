@@ -20,7 +20,7 @@ import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.
 
 import { IdScalar } from '../scalars/id.scalar';
 import { camelCase, pascalCase, pluralize } from '../string.util';
-import { Id } from '../id.type';
+import { Id } from '../types/id.type';
 import { checkIfIsTrackable } from '../entities/simple-entity.decorator';
 import { EntityStore } from '../entities/entity-store.service';
 import {
@@ -53,7 +53,10 @@ interface Options<E> {
   removeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
 }
 
-const addRelationResolvers = <R, E>(Resolver: Type<R>, Entity: Type<E>) => {
+const addRelationResolvers = <R, E extends object>(
+  Resolver: Type<R>,
+  Entity: Type<E>,
+) => {
   const metadata = EntityStore.get(Entity);
 
   const { entityRelations, entityToken } = metadata;
@@ -249,7 +252,7 @@ const addRelationResolvers = <R, E>(Resolver: Type<R>, Entity: Type<E>) => {
   }
 };
 
-const addReversedRelationResolvers = <R, E>(
+const addReversedRelationResolvers = <R, E extends object>(
   Resolver: Type<R>,
   Entity: Type<E>,
 ) => {

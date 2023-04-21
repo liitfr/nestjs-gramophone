@@ -2,7 +2,7 @@ import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
 import { Logger, Type } from '@nestjs/common';
 
 import { IdScalar } from '../scalars/id.scalar';
-import { Id } from '../id.type';
+import { Id } from '../types/id.type';
 import {
   Idable,
   Trackable,

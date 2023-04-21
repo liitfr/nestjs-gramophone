@@ -11,7 +11,7 @@ import {
 } from 'mongoose';
 import { Document } from 'mongoose';
 
-import { Id } from '../../../utils/id.type';
+import { Id } from '../../../utils/types/id.type';
 import { CustomError, ErrorCode } from '../../../utils/errors/custom.error';
 
 import {

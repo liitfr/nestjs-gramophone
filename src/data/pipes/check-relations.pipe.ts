@@ -6,10 +6,12 @@ import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 import { RepositoryStore } from '../services/repository-store.service';
 
 @Injectable()
-export class CheckRelations<T> implements PipeTransform<T, Promise<T>> {
-  constructor(@Optional() private readonly Entity: Type<T>) {}
+export class CheckRelations<E extends object>
+  implements PipeTransform<E, Promise<E>>
+{
+  constructor(@Optional() private readonly Entity: Type<E>) {}
 
-  async transform(value: T): Promise<T> {
+  async transform(value: E): Promise<E> {
     if (!this.Entity) {
       new CustomError(
         'Entity is not defined.',
