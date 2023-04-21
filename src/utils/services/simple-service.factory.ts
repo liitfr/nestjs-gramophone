@@ -10,16 +10,17 @@ import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-i
 
 import { camelCase, pascalCase } from '../string.util';
 import { EntityStore } from '../entities/entity-store.service';
+import { Id } from '../id.type';
 
 import { SetServiceMetadata } from './set-service-metadata.decorator';
 import { getServiceToken } from './service.util';
 import { SetServiceToken } from './set-service-token.decorator';
 
-type SimpleServiceObj<D> = Repository<D> & {
+export type SimpleServiceObj<D> = Repository<D> & {
   repository: Repository<D>;
 };
 
-type SimpleService<D> = Type<SimpleServiceObj<D>>;
+export type SimpleService<D> = Type<SimpleServiceObj<D>>;
 
 interface Return<E> {
   Service: SimpleService<E>;
@@ -67,7 +68,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
     @SaveVersionIfEnabled()
     public create(
-      doc: object,
+      doc: Partial<D>,
       saveOptions?: unknown,
     ): Promise<CreatedModel | D> {
       return this.repository.create(doc, saveOptions);
@@ -75,25 +76,25 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
     @SaveVersionIfEnabled()
     async createMany(
-      docs: object[],
+      docs: Partial<D>[],
       insertManyOptions?: unknown,
     ): Promise<CreatedModel[] | D[]> {
       return this.repository.createMany(docs, insertManyOptions);
     }
 
-    async uncertainFind(filter: unknown, options?: unknown): Promise<D[]> {
+    async uncertainFind(filter: Partial<D>, options?: unknown): Promise<D[]> {
       return this.repository.uncertainFind(filter, options);
     }
 
-    async find(filter: unknown, options?: unknown): Promise<D[]> {
+    async find(filter: Partial<D>, options?: unknown): Promise<D[]> {
       return this.repository.find(filter, options);
     }
 
-    async uncertainFindById(id: unknown): Promise<D | null> {
+    async uncertainFindById(id: Id): Promise<D | null> {
       return this.repository.uncertainFindById(id);
     }
 
-    async findById(id: unknown): Promise<D> {
+    async findById(id: Id): Promise<D> {
       return this.repository.findById(id);
     }
 
@@ -102,14 +103,14 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
     }
 
     @SaveVersionIfEnabled()
-    async remove(filter: unknown): Promise<RemovedModel> {
+    async remove(filter: Partial<D>): Promise<RemovedModel> {
       return this.repository.remove(filter);
     }
 
     @SaveVersionIfEnabled()
     async updateOne(
-      filter: unknown,
-      update: unknown,
+      filter: Partial<D>,
+      update: Partial<D>,
       options?: unknown,
     ): Promise<UpdatedModel> {
       return this.repository.updateOne(filter, update, options);
@@ -117,8 +118,8 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
     @SaveVersionIfEnabled()
     async updateMany(
-      filter: unknown,
-      update: unknown,
+      filter: Partial<D>,
+      update: Partial<D>,
       options?: unknown,
     ): Promise<UpdatedModel> {
       return this.repository.updateMany(filter, update, options);
@@ -126,8 +127,8 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
     @SaveVersionIfEnabled()
     async uncertainFindOneAndUpdate(
-      filter: unknown,
-      update: unknown,
+      filter: Partial<D>,
+      update: Partial<D>,
       options?: unknown,
     ): Promise<D | null> {
       return this.repository.uncertainFindOneAndUpdate(filter, update, options);
@@ -135,8 +136,8 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
 
     @SaveVersionIfEnabled()
     async findOneAndUpdate(
-      filter: unknown,
-      update: unknown,
+      filter: Partial<D>,
+      update: Partial<D>,
       options?: unknown,
     ): Promise<D> {
       return this.repository.findOneAndUpdate(filter, update, options);
@@ -146,7 +147,7 @@ export const SimpleServiceFactory = <E>(Entity: Type<E>): Return<E> => {
       return this.repository.countAll();
     }
 
-    async count(filter: unknown, options?: unknown): Promise<number> {
+    async count(filter: Partial<D>, options?: unknown): Promise<number> {
       return this.repository.count(filter, options);
     }
   }

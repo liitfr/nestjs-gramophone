@@ -48,7 +48,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async create(
-    doc: object,
+    doc: Partial<D>,
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
   ): Promise<CreatedModel | D> {
     const model = this.getModel();
@@ -64,7 +64,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async createMany(
-    docs: object[],
+    docs: Partial<D>[],
     insertManyOptions?: InsertManyOptions,
   ): Promise<CreatedModel[]> {
     const model = this.getModel();

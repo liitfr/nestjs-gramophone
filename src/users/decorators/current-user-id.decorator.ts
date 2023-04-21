@@ -1,17 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-// import { GqlExecutionContext } from '@nestjs/graphql';
-import mongoose from 'mongoose';
 
 import { Id } from '../../utils/id.type';
 
-// import { User } from '../entities/user.entity';
+import { getUserFromContext } from '../utils/get-user-from-context.util';
 
 export const CurrentUserId = createParamDecorator(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (_: undefined, _context: ExecutionContext): Id => {
-    // const ctx = GqlExecutionContext.create(context);
-    // const req = ctx.getContext().req;
-    // const user = req.user as User;
-    return new mongoose.Types.ObjectId('6424ca347788a0ca90372cf5');
-  },
+  (_: undefined, context: ExecutionContext): Id =>
+    getUserFromContext(context)._id,
 );

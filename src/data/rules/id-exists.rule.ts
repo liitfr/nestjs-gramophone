@@ -18,8 +18,12 @@ export class IdExistsRule implements ValidatorConstraintInterface {
     try {
       const [entityToken, nullable] = args.constraints;
 
-      if (nullable && (typeof id === 'undefined' || id === null)) {
-        return true;
+      if (typeof id === 'undefined' || id === null) {
+        if (nullable) {
+          return true;
+        } else {
+          return false;
+        }
       }
 
       const entityRepository = RepositoryStore.getByEntity(entityToken);

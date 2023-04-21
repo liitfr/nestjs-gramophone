@@ -11,25 +11,25 @@ interface Options {
   SchemaFactory?: (Schema: unknown) => unknown;
 }
 
-type Repository = {
-  Entity: Type<unknown>;
+type Repository<E> = {
+  Entity: Type<E>;
   entityToken: symbol;
   entityRepositoryToken: symbol;
-  instance?: IRepository<unknown>;
+  instance?: IRepository<E>;
   options?: Options;
 };
 
-type RegisteredRepository = Repository & {
-  instance: IRepository<unknown>;
+type RegisteredRepository<E> = Repository<E> & {
+  instance: IRepository<E>;
 };
 
 export { Options as RepositoryStoreRegisterOptions };
 
 @Injectable()
 export class RepositoryStore {
-  private static repositories: Repository[] = [];
+  private static repositories: Repository<object>[] = [];
 
-  public static register(Entity: Type<unknown>, options?: Options) {
+  public static register<E extends object>(Entity: Type<E>, options?: Options) {
     const {
       entityToken,
       entityRepositoryToken: existingEntityRepositoryToken,
@@ -77,26 +77,26 @@ export class RepositoryStore {
     return newRepository;
   }
 
-  public static getByEntity(
-    entity: symbol | string | Type<unknown>,
-  ): IRepository<unknown> {
-    let repository: Repository | undefined;
+  public static getByEntity<E extends object>(
+    entity: symbol | string | Type<E>,
+  ): IRepository<E> {
+    let repository: Repository<E> | undefined;
     let description: string | undefined;
     if (typeof entity === 'string') {
-      repository = RepositoryStore.repositories.find(
-        (r) => r.entityToken.description === entity,
+      repository = RepositoryStore.repositories.find<Repository<E>>(
+        (r): r is Repository<E> => r.entityToken.description === entity,
       );
       description = entity;
     } else if (typeof entity === 'symbol') {
-      repository = RepositoryStore.repositories.find(
-        (r) => r.entityToken === entity,
+      repository = RepositoryStore.repositories.find<Repository<E>>(
+        (r): r is Repository<E> => r.entityToken === entity,
       );
       description = entity.description;
     } else {
       const resolvedEntityToken = getEntityToken(entity);
       if (resolvedEntityToken) {
-        repository = RepositoryStore.repositories.find(
-          (r) => r.entityToken === resolvedEntityToken,
+        repository = RepositoryStore.repositories.find<Repository<E>>(
+          (r): r is Repository<E> => r.entityToken === resolvedEntityToken,
         );
         description = resolvedEntityToken.description;
       }
@@ -116,7 +116,7 @@ export class RepositoryStore {
       throw new Error(`Repository for entity ${description} not registered`);
     }
 
-    return (repository as RegisteredRepository).instance;
+    return (repository as RegisteredRepository<E>).instance;
   }
 
   public static getAll() {

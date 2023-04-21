@@ -8,47 +8,52 @@ import {
   Int,
   ResolveField,
 } from '@nestjs/graphql';
-import { Inject, Logger, PipeTransform, Type } from '@nestjs/common';
+import { Inject, Logger, PipeTransform, Type, UseGuards } from '@nestjs/common';
 
-import { Repository } from '../../data/abstracts/repository.abstract';
 import { CheckRelations } from '../../data/pipes/check-relations.pipe';
 import { CurrentUserId } from '../../users/decorators/current-user-id.decorator';
 import { RepositoryStore } from '../../data/services/repository-store.service';
+import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
+import { AppAbility } from '../../authorization/factories/casl-ability.factory';
+import { UserActionEnum } from '../../references/enums/user-action.enum';
+import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { camelCase, pascalCase, pluralize } from '../string.util';
 import { Id } from '../id.type';
 import { checkIfIsTrackable } from '../entities/simple-entity.decorator';
 import { EntityStore } from '../entities/entity-store.service';
+import {
+  SimpleService,
+  SimpleServiceObj,
+} from '../services/simple-service.factory';
+import { SimpleInput } from '../dtos/simple-entity-input.factory';
 
-interface Options {
+interface Options<E> {
   noMutation?: boolean;
-  FindSomeFilterType?: Type<unknown>;
+  FindSomeFilterType?: Type<Partial<E>>;
   findSomeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
-  CountSomeFilterType?: Type<unknown>;
+  CountSomeFilterType?: Type<Partial<E>>;
   countSomeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
-  CreateType?: Type<unknown>;
+  CreateType?: Type<Partial<E>>;
   createPipes?: (Type<PipeTransform> | PipeTransform)[];
-  UpdateOneFilterType?: Type<unknown>;
+  UpdateOneFilterType?: Type<Partial<E>>;
   updateOneFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
-  UpdateOneUpdateType?: Type<unknown>;
+  UpdateOneUpdateType?: Type<Partial<E>>;
   updateOneUpdatePipes?: (Type<PipeTransform> | PipeTransform)[];
-  UpdateManyFilterType?: Type<unknown>;
+  UpdateManyFilterType?: Type<Partial<E>>;
   updateManyFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
-  UpdateManyUpdateType?: Type<unknown>;
+  UpdateManyUpdateType?: Type<Partial<E>>;
   updateManyUpdatePipes?: (Type<PipeTransform> | PipeTransform)[];
-  FindOneAndUpdateFilterType?: Type<unknown>;
+  FindOneAndUpdateFilterType?: Type<Partial<E>>;
   findOneAndUpdateFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
-  FindOneAndUpdateUpdateType?: Type<unknown>;
+  FindOneAndUpdateUpdateType?: Type<Partial<E>>;
   findOneAndUpdateUpdatePipes?: (Type<PipeTransform> | PipeTransform)[];
-  RemoveFilterType?: Type<unknown>;
+  RemoveFilterType?: Type<Partial<E>>;
   removeFilterPipes?: (Type<PipeTransform> | PipeTransform)[];
 }
 
-const addRelationResolvers = (
-  Resolver: Type<unknown>,
-  Entity: Type<unknown>,
-) => {
+const addRelationResolvers = <R, E>(Resolver: Type<R>, Entity: Type<E>) => {
   const metadata = EntityStore.get(Entity);
 
   const { entityRelations, entityToken } = metadata;
@@ -102,7 +107,7 @@ const addRelationResolvers = (
 
         if (resolve) {
           Object.defineProperty(Resolver.prototype, resolvedName, {
-            value: async function (parent: Record<string, unknown>) {
+            value: async function (parent: E) {
               if (parent[idName]) {
                 const parentId = parent['idName'] as Id;
                 if (multiple) {
@@ -244,9 +249,9 @@ const addRelationResolvers = (
   }
 };
 
-const addReversedRelationResolvers = (
-  Resolver: Type<unknown>,
-  Entity: Type<unknown>,
+const addReversedRelationResolvers = <R, E>(
+  Resolver: Type<R>,
+  Entity: Type<E>,
 ) => {
   const metadata = EntityStore.get(Entity);
 
@@ -284,7 +289,7 @@ const addReversedRelationResolvers = (
         }
 
         Object.defineProperty(Resolver.prototype, reversedIdName, {
-          value: async function (parent: Record<string, unknown>) {
+          value: async function (parent: E) {
             if (!parent['_id']) {
               throw new Error(
                 'The parent object does not have the property _id',
@@ -350,7 +355,7 @@ const addReversedRelationResolvers = (
           }
 
           Object.defineProperty(Resolver.prototype, reversedResolvedName, {
-            value: async function (parent: Record<string, unknown>) {
+            value: async function (parent: E) {
               if (!parent['_id']) {
                 throw new Error(
                   'The parent object does not have the property _id',
@@ -403,11 +408,14 @@ const addReversedRelationResolvers = (
   }
 };
 
-export function SimpleResolverFactory<D, S extends Repository<D>>(
-  Entity: Type<unknown>,
-  Input: Type<unknown>,
-  Service: Type<S>,
-  options?: Options,
+export function SimpleResolverFactory<
+  E extends object,
+  S extends SimpleServiceObj<E>,
+>(
+  Entity: Type<E>,
+  Input: Type<unknown>, // BUG : somehow it should depend on E if only i could generate correct type for inputs
+  Service: SimpleService<E>,
+  options?: Options<E>,
 ) {
   const { entityToken, entityDescription, entityRelations } =
     EntityStore.get(Entity);
@@ -431,6 +439,8 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
 
   @InputType(`${entityTokenDescription}PartialInput`)
   class PartialInput extends PartialType(Input) {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface PartialInput extends SimpleInput<E> {}
 
   const {
     noMutation,
@@ -492,9 +502,13 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
       description: `${entityDescription} : Find one query`,
       name: `findOne${pascalCase(entityTokenDescription ?? 'unknown')}`,
     })
+    @UseGuards(SimplePoliciesGuard)
+    @CheckPolicies((ability: AppAbility) =>
+      ability.can(UserActionEnum.Read, Entity),
+    )
     async findOne(
       @Args('id', { type: () => IdScalar }) id: Id,
-    ): Promise<D | null> {
+    ): Promise<E | null> {
       return this.simpleService.findById(id);
     }
 
@@ -505,7 +519,11 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         pascalCase(entityTokenDescription ?? 'unknown'),
       )}`,
     })
-    async findAll(): Promise<D[]> {
+    @UseGuards(SimplePoliciesGuard)
+    @CheckPolicies((ability: AppAbility) =>
+      ability.can(UserActionEnum.Read, Entity),
+    )
+    async findAll(): Promise<E[]> {
       return this.simpleService.findAll();
     }
 
@@ -516,14 +534,18 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         pascalCase(entityTokenDescription ?? 'unknown'),
       )}`,
     })
+    @UseGuards(SimplePoliciesGuard)
+    @CheckPolicies((ability: AppAbility) =>
+      ability.can(UserActionEnum.Read, Entity),
+    )
     async findSome(
       @Args(
         'filter',
         { type: () => FindSomeFilterType },
         ...findSomeFilterPipes,
       )
-      filter: typeof FindSomeFilterType,
-    ): Promise<D[]> {
+      filter: InstanceType<typeof FindSomeFilterType>,
+    ): Promise<E[]> {
       return this.simpleService.find(filter);
     }
 
@@ -534,6 +556,10 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         pascalCase(entityTokenDescription ?? 'unknown'),
       )}`,
     })
+    @UseGuards(SimplePoliciesGuard)
+    @CheckPolicies((ability: AppAbility) =>
+      ability.can(UserActionEnum.Read, Entity),
+    )
     async countAll(): Promise<number> {
       return this.simpleService.countAll();
     }
@@ -545,13 +571,17 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         pascalCase(entityTokenDescription ?? 'unknown'),
       )}`,
     })
+    @UseGuards(SimplePoliciesGuard)
+    @CheckPolicies((ability: AppAbility) =>
+      ability.can(UserActionEnum.Read, Entity),
+    )
     async countSome(
       @Args(
         'filter',
         { type: () => CountSomeFilterType },
         ...countSomeFilterPipes,
       )
-      filter: typeof CountSomeFilterType,
+      filter: InstanceType<typeof CountSomeFilterType>,
     ): Promise<number> {
       return this.simpleService.count(filter);
     }
@@ -567,6 +597,10 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         description: `${entityDescription} : Create mutation`,
         name: `create${pascalCase(entityTokenDescription ?? 'unknown')}`,
       })
+      @UseGuards(SimplePoliciesGuard)
+      @CheckPolicies((ability: AppAbility) =>
+        ability.can(UserActionEnum.Create, Entity),
+      )
       async create(
         @CurrentUserId() userId: Id,
         @Args(
@@ -577,7 +611,7 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           ...createPipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
         )
-        doc: typeof CreateType,
+        doc: InstanceType<typeof CreateType>,
       ) {
         return this.simpleService.create({
           ...doc,
@@ -597,6 +631,10 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
         description: `${entityDescription} : Update one mutation`,
         name: `updateOne${pascalCase(entityTokenDescription ?? 'unknown')}`,
       })
+      @UseGuards(SimplePoliciesGuard)
+      @CheckPolicies((ability: AppAbility) =>
+        ability.can(UserActionEnum.Update, Entity),
+      )
       async updateOne(
         @CurrentUserId() userId: Id,
         @Args(
@@ -604,14 +642,14 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           { type: () => UpdateOneFilterType },
           ...updateOneFilterPipes,
         )
-        filter: typeof UpdateOneFilterType,
+        filter: InstanceType<typeof UpdateOneFilterType>,
         @Args(
           'update',
           { type: () => UpdateOneUpdateType },
           ...updateOneUpdatePipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
         )
-        update: typeof UpdateOneUpdateType,
+        update: InstanceType<typeof UpdateOneUpdateType>,
       ) {
         return this.simpleService.updateOne(filter, {
           ...update,
@@ -626,6 +664,10 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
+      @UseGuards(SimplePoliciesGuard)
+      @CheckPolicies((ability: AppAbility) =>
+        ability.can(UserActionEnum.Update, Entity),
+      )
       async updateMany(
         @CurrentUserId() userId: Id,
         @Args(
@@ -633,14 +675,14 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           { type: () => UpdateManyFilterType },
           ...updateManyFilterPipes,
         )
-        filter: typeof UpdateManyFilterType,
+        filter: InstanceType<typeof UpdateManyFilterType>,
         @Args(
           'update',
           { type: () => UpdateManyUpdateType },
           ...updateManyUpdatePipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
         )
-        update: typeof UpdateManyUpdateType,
+        update: InstanceType<typeof UpdateManyUpdateType>,
       ) {
         return this.simpleService.updateMany(filter, {
           ...update,
@@ -655,21 +697,25 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           entityTokenDescription ?? 'unknown',
         )}`,
       })
-      async findOneAndUpdte(
+      @UseGuards(SimplePoliciesGuard)
+      @CheckPolicies((ability: AppAbility) =>
+        ability.can(UserActionEnum.Update, Entity),
+      )
+      async findOneAndUpdate(
         @CurrentUserId() userId: Id,
         @Args(
           'filter',
           { type: () => FindOneAndUpdateFilterType },
           ...findOneAndUpdateFilterPipes,
         )
-        filter: typeof FindOneAndUpdateFilterType,
+        filter: InstanceType<typeof FindOneAndUpdateFilterType>,
         @Args(
           'update',
           { type: () => FindOneAndUpdateUpdateType },
           ...findOneAndUpdateUpdatePipes,
           ...(hasRelations ? [CheckEntityRelations] : []),
         )
-        update: typeof FindOneAndUpdateUpdateType,
+        update: InstanceType<typeof FindOneAndUpdateUpdateType>,
       ) {
         return this.simpleService.findOneAndUpdate(filter, {
           ...update,
@@ -684,9 +730,13 @@ export function SimpleResolverFactory<D, S extends Repository<D>>(
           pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
+      @UseGuards(SimplePoliciesGuard)
+      @CheckPolicies((ability: AppAbility) =>
+        ability.can(UserActionEnum.Remove, Entity),
+      )
       async remove(
         @Args('filter', { type: () => RemoveFilterType }, ...removeFilterPipes)
-        filter: typeof RemoveFilterType,
+        filter: InstanceType<typeof RemoveFilterType>,
       ) {
         return this.simpleService.remove(filter);
       }

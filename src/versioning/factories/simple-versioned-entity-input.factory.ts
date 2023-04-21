@@ -4,6 +4,7 @@ import { Logger, Type } from '@nestjs/common';
 import {
   SimpleEntityInputFactory,
   SimpleEntityInputFactoryOptions,
+  SimpleInput,
 } from '../../utils/dtos/simple-entity-input.factory';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 
@@ -11,11 +12,10 @@ import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.de
 
 import { VersionDataInput } from '../dtos/version-data.input';
 
-// BUG : fix typing that is brut force casted to Partial<E>
-export function SimpleVersionedEntityInputFactory<E>(
+export function SimpleVersionedEntityInputFactory<E extends object>(
   Entity: Type<E>,
   options?: SimpleEntityInputFactoryOptions<E>,
-): Type<Partial<E>> {
+): SimpleInput<E> {
   const { entityToken, entityDescription } = EntityStore.get(Entity);
 
   Logger.verbose(

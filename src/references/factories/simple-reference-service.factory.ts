@@ -1,6 +1,9 @@
 import { Inject, Type } from '@nestjs/common';
 
-import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
+import {
+  SimpleServiceFactory,
+  SimpleServiceObj,
+} from '../../utils/services/simple-service.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 import { SetServiceMetadata } from '../../utils/services/set-service-metadata.decorator';
@@ -8,8 +11,24 @@ import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 
 import { ReferencesService } from '../services/references.service';
+import { ISimpleReference } from '../decorators/simple-reference.decorator';
 
-export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
+type SimpleReferenceServiceObj<D> = SimpleServiceObj<D> & {
+  referencesService: ReferencesService;
+  findAllForAVersion: (requestedVersion?: number) => Promise<D[]>;
+  findAllActive: () => Promise<D[]>;
+};
+
+type SimpleReferenceService<D> = Type<SimpleReferenceServiceObj<D>>;
+
+interface Return<R> {
+  Service: SimpleReferenceService<R>;
+  serviceToken: symbol;
+}
+
+export const SimpleReferenceServiceFactory = (
+  Reference: Type<ISimpleReference>,
+): Return<ISimpleReference> => {
   const entityMetadata = EntityStore.get(Reference);
 
   const { entityToken, entityDescription, EntityPartition, entityPartitioner } =
@@ -126,4 +145,4 @@ export function SimpleReferenceServiceFactory(Reference: Type<unknown>) {
     Service: SimpleReferenceService,
     serviceToken,
   };
-}
+};

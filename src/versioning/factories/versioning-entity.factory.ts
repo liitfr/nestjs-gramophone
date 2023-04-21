@@ -1,20 +1,37 @@
 import { Logger, Type } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { generateCollectionName } from '../../utils/string.util';
 import { Id } from '../../utils/id.type';
-import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
+import {
+  Idable,
+  Memoable,
+  SimpleEntity,
+  Trackable,
+} from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { SetEntityToken } from '../../utils/entities/set-entity-token.decorator';
 
 import { versioningServices } from '../decorators/versioned.decorator';
+import { VersionDataInput } from '../dtos/version-data.input';
 
-export function VersioningEntityFactory(Entity: Type<unknown>) {
+export interface IVersioningEntity<E extends Trackable>
+  extends Trackable,
+    Idable,
+    Memoable,
+    VersionDataInput {
+  originalId: Id;
+  version: HydratedDocument<E>;
+}
+
+export function VersioningEntityFactory<E extends Trackable>(
+  Entity: Type<E>,
+): Type<IVersioningEntity<E>> {
   const originalMetadata = EntityStore.get(Entity);
   const {
     entityToken: versionedEntityToken,
@@ -112,8 +129,11 @@ export function VersioningEntityFactory(Entity: Type<unknown>) {
       description: `${versioningEntityDescription}'s version`,
     })
     @Prop({ type: EntitySchema, required: true })
-    version: typeof Entity;
+    version: HydratedDocument<E>;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface VersioningEntity extends IVersioningEntity<E> {}
 
   return VersioningEntity;
 }

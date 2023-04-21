@@ -19,26 +19,10 @@ export class EntityStore {
   private static entities = new Map<symbol, EntityMetadata>();
 
   public static set(
-    entity: symbol | string | Type,
+    entity: symbol | string | Type<object>,
     metadata: Partial<EntityMetadata>,
   ): EntityMetadata {
-    let entityToken: symbol | undefined;
-    if (typeof entity === 'string') {
-      entityToken = [...EntityStore.entities.keys()].find(
-        (key) => key.description === entity,
-      );
-    } else if (typeof entity === 'symbol') {
-      entityToken = entity;
-    } else {
-      const resolvedEntityToken = getEntityToken(entity);
-      if (!resolvedEntityToken) {
-        throw new Error('Entity not found');
-      }
-      entityToken = resolvedEntityToken;
-    }
-    if (!entityToken) {
-      throw new Error('Entity not found');
-    }
+    const entityToken = EntityStore.getEntityToken(entity);
     const existingMetadata = EntityStore.entities.get(entityToken);
     const newMetadata = {
       ...existingMetadata,
@@ -56,6 +40,16 @@ export class EntityStore {
   public static uncertainGet(
     entity: symbol | string | Type,
   ): EntityMetadata | undefined {
+    const entityToken = EntityStore.uncertainGetEntityToken(entity);
+    if (entityToken) {
+      return EntityStore.entities.get(entityToken);
+    }
+    return undefined;
+  }
+
+  public static uncertainGetEntityToken(
+    entity: symbol | string | Type<object>,
+  ) {
     let entityToken: symbol | undefined;
     if (typeof entity === 'string') {
       entityToken = [...EntityStore.entities.keys()].find(
@@ -69,10 +63,15 @@ export class EntityStore {
         entityToken = resolvedEntityToken;
       }
     }
-    if (entityToken) {
-      return EntityStore.entities.get(entityToken);
+    return entityToken;
+  }
+
+  public static getEntityToken(entity: symbol | string | Type<object>) {
+    const entityToken = EntityStore.uncertainGetEntityToken(entity);
+    if (!entityToken) {
+      throw new Error(`Entity not found in EntityStore : ${entity.toString()}`);
     }
-    return undefined;
+    return entityToken;
   }
 
   public static has = (entity: symbol | string | Type): boolean =>

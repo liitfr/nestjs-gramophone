@@ -179,6 +179,7 @@ export function SimpleReference(
   };
 }
 
+// BUG : chip is not uncertain but depends on addChip option
 export interface ISimpleReference {
   _id: Id;
   code: string;
@@ -186,4 +187,5 @@ export interface ISimpleReference {
   index: number;
   label: string;
   isSelectedByDefault: boolean;
+  chip?: Chip;
 }

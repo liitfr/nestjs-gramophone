@@ -4,20 +4,19 @@ import { Field, InputType } from '@nestjs/graphql';
 import {
   SimpleEntityInputFactory,
   SimpleEntityInputFactoryOptions,
+  SimpleInput,
 } from '../../utils/dtos/simple-entity-input.factory';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { pascalCase, splitPascalWithSpaces } from '../../utils/string.util';
 
 import { ChipInput } from '../dtos/chip.input';
 import { ReferenceStore } from '../services/reference-store.service';
+import { ISimpleReference } from '../decorators/simple-reference.decorator';
 
-// BUG : fix typing that is brut force casted to Partial<R>
-export function SimpleReferenceInputFactory<
-  R extends object & { chip?: string },
->(
+export function SimpleReferenceInputFactory<R extends ISimpleReference>(
   Reference: Type<R>,
   options?: SimpleEntityInputFactoryOptions<R>,
-): Type<Partial<R>> {
+): SimpleInput<R> {
   const reference = ReferenceStore.uncertainGet(Reference);
 
   if (reference?.addChip) {

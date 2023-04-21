@@ -1,11 +1,19 @@
-import { Type } from '@nestjs/common';
+import { Type, UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
-import { Repository } from '../../data/abstracts/repository.abstract';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { ServiceStore } from '../../utils/services/service-store.service';
+import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
+import { AppAbility } from '../../authorization/factories/casl-ability.factory';
+import { UserActionEnum } from '../enums/user-action.enum';
+import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
+import {
+  SimpleService,
+  SimpleServiceObj,
+} from '../../utils/services/simple-service.factory';
+import { SimpleInput } from '../../utils/dtos/simple-entity-input.factory';
 
 interface Options {
   noMutation?: boolean;
@@ -17,15 +25,18 @@ const defaultOptions: Options = {
   noPartition: true,
 };
 
-export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
-  Reference: Type<unknown>,
-  Input: Type<unknown>,
-  Service: Type<S>,
+export function SimpleReferenceResolverFactory<
+  R extends object,
+  S extends SimpleServiceObj<R>,
+>(
+  Reference: Type<R>,
+  Input: SimpleInput<R>,
+  Service: SimpleService<R>,
   pOptions: Options = defaultOptions,
 ) {
   const options = { ...defaultOptions, ...pOptions };
 
-  const SimpleResolver = SimpleResolverFactory<D, S>(
+  const SimpleResolver = SimpleResolverFactory<R, S>(
     Reference,
     Input,
     Service,
@@ -60,6 +71,9 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
       nullable: false,
       description: `${referenceTokenDescription} : Find all active query`,
     })
+    @CheckPolicies((ability: AppAbility) =>
+      ability.can(UserActionEnum.Read, Reference),
+    )
     async [findAllActiveQueryName]() {
       if (!this.simpleService[findAllActiveQueryName]) {
         throw new Error(
@@ -104,6 +118,16 @@ export function SimpleReferenceResolverFactory<D, S extends Repository<D>>(
       if (!descriptor) {
         throw new Error('Descriptor not found.');
       }
+
+      CheckPolicies((ability: AppAbility) =>
+        ability.can(UserActionEnum.Read, Reference),
+      )(SimpleReferenceResolver.prototype, queryName, descriptor);
+
+      UseGuards(SimplePoliciesGuard)(
+        SimpleReferenceResolver.prototype,
+        queryName,
+        descriptor,
+      );
 
       Query(() => Reference, {
         name: queryName,

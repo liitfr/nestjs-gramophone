@@ -4,11 +4,12 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { Id } from '../../utils/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
+import { Trackable } from '../../utils/entities/simple-entity.decorator';
 
 import { VersioningService } from '../services/versioning.service';
 
-export function VersioningResolverFactory(
-  EntityVersion: Type<unknown>,
+export function VersioningResolverFactory<E extends Trackable>(
+  EntityVersion: Type<E>,
   versioningServiceToken: symbol,
 ) {
   const { entityToken, entityDescription } = EntityStore.get(EntityVersion);
@@ -21,7 +22,7 @@ export function VersioningResolverFactory(
   class EntityVersionResolver {
     constructor(
       @Inject(versioningServiceToken)
-      readonly versioningService: VersioningService<unknown>,
+      readonly versioningService: VersioningService<E>,
     ) {}
 
     @Query(() => [EntityVersion], {

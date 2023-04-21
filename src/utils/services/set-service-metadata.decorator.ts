@@ -1,8 +1,10 @@
 import { ServiceMetadata, getServiceToken } from './service.util';
 import { ServiceStore } from '../services/service-store.service';
 
-export function SetServiceMetadata(metadata: Partial<ServiceMetadata>) {
-  return <T extends { new (...args: any[]): unknown }>(constructor: T) => {
+export function SetServiceMetadata<E extends object>(
+  metadata: Partial<ServiceMetadata<E>>,
+) {
+  return <T extends { new (...args: any[]): object }>(constructor: T) => {
     const serviceToken = getServiceToken(constructor);
 
     if (!serviceToken) {
@@ -13,9 +15,9 @@ export function SetServiceMetadata(metadata: Partial<ServiceMetadata>) {
       ...(ServiceStore.uncertainGet(serviceToken) ?? {}),
       Service: constructor,
       ...metadata,
-    };
+    } as ServiceMetadata<E>;
 
-    ServiceStore.set(serviceToken, newMetadata);
+    ServiceStore.set<E>(serviceToken, newMetadata);
 
     return constructor;
   };

@@ -20,8 +20,10 @@ interface Options<E> {
 
 export { Options as SimpleEntityInputFactoryOptions };
 
-// BUG : fix typing that is brut force casted to Partial<R>
-export function SimpleEntityInputFactory<E>(
+// BUG : fix typing that is brut force casted to Partial<E>
+export type SimpleInput<E> = Type<Partial<E>>;
+
+export function SimpleEntityInputFactory<E extends object>(
   Entity: Type<E>,
   {
     isIdMandatory = false,
@@ -32,7 +34,7 @@ export function SimpleEntityInputFactory<E>(
     isIdMandatory: false,
     removeTrackable: true,
   },
-): Type<Partial<E>> {
+): SimpleInput<E> {
   const entityMetadata = EntityStore.get(Entity);
 
   const { entityToken, entityDescription } = entityMetadata;

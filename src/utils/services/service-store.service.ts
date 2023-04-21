@@ -4,12 +4,12 @@ import { ServiceMetadata, getServiceToken } from './service.util';
 
 @Injectable()
 export class ServiceStore {
-  private static services = new Map<symbol, ServiceMetadata>();
+  private static services = new Map<symbol, ServiceMetadata<object>>();
 
-  public static set(
-    service: symbol | string | Type,
-    metadata: Partial<ServiceMetadata>,
-  ): ServiceMetadata {
+  public static set<S extends object>(
+    service: symbol | string | Type<S>,
+    metadata: Partial<ServiceMetadata<S>>,
+  ): ServiceMetadata<S> {
     let serviceToken: symbol | undefined;
     if (typeof service === 'string') {
       serviceToken = [...ServiceStore.services.keys()].find(
@@ -37,13 +37,13 @@ export class ServiceStore {
         `Service metadata not complete for ${service.toString()} : token : ${newMetadata.serviceToken?.toString()}`,
       );
     }
-    ServiceStore.services.set(serviceToken, newMetadata as ServiceMetadata);
-    return newMetadata as ServiceMetadata;
+    ServiceStore.services.set(serviceToken, newMetadata as ServiceMetadata<S>);
+    return newMetadata as ServiceMetadata<S>;
   }
 
-  public static uncertainGet(
-    service: symbol | string | Type,
-  ): ServiceMetadata | undefined {
+  public static uncertainGet<S extends object>(
+    service: symbol | string | Type<S>,
+  ): ServiceMetadata<S> | undefined {
     let serviceToken: symbol | undefined;
     if (typeof service === 'string') {
       serviceToken = [...ServiceStore.services.keys()].find(
@@ -58,7 +58,7 @@ export class ServiceStore {
       }
     }
     if (serviceToken) {
-      return ServiceStore.services.get(serviceToken);
+      return ServiceStore.services.get(serviceToken) as ServiceMetadata<S>;
     }
     return undefined;
   }
@@ -66,7 +66,9 @@ export class ServiceStore {
   public static has = (service: symbol | string | Type): boolean =>
     !!ServiceStore.uncertainGet(service);
 
-  public static get(service: symbol | string | Type): ServiceMetadata {
+  public static get<S extends object>(
+    service: symbol | string | Type<S>,
+  ): ServiceMetadata<S> {
     const result = ServiceStore.uncertainGet(service);
     if (!result) {
       throw new Error('Service not found in ServiceStore.');
