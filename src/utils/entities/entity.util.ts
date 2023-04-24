@@ -6,15 +6,17 @@ import { EntityStore } from './entity-store.service';
 
 export const ENTITY_METADATA = Symbol('entityMetadata');
 
+export interface EntityRelation {
+  target: RelationEntity;
+  details: RelationDetails;
+}
+
 export interface EntityMetadata {
   Entity: Type<unknown>;
   entityToken: symbol;
   entityDescription?: string;
   entityEnhancers?: string[];
-  entityRelations?: {
-    target: RelationEntity;
-    details: RelationDetails;
-  }[];
+  entityRelations?: EntityRelation[];
   EntityPartition?: Record<string, string>;
   entityPartitioner?: string;
   entityServiceToken?: symbol;

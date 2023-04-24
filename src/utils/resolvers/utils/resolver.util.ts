@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 
-import { splitPascalWithSpaces } from '../string.util';
+import { splitPascalWithSpaces } from '../../string.util';
 
 export const RESOLVER_METADATA = Symbol('resolverMetadata');
 

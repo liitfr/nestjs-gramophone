@@ -1,13 +1,13 @@
 import { Type, UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
+import { Options as SimpleResolverOptions } from '../../utils/resolvers/types/options.type';
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { ServiceStore } from '../../utils/services/service-store.service';
 import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
 import { AppAbility } from '../../authorization/factories/casl-ability.factory';
-import { UserActionEnum } from '../enums/user-action.enum';
 import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
 import {
   SimpleService,
@@ -15,14 +15,19 @@ import {
 } from '../../utils/services/simple-service.factory';
 import { SimpleInput } from '../../utils/dtos/simple-entity-input.factory';
 
-interface Options {
-  noMutation?: boolean;
-  noPartition?: boolean;
-}
+import { UserActionEnum } from '../enums/user-action.enum';
 
-const defaultOptions: Options = {
-  noMutation: true,
-  noPartition: true,
+type ReferenceOptions<E extends object> = SimpleResolverOptions<E> & {
+  reference: { noPartition?: boolean };
+};
+
+const defaultOptions = {
+  general: {
+    enableMutations: false,
+  },
+  reference: {
+    noPartition: true,
+  },
 };
 
 export function SimpleReferenceResolverFactory<
@@ -32,7 +37,7 @@ export function SimpleReferenceResolverFactory<
   Reference: Type<R>,
   Input: SimpleInput<R>,
   Service: SimpleService<R>,
-  pOptions: Options = defaultOptions,
+  pOptions: ReferenceOptions<R> = defaultOptions,
 ) {
   const options = { ...defaultOptions, ...pOptions };
 
@@ -71,6 +76,7 @@ export function SimpleReferenceResolverFactory<
       nullable: false,
       description: `${referenceTokenDescription} : Find all active query`,
     })
+    @UseGuards(SimplePoliciesGuard)
     @CheckPolicies((ability: AppAbility) =>
       ability.can(UserActionEnum.Read, Reference),
     )
@@ -84,7 +90,7 @@ export function SimpleReferenceResolverFactory<
     }
   }
 
-  if (!options.noPartition) {
+  if (!options.reference.noPartition) {
     if (!ReferencePartition || !referencePartitioner) {
       throw new Error(
         `Can't partition query since partition or partitioner is missing for ${referenceTokenDescription}`,

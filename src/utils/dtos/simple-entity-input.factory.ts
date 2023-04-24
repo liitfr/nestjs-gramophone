@@ -53,17 +53,17 @@ export function SimpleEntityInputFactory<E extends object>(
     readonly _id?: Id;
   }
 
-  let Result: Type<Partial<E>> = OmitType(Entity, [] as const);
+  let Result: SimpleInput<E> = OmitType(Entity, [] as const);
 
   if (removeFields) {
-    Result = OmitType(Result, removeFields) as unknown as Type<Partial<E>>;
+    Result = OmitType(Result, removeFields) as SimpleInput<E>;
   }
 
   if (!isIdMandatory && checkIfIsIdable(Entity)) {
     Result = OmitType(
       Result as unknown as Type<Idable>,
       ['_id'] as const,
-    ) as unknown as Type<Partial<E>>;
+    ) as SimpleInput<E>;
     Result = IntersectionType(Result, OptionalIdField);
   }
 
@@ -71,10 +71,10 @@ export function SimpleEntityInputFactory<E extends object>(
     Result = OmitType(
       Result as unknown as Type<Trackable>,
       ['createdAt', 'updatedAt', 'creatorId', 'updaterId'] as const,
-    ) as unknown as Type<Partial<E>>;
+    ) as SimpleInput<E>;
   }
 
-  Result = OmitType(Result, [], InputType) as unknown as Type<Partial<E>>;
+  Result = OmitType(Result, [], InputType) as SimpleInput<E>;
 
   if (!isIdMandatory && checkIfIsIdable(Entity)) {
     Result = IntersectionType(Result, OptionalIdField);

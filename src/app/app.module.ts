@@ -21,7 +21,7 @@ import { BlogModule } from '../blog/blog.module';
       context: identity,
       // resolvers: { Long: LongScalar, Id: IdScalar },
       logger: Logger as unknown as ApolloLogger,
-      // fieldResolverEnhancers: ['filters', 'guards', 'interceptors'],
+      fieldResolverEnhancers: ['filters', 'guards', 'interceptors'],
     }),
     MongooseModule.forRoot('mongodb://localhost:27017/sngmb', {
       dbName: 'sngmb',
