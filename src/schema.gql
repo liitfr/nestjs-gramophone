@@ -17,6 +17,16 @@ type AllReferences {
   activeTypes: [Type!]!
 
   """
+  All References's all active user actions
+  """
+  activeUserActions: [UserAction!]!
+
+  """
+  All References's all active user roles
+  """
+  activeUserRoles: [UserRole!]!
+
+  """
   All References's all colors
   """
   colors: [Color!]!
@@ -30,6 +40,16 @@ type AllReferences {
   All References's all types
   """
   types: [Type!]!
+
+  """
+  All References's all user actions
+  """
+  userActions: [UserAction!]!
+
+  """
+  All References's all user roles
+  """
+  userRoles: [UserRole!]!
 }
 
 type Author {
@@ -159,6 +179,31 @@ Id scalar type
 """
 scalar Id
 
+"""
+Login Input
+"""
+input LoginInput {
+  """
+  Login's email
+  """
+  email: String!
+
+  """
+  Login's password
+  """
+  password: String!
+}
+
+"""
+Logout Result
+"""
+type LogoutResult {
+  """
+  Logout Result's loggued out ?
+  """
+  loggedOut: Boolean!
+}
+
 type Mutation {
   """
   Author : Create mutation
@@ -169,6 +214,11 @@ type Mutation {
   Post : Create mutation
   """
   createPost(post: PostInput!): Post!
+
+  """
+  User : Create mutation
+  """
+  createUser(user: UserInput!): User!
 
   """
   Author : Find one and update mutation
@@ -187,6 +237,29 @@ type Mutation {
   ): Post!
 
   """
+  User : Find one and update mutation
+  """
+  findOneAndUpdateUser(
+    filter: UserPartialInput!
+    update: UserPartialInput!
+  ): User!
+
+  """
+  Authentication : Login mutation
+  """
+  login(credentials: LoginInput!): User!
+
+  """
+  Authentication : Logout mutation
+  """
+  logout: LogoutResult!
+
+  """
+  Authentication : Refresh token mutation
+  """
+  refreshToken: User!
+
+  """
   Author : Remove mutation
   """
   removeAuthors(filter: AuthorPartialInput!): Author!
@@ -195,6 +268,11 @@ type Mutation {
   Post : Remove mutation
   """
   removePosts(filter: PostPartialInput!): Post!
+
+  """
+  User : Remove mutation
+  """
+  removeUsers(filter: UserPartialInput!): User!
 
   """
   Author : Update many mutation
@@ -210,6 +288,11 @@ type Mutation {
   updateManyPosts(filter: PostPartialInput!, update: PostPartialInput!): Post!
 
   """
+  User : Update many mutation
+  """
+  updateManyUsers(filter: UserPartialInput!, update: UserPartialInput!): User!
+
+  """
   Author : Update one mutation
   """
   updateOneAuthor(
@@ -221,6 +304,11 @@ type Mutation {
   Post : Update one mutation
   """
   updateOnePost(filter: PostPartialInput!, update: PostPartialInput!): Post!
+
+  """
+  User : Update one mutation
+  """
+  updateOneUser(filter: UserPartialInput!, update: UserPartialInput!): User!
 }
 
 type Post {
@@ -471,6 +559,11 @@ type Query {
   AllReferences: AllReferences!
 
   """
+  Authentication : Context user query
+  """
+  authentication: User!
+
+  """
   Author : Count all query
   """
   countAllAuthors: Int!
@@ -546,6 +639,31 @@ type Query {
   countAllTypes: Int!
 
   """
+  User Action : Count all query
+  """
+  countAllUserActions: Int!
+
+  """
+  User Role : Count all query
+  """
+  countAllUserRoles: Int!
+
+  """
+  User : Count all query
+  """
+  countAllUsers: Int!
+
+  """
+  User : Count all with Admin User Role query
+  """
+  countAllUsersWithAdminUserRole: Int!
+
+  """
+  User : Count all with User User Role query
+  """
+  countAllUsersWithUserUserRole: Int!
+
+  """
   Author : Count some query
   """
   countSomeAuthors(filter: AuthorPartialInput!): Int!
@@ -571,6 +689,21 @@ type Query {
   countSomeTypes(filter: TypePartialInput!): Int!
 
   """
+  User Action : Count some query
+  """
+  countSomeUserActions(filter: UserActionPartialInput!): Int!
+
+  """
+  User Role : Count some query
+  """
+  countSomeUserRoles(filter: UserRolePartialInput!): Int!
+
+  """
+  User : Count some query
+  """
+  countSomeUsers(filter: UserPartialInput!): Int!
+
+  """
   Color : Find all active query
   """
   findAllActiveColors: [Color!]!
@@ -584,6 +717,16 @@ type Query {
   Type : Find all active query
   """
   findAllActiveTypes: [Type!]!
+
+  """
+  UserAction : Find all active query
+  """
+  findAllActiveUserActions: [UserAction!]!
+
+  """
+  UserRole : Find all active query
+  """
+  findAllActiveUserRoles: [UserRole!]!
 
   """
   Author : Find all query
@@ -666,6 +809,31 @@ type Query {
   findAllTypes: [Type!]!
 
   """
+  User Action : Find all query
+  """
+  findAllUserActions: [UserAction!]!
+
+  """
+  User Role : Find all query
+  """
+  findAllUserRoles: [UserRole!]!
+
+  """
+  User : Find all query
+  """
+  findAllUsers: [User!]!
+
+  """
+  User: Find all with Admin User Role query
+  """
+  findAllUsersWithAdminUserRole: [User!]!
+
+  """
+  User: Find all with User User Role query
+  """
+  findAllUsersWithUserUserRole: [User!]!
+
+  """
   Author : Find one query
   """
   findOneAuthor(id: Id!): Author!
@@ -696,6 +864,21 @@ type Query {
   findOneType(id: Id!): Type!
 
   """
+  User : Find one query
+  """
+  findOneUser(id: Id!): User!
+
+  """
+  User Action : Find one query
+  """
+  findOneUserAction(id: Id!): UserAction!
+
+  """
+  User Role : Find one query
+  """
+  findOneUserRole(id: Id!): UserRole!
+
+  """
   Author : Find some query
   """
   findSomeAuthors(filter: AuthorPartialInput!): [Author!]!
@@ -719,6 +902,22 @@ type Query {
   Type : Find some query
   """
   findSomeTypes(filter: TypePartialInput!): [Type!]!
+
+  """
+  User Action : Find some query
+  """
+  findSomeUserActions(filter: UserActionPartialInput!): [UserAction!]!
+
+  """
+  User Role : Find some query
+  """
+  findSomeUserRoles(filter: UserRolePartialInput!): [UserRole!]!
+
+  """
+  User : Find some query
+  """
+  findSomeUsers(filter: UserPartialInput!): [User!]!
+  whoAmI: User!
 }
 
 """
@@ -804,6 +1003,11 @@ input ReferencePartialInput {
   version: Int
 }
 
+enum RoleEnum {
+  Admin
+  User
+}
+
 """
 Type
 """
@@ -873,6 +1077,227 @@ input TypePartialInput {
 
   """
   Type's version
+  """
+  version: Int
+}
+
+type User {
+  """
+  User's id
+  """
+  _id: Id!
+
+  """
+  User's created at
+  """
+  createdAt: DateTime!
+
+  """
+  User's creator id
+  """
+  creatorId: Id!
+
+  """
+  User's email address
+  """
+  email: String!
+
+  """
+  User's role
+  """
+  role: [UserRole!]!
+
+  """
+  User's role ids
+  """
+  roleIds: [Id!]!
+
+  """
+  User's updated at
+  """
+  updatedAt: DateTime!
+
+  """
+  User's updater id
+  """
+  updaterId: Id!
+}
+
+"""
+User Action
+"""
+type UserAction {
+  """
+  User Action's id
+  """
+  _id: Id!
+
+  """
+  User Action's code
+  """
+  code: UserActionEnum!
+
+  """
+  User Action's index
+  """
+  index: Int!
+
+  """
+  User Action's is selected by default ?
+  """
+  isSelectedByDefault: Boolean!
+
+  """
+  User Action's label
+  """
+  label: String!
+
+  """
+  User Action's version
+  """
+  version: Int!
+}
+
+enum UserActionEnum {
+  Create
+  Manage
+  Read
+  Remove
+  Update
+}
+
+input UserActionPartialInput {
+  """
+  User Action's id
+  """
+  _id: Id
+
+  """
+  User Action's code
+  """
+  code: UserActionEnum
+
+  """
+  User Action's index
+  """
+  index: Int
+
+  """
+  User Action's is selected by default ?
+  """
+  isSelectedByDefault: Boolean
+
+  """
+  User Action's label
+  """
+  label: String
+
+  """
+  User Action's version
+  """
+  version: Int
+}
+
+"""
+User Input
+"""
+input UserInput {
+  """
+  User's id
+  """
+  _id: Id
+
+  """
+  User's email address
+  """
+  email: String!
+
+  """
+  User's role ids
+  """
+  roleIds: [Id!]!
+}
+
+input UserPartialInput {
+  """
+  User's id
+  """
+  _id: Id
+
+  """
+  User's email address
+  """
+  email: String
+
+  """
+  User's role ids
+  """
+  roleIds: [Id!]
+}
+
+"""
+User Role
+"""
+type UserRole {
+  """
+  User Role's id
+  """
+  _id: Id!
+
+  """
+  User Role's code
+  """
+  code: RoleEnum!
+
+  """
+  User Role's index
+  """
+  index: Int!
+
+  """
+  User Role's is selected by default ?
+  """
+  isSelectedByDefault: Boolean!
+
+  """
+  User Role's label
+  """
+  label: String!
+
+  """
+  User Role's version
+  """
+  version: Int!
+}
+
+input UserRolePartialInput {
+  """
+  User Role's id
+  """
+  _id: Id
+
+  """
+  User Role's code
+  """
+  code: RoleEnum
+
+  """
+  User Role's index
+  """
+  index: Int
+
+  """
+  User Role's is selected by default ?
+  """
+  isSelectedByDefault: Boolean
+
+  """
+  User Role's label
+  """
+  label: String
+
+  """
+  User Role's version
   """
   version: Int
 }

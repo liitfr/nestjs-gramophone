@@ -9,6 +9,8 @@ import { join } from 'path';
 import { DataServicesModule } from '../data/data-services.module';
 import { ReferencesModule } from '../references/references.module';
 import { BlogModule } from '../blog/blog.module';
+import { AuthorizationModule } from '../authorization/authorization.module';
+import { AuthenticationModule } from '../authentication/authentication.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { BlogModule } from '../blog/blog.module';
     }),
     DataServicesModule.forRoot(),
     ReferencesModule,
+    AuthorizationModule,
+    AuthenticationModule,
     BlogModule,
   ],
   providers: [],

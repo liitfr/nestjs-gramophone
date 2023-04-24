@@ -2,7 +2,7 @@ import { PolicyHandler } from '../../../authorization/handlers/policy.handler';
 
 import { Filter } from '../../types/filter.type';
 import { Guard } from '../../types/guard.type';
-import { Interceptor } from '../../types/interceptors.type';
+import { Interceptor } from '../../types/interceptor.type';
 import { Pipe } from '../../types/pipe.type';
 
 export interface QueryOptions {
