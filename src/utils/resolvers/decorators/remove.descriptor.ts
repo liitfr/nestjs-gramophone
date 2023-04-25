@@ -9,6 +9,7 @@ import { Args, Mutation } from '@nestjs/graphql';
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
@@ -22,6 +23,10 @@ import { SimpleFilter } from '../types/simple-filter.type';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type RemoveOptions<E extends object> = MutationOptions & {
   Filter: SimpleFilter<E>;
@@ -39,6 +44,7 @@ export function WithRemove<E extends object>({
     ...pOptions,
     remove: {
       ...defaultMutationOptions,
+      enable: false,
       Filter: PartialInput,
       ...pOptions.remove,
     },
@@ -70,36 +76,38 @@ export function WithRemove<E extends object>({
         ...(options.remove && options.remove?.guards?.length
           ? options.remove.guards
           : options.general?.defaultMutationGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.remove && options.remove?.interceptors?.length
           ? options.remove.interceptors
-          : options.general?.defaultMutationInterceptors ?? [])
+          : options.general?.defaultMutationInterceptors ?? []),
       )
       @UseFilters(
         ...(options.remove && options.remove?.filters?.length
           ? options.remove.filters
-          : options.general?.defaultMutationFilters ?? [])
+          : options.general?.defaultMutationFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.remove && options.remove?.policyHandlers
           ? options.remove.policyHandlers
-          : [options.general?.removePolicyHandler ?? (() => false)])
+          : [options.general?.removePolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.Remove)
+      @SetUserAction(UserActionEnum.Remove)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.remove && options.remove?.public) ??
           options.general?.defaultMutationPublic ??
-          false
+          false,
       )
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Remove mutation`,
         name: `remove${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown')
+          pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
       async remove(
@@ -108,9 +116,9 @@ export function WithRemove<E extends object>({
           { type: () => Filter },
           ...(options.remove && options.remove?.filterPipes
             ? options.remove.filterPipes
-            : options.general?.defaultMutationPipes ?? [])
+            : options.general?.defaultMutationPipes ?? []),
         )
-        filter: InstanceType<typeof Filter>
+        filter: InstanceType<typeof Filter>,
       ) {
         return this.simpleService.remove(filter);
       }

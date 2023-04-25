@@ -9,16 +9,21 @@ import {
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
+import { Pipe } from '../../types/pipe.type';
 
 import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { SimpleFilter } from '../types/simple-filter.type';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
-import { Pipe } from '../../types/pipe.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type CountSomeOptions<E extends object> = QueryOptions & {
   Filter: SimpleFilter<E>;
@@ -66,36 +71,38 @@ export function WithCountSome<E extends object>({
         ...(options.countSome && options.countSome?.guards?.length
           ? options.countSome.guards
           : options.general?.defaultQueryGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.countSome && options.countSome?.interceptors?.length
           ? options.countSome.interceptors
-          : options.general?.defaultQueryInterceptors ?? [])
+          : options.general?.defaultQueryInterceptors ?? []),
       )
       @UseFilters(
         ...(options.countSome && options.countSome?.filters?.length
           ? options.countSome.filters
-          : options.general?.defaultQueryFilters ?? [])
+          : options.general?.defaultQueryFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.countSome && options.countSome?.policyHandlers
           ? options.countSome.policyHandlers
-          : [options.general?.readPolicyHandler ?? (() => false)])
+          : [options.general?.readPolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.CountSome)
+      @SetUserAction(UserActionEnum.Read)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.countSome && options.countSome?.public) ??
           options.general?.defaultQueryPublic ??
-          false
+          false,
       )
       @Query(() => Int, {
         nullable: false,
         description: `${entityDescription} : Count some query`,
         name: `countSome${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown')
+          pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
       async countSome(
@@ -104,9 +111,9 @@ export function WithCountSome<E extends object>({
           { type: () => Filter },
           ...(options.countSome && options.countSome?.filterPipes
             ? options.countSome.filterPipes
-            : options.general?.defaultQueryPipes ?? [])
+            : options.general?.defaultQueryPipes ?? []),
         )
-        filter: InstanceType<typeof Filter>
+        filter: InstanceType<typeof Filter>,
       ): Promise<number> {
         return this.simpleService.count(filter);
       }

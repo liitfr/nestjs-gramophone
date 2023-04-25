@@ -11,6 +11,7 @@ import { CurrentUserId } from '../../../users/decorators/current-user-id.decorat
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
@@ -25,6 +26,10 @@ import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
 import { SimpleFilter } from '../types/simple-filter.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type UpdateManyOptions<E extends object> = MutationOptions & {
   Filter: SimpleFilter<E>;
@@ -45,6 +50,7 @@ export function WithUpdateMany<E extends object>({
     ...pOptions,
     updateMany: {
       ...defaultMutationOptions,
+      enable: false,
       Filter: PartialInput,
       Payload: PartialInput,
       ...pOptions.updateMany,
@@ -93,36 +99,38 @@ export function WithUpdateMany<E extends object>({
         ...(options.updateMany && options.updateMany?.guards?.length
           ? options.updateMany.guards
           : options.general?.defaultMutationGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.updateMany && options.updateMany?.interceptors?.length
           ? options.updateMany.interceptors
-          : options.general?.defaultMutationInterceptors ?? [])
+          : options.general?.defaultMutationInterceptors ?? []),
       )
       @UseFilters(
         ...(options.updateMany && options.updateMany?.filters?.length
           ? options.updateMany.filters
-          : options.general?.defaultMutationFilters ?? [])
+          : options.general?.defaultMutationFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.updateMany && options.updateMany?.policyHandlers
           ? options.updateMany.policyHandlers
-          : [options.general?.updatePolicyHandler ?? (() => false)])
+          : [options.general?.updatePolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.UpdateMany)
+      @SetUserAction(UserActionEnum.Update)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.updateMany && options.updateMany?.public) ??
           options.general?.defaultMutationPublic ??
-          false
+          false,
       )
       @Mutation(() => Entity, {
         nullable: false,
         description: `${entityDescription} : Update many mutation`,
         name: `updateMany${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown')
+          pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
       async updateMany(
@@ -132,7 +140,7 @@ export function WithUpdateMany<E extends object>({
           { type: () => Filter },
           ...(options.updateMany && options.updateMany?.filterPipes
             ? options.updateMany.filterPipes
-            : options.general?.defaultMutationPipes ?? [])
+            : options.general?.defaultMutationPipes ?? []),
         )
         filter: InstanceType<typeof Filter>,
         @Args(
@@ -141,9 +149,9 @@ export function WithUpdateMany<E extends object>({
           ...(checkRelations ? [CheckRelations] : []),
           ...(options.updateMany && options.updateMany?.payloadPipes
             ? options.updateMany.payloadPipes
-            : options.general?.defaultMutationPipes ?? [])
+            : options.general?.defaultMutationPipes ?? []),
         )
-        update: InstanceType<typeof Payload>
+        update: InstanceType<typeof Payload>,
       ) {
         return this.simpleService.updateMany(filter, {
           ...update,

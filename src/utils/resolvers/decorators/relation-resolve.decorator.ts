@@ -7,10 +7,10 @@ import {
 import { ResolveField, Resolver } from '@nestjs/graphql';
 
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
-
 import { RepositoryStore } from '../../../data/services/repository-store.service';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { EntityStore } from '../../entities/entity-store.service';
@@ -23,6 +23,10 @@ import {
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type RelationResolveOptions = ResolveFieldOptions;
 
@@ -78,7 +82,7 @@ export function WithRelationResolve<E extends object>({
         if (resolve || partitionQueries) {
           if (!targetMetadata) {
             throw new Error(
-              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`
+              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`,
             );
           }
 
@@ -89,7 +93,7 @@ export function WithRelationResolve<E extends object>({
 
           if (!relationTokenDescription) {
             throw new Error(
-              `Description not found for token ${entityToken.toString()}`
+              `Description not found for token ${entityToken.toString()}`,
             );
           }
 
@@ -104,7 +108,7 @@ export function WithRelationResolve<E extends object>({
                     });
                   }
                   return RepositoryStore.getByEntity(relationToken).findById(
-                    parentId
+                    parentId,
                   );
                 }
                 return undefined;
@@ -116,12 +120,12 @@ export function WithRelationResolve<E extends object>({
 
             const descriptorResolveField = Object.getOwnPropertyDescriptor(
               constructor.prototype,
-              resolvedName
+              resolvedName,
             );
 
             if (!descriptorResolveField) {
               throw new Error(
-                `The descriptor for the method ${resolvedName} does not exist in the resolver ${constructor.name}`
+                `The descriptor for the method ${resolvedName} does not exist in the resolver ${constructor.name}`,
               );
             }
 
@@ -138,8 +142,20 @@ export function WithRelationResolve<E extends object>({
               IS_PUBLIC_KEY,
               (options.relationResolve && options.relationResolve?.public) ??
                 options.general?.defaultResolveFieldPublic ??
-                false
+                false,
             )(constructor.prototype, resolvedName, descriptorResolveField);
+
+            SetUserAction(UserActionEnum.Read)(
+              constructor.prototype,
+              resolvedName,
+              descriptorResolveField,
+            );
+
+            SetResolverOperation(ResolverOperationEnum.RelationResolve)(
+              constructor.prototype,
+              resolvedName,
+              descriptorResolveField,
+            );
 
             CheckPolicies(
               ...(!checkPolicies
@@ -147,21 +163,21 @@ export function WithRelationResolve<E extends object>({
                 : options.relationResolve &&
                   options.relationResolve?.policyHandlers
                 ? options.relationResolve.policyHandlers
-                : [options.general?.readPolicyHandler ?? (() => false)])
+                : [options.general?.readPolicyHandler ?? (() => false)]),
             )(constructor.prototype, resolvedName, descriptorResolveField);
 
             UseFilters(
               ...(options.relationResolve &&
               options.relationResolve?.filters?.length
                 ? options.relationResolve.filters
-                : options.general?.defaultResolveFieldFilters ?? [])
+                : options.general?.defaultResolveFieldFilters ?? []),
             )(constructor.prototype, resolvedName, descriptorResolveField);
 
             UseInterceptors(
               ...(options.relationResolve &&
               options.relationResolve?.interceptors?.length
                 ? options.relationResolve.interceptors
-                : options.general?.defaultResolveFieldInterceptors ?? [])
+                : options.general?.defaultResolveFieldInterceptors ?? []),
             )(constructor.prototype, resolvedName, descriptorResolveField);
 
             UseGuards(
@@ -169,7 +185,7 @@ export function WithRelationResolve<E extends object>({
               options.relationResolve?.guards?.length
                 ? options.relationResolve.guards
                 : options.general?.defaultResolveFieldGuards ?? []),
-              ...(checkPolicies ? [SimplePoliciesGuard] : [])
+              ...(checkPolicies ? [SimplePoliciesGuard] : []),
             )(constructor.prototype, resolvedName, descriptorResolveField);
           }
         }

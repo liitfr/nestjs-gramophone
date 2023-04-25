@@ -9,6 +9,7 @@ import { Query } from '@nestjs/graphql';
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
@@ -17,6 +18,10 @@ import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type FindAllOptions = QueryOptions;
 
@@ -58,36 +63,38 @@ export function WithFindAll<E extends object>({
         ...(options.findAll && options.findAll?.guards?.length
           ? options.findAll.guards
           : options.general?.defaultQueryGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.findAll && options.findAll?.interceptors?.length
           ? options.findAll.interceptors
-          : options.general?.defaultQueryInterceptors ?? [])
+          : options.general?.defaultQueryInterceptors ?? []),
       )
       @UseFilters(
         ...(options.findAll && options.findAll?.filters?.length
           ? options.findAll.filters
-          : options.general?.defaultQueryFilters ?? [])
+          : options.general?.defaultQueryFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.findAll && options.findAll?.policyHandlers
           ? options.findAll.policyHandlers
-          : [options.general?.readPolicyHandler ?? (() => false)])
+          : [options.general?.readPolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.FindAll)
+      @SetUserAction(UserActionEnum.Read)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.findAll && options.findAll?.public) ??
           options.general?.defaultQueryPublic ??
-          false
+          false,
       )
       @Query(() => [Entity], {
         nullable: false,
         description: `${entityDescription} : Find all query`,
         name: `findAll${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown')
+          pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
       async findAll(): Promise<E[]> {

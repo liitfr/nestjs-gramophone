@@ -9,6 +9,7 @@ import { Args, Query } from '@nestjs/graphql';
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
@@ -20,6 +21,10 @@ import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetUserAction } from './set-user-action.decorator';
+import { SetResolverOperation } from './set-resolver-operation.decorator';
 
 export type FindOneOptions = QueryOptions & {
   filterPipes?: Pipe[];
@@ -63,30 +68,32 @@ export function WithFindOne<E extends object>({
         ...(options.findOne && options.findOne?.guards?.length
           ? options.findOne.guards
           : options.general?.defaultQueryGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.findOne && options.findOne?.interceptors?.length
           ? options.findOne.interceptors
-          : options.general?.defaultQueryInterceptors ?? [])
+          : options.general?.defaultQueryInterceptors ?? []),
       )
       @UseFilters(
         ...(options.findOne && options.findOne?.filters?.length
           ? options.findOne.filters
-          : options.general?.defaultQueryFilters ?? [])
+          : options.general?.defaultQueryFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.findOne && options.findOne?.policyHandlers
           ? options.findOne.policyHandlers
-          : [options.general?.readPolicyHandler ?? (() => false)])
+          : [options.general?.readPolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.FindOne)
+      @SetUserAction(UserActionEnum.Read)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.findOne && options.findOne?.public) ??
           options.general?.defaultQueryPublic ??
-          false
+          false,
       )
       @Query(() => Entity, {
         nullable: false,
@@ -99,9 +106,9 @@ export function WithFindOne<E extends object>({
           { type: () => IdScalar },
           ...(options.findOne && options.findOne?.filterPipes
             ? options.findOne.filterPipes
-            : options.general?.defaultQueryPipes ?? [])
+            : options.general?.defaultQueryPipes ?? []),
         )
-        id: Id
+        id: Id,
       ): Promise<E | null> {
         return this.simpleService.findById(id);
       }

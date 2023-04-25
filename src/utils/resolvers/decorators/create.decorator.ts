@@ -11,6 +11,7 @@ import { CurrentUserId } from '../../../users/decorators/current-user-id.decorat
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { SimpleInput } from '../../dtos/simple-entity-input.factory';
@@ -26,6 +27,10 @@ import { SimplePayload } from '../types/simple-payload.type';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type CreateOptions<E extends object> = MutationOptions & {
   Payload: SimplePayload<E>;
@@ -90,30 +95,32 @@ export function WithCreate<E extends object>({
         ...(options.create && options.create?.guards?.length
           ? options.create.guards
           : options.general?.defaultMutationGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.create && options.create?.interceptors?.length
           ? options.create.interceptors
-          : options.general?.defaultMutationInterceptors ?? [])
+          : options.general?.defaultMutationInterceptors ?? []),
       )
       @UseFilters(
         ...(options.create && options.create?.filters?.length
           ? options.create.filters
-          : options.general?.defaultMutationFilters ?? [])
+          : options.general?.defaultMutationFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.create && options.create?.policyHandlers
           ? options.create.policyHandlers
-          : [options.general?.createPolicyHandler ?? (() => false)])
+          : [options.general?.createPolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.Create)
+      @SetUserAction(UserActionEnum.Create)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.create && options.create?.public) ??
           options.general?.defaultMutationPublic ??
-          false
+          false,
       )
       @Mutation(() => Entity, {
         nullable: false,
@@ -128,9 +135,9 @@ export function WithCreate<E extends object>({
           ...(checkRelations ? [CheckRelations] : []),
           ...(options.create && options.create?.payloadPipes
             ? options.create.payloadPipes
-            : options.general?.defaultMutationPipes ?? [])
+            : options.general?.defaultMutationPipes ?? []),
         )
-        doc: InstanceType<typeof Payload>
+        doc: InstanceType<typeof Payload>,
       ) {
         return this.simpleService.create({
           ...doc,

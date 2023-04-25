@@ -9,6 +9,7 @@ import { Query } from '@nestjs/graphql';
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
@@ -18,6 +19,10 @@ import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type RelationPartitionFindOptions = QueryOptions;
 
@@ -66,7 +71,7 @@ export function WithRelationPartitionFind<E extends object>({
         if (resolve || partitionQueries) {
           if (!targetMetadata) {
             throw new Error(
-              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`
+              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`,
             );
           }
 
@@ -81,14 +86,14 @@ export function WithRelationPartitionFind<E extends object>({
 
           if (!relationTokenDescription) {
             throw new Error(
-              `Description not found for token ${entityToken.toString()}`
+              `Description not found for token ${entityToken.toString()}`,
             );
           }
 
           if (partitionQueries) {
             if (!RelationPartition || !relationPartitioner) {
               throw new Error(
-                `The relation ${relationTokenDescription} does not have a partitioner`
+                `The relation ${relationTokenDescription} does not have a partitioner`,
               );
             }
 
@@ -96,7 +101,7 @@ export function WithRelationPartitionFind<E extends object>({
             Object.entries(RelationPartition).forEach(([key]) => {
               const pCPartition = pascalCase(key);
               const resolverFindAllMethodName = `findAll${pascalCase(
-                pluralize(entityTokenDescription)
+                pluralize(entityTokenDescription),
               )}With${pCPartition}${pCRelationName}`;
               const serviceFindAllMethodName = `findAllWith${pCPartition}${pCRelationName}`;
 
@@ -107,7 +112,7 @@ export function WithRelationPartitionFind<E extends object>({
                   value: async function () {
                     if (!this.simpleService[serviceFindAllMethodName]) {
                       throw new Error(
-                        `The method ${serviceFindAllMethodName} does not exist in the ${entityTokenDescription} related service`
+                        `The method ${serviceFindAllMethodName} does not exist in the ${entityTokenDescription} related service`,
                       );
                     }
                     return this.simpleService[serviceFindAllMethodName]();
@@ -115,18 +120,18 @@ export function WithRelationPartitionFind<E extends object>({
                   writable: true,
                   enumerable: true,
                   configurable: true,
-                }
+                },
               );
 
               const descriptorFindAllMethodName =
                 Object.getOwnPropertyDescriptor(
                   constructor.prototype,
-                  resolverFindAllMethodName
+                  resolverFindAllMethodName,
                 );
 
               if (!descriptorFindAllMethodName) {
                 throw new Error(
-                  `The method ${resolverFindAllMethodName} does not exist in the resolver ${constructor.name}`
+                  `The method ${resolverFindAllMethodName} does not exist in the resolver ${constructor.name}`,
                 );
               }
 
@@ -137,7 +142,7 @@ export function WithRelationPartitionFind<E extends object>({
               })(
                 constructor.prototype,
                 resolverFindAllMethodName,
-                descriptorFindAllMethodName
+                descriptorFindAllMethodName,
               );
 
               SetMetadata(
@@ -145,11 +150,23 @@ export function WithRelationPartitionFind<E extends object>({
                 (options.relationPartitionFind &&
                   options.relationPartitionFind?.public) ??
                   options.general?.defaultQueryPublic ??
-                  false
+                  false,
               )(
                 constructor.prototype,
                 resolverFindAllMethodName,
-                descriptorFindAllMethodName
+                descriptorFindAllMethodName,
+              );
+
+              SetUserAction(UserActionEnum.Read)(
+                constructor.prototype,
+                resolverFindAllMethodName,
+                descriptorFindAllMethodName,
+              );
+
+              SetResolverOperation(ResolverOperationEnum.RelationPartitionFind)(
+                constructor.prototype,
+                resolverFindAllMethodName,
+                descriptorFindAllMethodName,
               );
 
               CheckPolicies(
@@ -158,33 +175,33 @@ export function WithRelationPartitionFind<E extends object>({
                   : options.relationPartitionFind &&
                     options.relationPartitionFind?.policyHandlers
                   ? options.relationPartitionFind.policyHandlers
-                  : [options.general?.readPolicyHandler ?? (() => false)])
+                  : [options.general?.readPolicyHandler ?? (() => false)]),
               )(
                 constructor.prototype,
                 resolverFindAllMethodName,
-                descriptorFindAllMethodName
+                descriptorFindAllMethodName,
               );
 
               UseFilters(
                 ...(options.relationPartitionFind &&
                 options.relationPartitionFind?.filters?.length
                   ? options.relationPartitionFind.filters
-                  : options.general?.defaultQueryFilters ?? [])
+                  : options.general?.defaultQueryFilters ?? []),
               )(
                 constructor.prototype,
                 resolverFindAllMethodName,
-                descriptorFindAllMethodName
+                descriptorFindAllMethodName,
               );
 
               UseInterceptors(
                 ...(options.relationPartitionFind &&
                 options.relationPartitionFind?.interceptors?.length
                   ? options.relationPartitionFind.interceptors
-                  : options.general?.defaultQueryInterceptors ?? [])
+                  : options.general?.defaultQueryInterceptors ?? []),
               )(
                 constructor.prototype,
                 resolverFindAllMethodName,
-                descriptorFindAllMethodName
+                descriptorFindAllMethodName,
               );
 
               UseGuards(
@@ -192,11 +209,11 @@ export function WithRelationPartitionFind<E extends object>({
                 options.relationPartitionFind?.guards?.length
                   ? options.relationPartitionFind.guards
                   : options.general?.defaultQueryGuards ?? []),
-                ...(checkPolicies ? [SimplePoliciesGuard] : [])
+                ...(checkPolicies ? [SimplePoliciesGuard] : []),
               )(
                 constructor.prototype,
                 resolverFindAllMethodName,
-                descriptorFindAllMethodName
+                descriptorFindAllMethodName,
               );
             });
           }

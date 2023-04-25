@@ -93,30 +93,30 @@ export function WithUpdateOne<E extends object>({
         ...(options.updateOne && options.updateOne?.guards?.length
           ? options.updateOne.guards
           : options.general?.defaultMutationGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.updateOne && options.updateOne?.interceptors?.length
           ? options.updateOne.interceptors
-          : options.general?.defaultMutationInterceptors ?? [])
+          : options.general?.defaultMutationInterceptors ?? []),
       )
       @UseFilters(
         ...(options.updateOne && options.updateOne?.filters?.length
           ? options.updateOne.filters
-          : options.general?.defaultMutationFilters ?? [])
+          : options.general?.defaultMutationFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.updateOne && options.updateOne?.policyHandlers
           ? options.updateOne.policyHandlers
-          : [options.general?.updatePolicyHandler ?? (() => false)])
+          : [options.general?.updatePolicyHandler ?? (() => false)]),
       )
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.updateOne && options.updateOne?.public) ??
           options.general?.defaultMutationPublic ??
-          false
+          false,
       )
       @Mutation(() => Entity, {
         nullable: false,
@@ -130,7 +130,7 @@ export function WithUpdateOne<E extends object>({
           { type: () => Filter },
           ...(options.updateOne && options.updateOne?.filterPipes
             ? options.updateOne.filterPipes
-            : options.general?.defaultMutationPipes ?? [])
+            : options.general?.defaultMutationPipes ?? []),
         )
         filter: InstanceType<typeof Filter>,
         @Args(
@@ -139,9 +139,9 @@ export function WithUpdateOne<E extends object>({
           ...(checkRelations ? [CheckRelations] : []),
           ...(options.updateOne && options.updateOne?.payloadPipes
             ? options.updateOne.payloadPipes
-            : options.general?.defaultMutationPipes ?? [])
+            : options.general?.defaultMutationPipes ?? []),
         )
-        update: InstanceType<typeof Payload>
+        update: InstanceType<typeof Payload>,
       ) {
         return this.simpleService.updateOne(filter, {
           ...update,

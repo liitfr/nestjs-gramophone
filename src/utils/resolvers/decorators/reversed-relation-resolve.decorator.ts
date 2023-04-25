@@ -10,6 +10,7 @@ import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorat
 import { RepositoryStore } from '../../../data/services/repository-store.service';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
@@ -22,6 +23,10 @@ import {
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type ReversedRelationResolveOptions = ResolveFieldOptions;
 
@@ -75,7 +80,7 @@ export function WithReversedRelationResolve<E extends object>({
           if (reverseResolve) {
             if (!reversedResolvedName) {
               throw new Error(
-                'The reversed relation is resolved but reversedResolvedName is not defined.'
+                'The reversed relation is resolved but reversedResolvedName is not defined.',
               );
             }
 
@@ -83,7 +88,7 @@ export function WithReversedRelationResolve<E extends object>({
               value: async function (parent: E) {
                 if (!parent['_id']) {
                   throw new Error(
-                    'The parent object does not have the property _id'
+                    'The parent object does not have the property _id',
                   );
                 }
 
@@ -91,14 +96,14 @@ export function WithReversedRelationResolve<E extends object>({
 
                 if (multiple) {
                   return RepositoryStore.getByEntity(
-                    sourceMetadata.entityToken
+                    sourceMetadata.entityToken,
                   ).uncertainFind({
                     [idName]: { $in: parentId },
                   });
                 }
 
                 return RepositoryStore.getByEntity(
-                  sourceMetadata.entityToken
+                  sourceMetadata.entityToken,
                 ).uncertainFind({
                   [idName]: parentId,
                 });
@@ -110,12 +115,12 @@ export function WithReversedRelationResolve<E extends object>({
 
             const descriptorReversedResolved = Object.getOwnPropertyDescriptor(
               constructor.prototype,
-              reversedResolvedName
+              reversedResolvedName,
             );
 
             if (!descriptorReversedResolved) {
               throw new Error(
-                `The descriptor for the method ${reversedResolvedName} does not exist in the resolver ${constructor.name}`
+                `The descriptor for the method ${reversedResolvedName} does not exist in the resolver ${constructor.name}`,
               );
             }
 
@@ -128,7 +133,7 @@ export function WithReversedRelationResolve<E extends object>({
             })(
               constructor.prototype,
               reversedResolvedName,
-              descriptorReversedResolved
+              descriptorReversedResolved,
             );
 
             SetMetadata(
@@ -136,11 +141,23 @@ export function WithReversedRelationResolve<E extends object>({
               (options.reversedRelationResolve &&
                 options.reversedRelationResolve?.public) ??
                 options.general?.defaultResolveFieldPublic ??
-                false
+                false,
             )(
               constructor.prototype,
               reversedResolvedName,
-              descriptorReversedResolved
+              descriptorReversedResolved,
+            );
+
+            SetUserAction(UserActionEnum.Read)(
+              constructor.prototype,
+              reversedResolvedName,
+              descriptorReversedResolved,
+            );
+
+            SetResolverOperation(ResolverOperationEnum.ReversedRelationResolve)(
+              constructor.prototype,
+              reversedResolvedName,
+              descriptorReversedResolved,
             );
 
             CheckPolicies(
@@ -149,33 +166,33 @@ export function WithReversedRelationResolve<E extends object>({
                 : options.reversedRelationResolve &&
                   options.reversedRelationResolve?.policyHandlers
                 ? options.reversedRelationResolve.policyHandlers
-                : [options.general?.readPolicyHandler ?? (() => false)])
+                : [options.general?.readPolicyHandler ?? (() => false)]),
             )(
               constructor.prototype,
               reversedResolvedName,
-              descriptorReversedResolved
+              descriptorReversedResolved,
             );
 
             UseFilters(
               ...(options.reversedRelationResolve &&
               options.reversedRelationResolve?.filters?.length
                 ? options.reversedRelationResolve.filters
-                : options.general?.defaultResolveFieldFilters ?? [])
+                : options.general?.defaultResolveFieldFilters ?? []),
             )(
               constructor.prototype,
               reversedResolvedName,
-              descriptorReversedResolved
+              descriptorReversedResolved,
             );
 
             UseInterceptors(
               ...(options.reversedRelationResolve &&
               options.reversedRelationResolve?.interceptors?.length
                 ? options.reversedRelationResolve.interceptors
-                : options.general?.defaultResolveFieldInterceptors ?? [])
+                : options.general?.defaultResolveFieldInterceptors ?? []),
             )(
               constructor.prototype,
               reversedResolvedName,
-              descriptorReversedResolved
+              descriptorReversedResolved,
             );
 
             UseGuards(
@@ -183,11 +200,11 @@ export function WithReversedRelationResolve<E extends object>({
               options.reversedRelationResolve?.guards?.length
                 ? options.reversedRelationResolve.guards
                 : options.general?.defaultResolveFieldGuards ?? []),
-              ...(checkPolicies ? [SimplePoliciesGuard] : [])
+              ...(checkPolicies ? [SimplePoliciesGuard] : []),
             )(
               constructor.prototype,
               reversedResolvedName,
-              descriptorReversedResolved
+              descriptorReversedResolved,
             );
           }
         }

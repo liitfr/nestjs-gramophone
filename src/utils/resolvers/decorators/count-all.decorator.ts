@@ -9,6 +9,7 @@ import {
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
@@ -17,6 +18,10 @@ import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type CountAllOptions = QueryOptions;
 
@@ -57,36 +62,38 @@ export function WithCountAll<E extends object>({
         ...(options.countAll && options.countAll?.guards?.length
           ? options.countAll.guards
           : options.general?.defaultQueryGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.countAll && options.countAll?.interceptors?.length
           ? options.countAll.interceptors
-          : options.general?.defaultQueryInterceptors ?? [])
+          : options.general?.defaultQueryInterceptors ?? []),
       )
       @UseFilters(
         ...(options.countAll && options.countAll?.filters?.length
           ? options.countAll.filters
-          : options.general?.defaultQueryFilters ?? [])
+          : options.general?.defaultQueryFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.countAll && options.countAll?.policyHandlers
           ? options.countAll.policyHandlers
-          : [options.general?.readPolicyHandler ?? (() => false)])
+          : [options.general?.readPolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.CountAll)
+      @SetUserAction(UserActionEnum.Read)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.countAll && options.countAll?.public) ??
           options.general?.defaultQueryPublic ??
-          false
+          false,
       )
       @Query(() => Int, {
         nullable: false,
         description: `${entityDescription} : Count all query`,
         name: `countAll${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown')
+          pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
       async countAll(): Promise<number> {

@@ -9,6 +9,7 @@ import { Int, Query } from '@nestjs/graphql';
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { EntityStore } from '../../entities/entity-store.service';
@@ -18,6 +19,10 @@ import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type RelationPartitionCountOptions = QueryOptions;
 
@@ -65,7 +70,7 @@ export function WithRelationPartitionCount<E extends object>({
         if (resolve || partitionQueries) {
           if (!targetMetadata) {
             throw new Error(
-              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`
+              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`,
             );
           }
 
@@ -80,14 +85,14 @@ export function WithRelationPartitionCount<E extends object>({
 
           if (!relationTokenDescription) {
             throw new Error(
-              `Description not found for token ${entityToken.toString()}`
+              `Description not found for token ${entityToken.toString()}`,
             );
           }
 
           if (partitionQueries) {
             if (!RelationPartition || !relationPartitioner) {
               throw new Error(
-                `The relation ${relationTokenDescription} does not have a partitioner`
+                `The relation ${relationTokenDescription} does not have a partitioner`,
               );
             }
 
@@ -96,7 +101,7 @@ export function WithRelationPartitionCount<E extends object>({
               const pCPartition = pascalCase(key);
 
               const resolverCountAllMethodName = `countAll${pascalCase(
-                pluralize(entityTokenDescription)
+                pluralize(entityTokenDescription),
               )}With${pCPartition}${pCRelationName}`;
               const serviceCountAllMethodName = `countAllWith${pCPartition}${pCRelationName}`;
 
@@ -107,7 +112,7 @@ export function WithRelationPartitionCount<E extends object>({
                   value: async function () {
                     if (!this.simpleService[serviceCountAllMethodName]) {
                       throw new Error(
-                        `The method ${serviceCountAllMethodName} does not exist in the ${entityTokenDescription} related service`
+                        `The method ${serviceCountAllMethodName} does not exist in the ${entityTokenDescription} related service`,
                       );
                     }
                     return this.simpleService[serviceCountAllMethodName]();
@@ -115,18 +120,18 @@ export function WithRelationPartitionCount<E extends object>({
                   writable: true,
                   enumerable: true,
                   configurable: true,
-                }
+                },
               );
 
               const descriptorCountAllMethodName =
                 Object.getOwnPropertyDescriptor(
                   constructor.prototype,
-                  resolverCountAllMethodName
+                  resolverCountAllMethodName,
                 );
 
               if (!descriptorCountAllMethodName) {
                 throw new Error(
-                  `The method ${resolverCountAllMethodName} does not exist in the resolver ${constructor.name}`
+                  `The method ${resolverCountAllMethodName} does not exist in the resolver ${constructor.name}`,
                 );
               }
 
@@ -137,7 +142,7 @@ export function WithRelationPartitionCount<E extends object>({
               })(
                 constructor.prototype,
                 resolverCountAllMethodName,
-                descriptorCountAllMethodName
+                descriptorCountAllMethodName,
               );
 
               SetMetadata(
@@ -145,11 +150,25 @@ export function WithRelationPartitionCount<E extends object>({
                 (options.relationPartitionCount &&
                   options.relationPartitionCount?.public) ??
                   options.general?.defaultQueryPublic ??
-                  false
+                  false,
               )(
                 constructor.prototype,
                 resolverCountAllMethodName,
-                descriptorCountAllMethodName
+                descriptorCountAllMethodName,
+              );
+
+              SetUserAction(UserActionEnum.Read)(
+                constructor.prototype,
+                resolverCountAllMethodName,
+                descriptorCountAllMethodName,
+              );
+
+              SetResolverOperation(
+                ResolverOperationEnum.RelationPartitionCount,
+              )(
+                constructor.prototype,
+                resolverCountAllMethodName,
+                descriptorCountAllMethodName,
               );
 
               CheckPolicies(
@@ -158,33 +177,33 @@ export function WithRelationPartitionCount<E extends object>({
                   : options.relationPartitionCount &&
                     options.relationPartitionCount?.policyHandlers
                   ? options.relationPartitionCount.policyHandlers
-                  : [options.general?.readPolicyHandler ?? (() => false)])
+                  : [options.general?.readPolicyHandler ?? (() => false)]),
               )(
                 constructor.prototype,
                 resolverCountAllMethodName,
-                descriptorCountAllMethodName
+                descriptorCountAllMethodName,
               );
 
               UseFilters(
                 ...(options.relationPartitionCount &&
                 options.relationPartitionCount?.filters?.length
                   ? options.relationPartitionCount.filters
-                  : options.general?.defaultQueryFilters ?? [])
+                  : options.general?.defaultQueryFilters ?? []),
               )(
                 constructor.prototype,
                 resolverCountAllMethodName,
-                descriptorCountAllMethodName
+                descriptorCountAllMethodName,
               );
 
               UseInterceptors(
                 ...(options.relationPartitionCount &&
                 options.relationPartitionCount?.interceptors?.length
                   ? options.relationPartitionCount.interceptors
-                  : options.general?.defaultQueryInterceptors ?? [])
+                  : options.general?.defaultQueryInterceptors ?? []),
               )(
                 constructor.prototype,
                 resolverCountAllMethodName,
-                descriptorCountAllMethodName
+                descriptorCountAllMethodName,
               );
 
               UseGuards(
@@ -192,11 +211,11 @@ export function WithRelationPartitionCount<E extends object>({
                 options.relationPartitionCount?.guards?.length
                   ? options.relationPartitionCount.guards
                   : options.general?.defaultQueryGuards ?? []),
-                ...(checkPolicies ? [SimplePoliciesGuard] : [])
+                ...(checkPolicies ? [SimplePoliciesGuard] : []),
               )(
                 constructor.prototype,
                 resolverCountAllMethodName,
-                descriptorCountAllMethodName
+                descriptorCountAllMethodName,
               );
             });
           }

@@ -10,6 +10,7 @@ import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorat
 import { RepositoryStore } from '../../../data/services/repository-store.service';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
@@ -23,6 +24,10 @@ import {
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type ReversedRelationIdOptions = ResolveFieldOptions;
 
@@ -74,7 +79,7 @@ export function WithReversedRelationId<E extends object>({
         if (reversible) {
           if (!reversedIdName) {
             throw new Error(
-              'The relation is reversible but reversedIdName is not defined.'
+              'The relation is reversible but reversedIdName is not defined.',
             );
           }
 
@@ -82,7 +87,7 @@ export function WithReversedRelationId<E extends object>({
             value: async function (parent: E) {
               if (!parent['_id']) {
                 throw new Error(
-                  'The parent object does not have the property _id'
+                  'The parent object does not have the property _id',
                 );
               }
 
@@ -91,7 +96,7 @@ export function WithReversedRelationId<E extends object>({
               if (multiple) {
                 return (
                   await RepositoryStore.getByEntity(
-                    sourceMetadata.entityToken
+                    sourceMetadata.entityToken,
                   ).uncertainFind({
                     [idName]: { $in: parentId },
                   })
@@ -105,7 +110,7 @@ export function WithReversedRelationId<E extends object>({
 
               return (
                 await RepositoryStore.getByEntity(
-                  sourceMetadata.entityToken
+                  sourceMetadata.entityToken,
                 ).uncertainFind({
                   [idName]: parentId,
                 })
@@ -123,12 +128,12 @@ export function WithReversedRelationId<E extends object>({
 
           const descriptorReversedId = Object.getOwnPropertyDescriptor(
             constructor.prototype,
-            reversedIdName
+            reversedIdName,
           );
 
           if (!descriptorReversedId) {
             throw new Error(
-              `The descriptor for the method ${reversedIdName} does not exist in the resolver ${constructor.name}`
+              `The descriptor for the method ${reversedIdName} does not exist in the resolver ${constructor.name}`,
             );
           }
 
@@ -145,8 +150,20 @@ export function WithReversedRelationId<E extends object>({
             (options.reversedRelationId &&
               options.reversedRelationId?.public) ??
               options.general?.defaultResolveFieldPublic ??
-              false
+              false,
           )(constructor.prototype, reversedIdName, descriptorReversedId);
+
+          SetUserAction(UserActionEnum.Read)(
+            constructor.prototype,
+            reversedIdName,
+            descriptorReversedId,
+          );
+
+          SetResolverOperation(ResolverOperationEnum.ReversedRelationId)(
+            constructor.prototype,
+            reversedIdName,
+            descriptorReversedId,
+          );
 
           CheckPolicies(
             ...(!checkPolicies
@@ -154,21 +171,21 @@ export function WithReversedRelationId<E extends object>({
               : options.reversedRelationId &&
                 options.reversedRelationId?.policyHandlers
               ? options.reversedRelationId.policyHandlers
-              : [options.general?.readPolicyHandler ?? (() => false)])
+              : [options.general?.readPolicyHandler ?? (() => false)]),
           )(constructor.prototype, reversedIdName, descriptorReversedId);
 
           UseFilters(
             ...(options.reversedRelationId &&
             options.reversedRelationId?.filters?.length
               ? options.reversedRelationId.filters
-              : options.general?.defaultResolveFieldFilters ?? [])
+              : options.general?.defaultResolveFieldFilters ?? []),
           )(constructor.prototype, reversedIdName, descriptorReversedId);
 
           UseInterceptors(
             ...(options.reversedRelationId &&
             options.reversedRelationId?.interceptors?.length
               ? options.reversedRelationId.interceptors
-              : options.general?.defaultResolveFieldInterceptors ?? [])
+              : options.general?.defaultResolveFieldInterceptors ?? []),
           )(constructor.prototype, reversedIdName, descriptorReversedId);
 
           UseGuards(
@@ -176,7 +193,7 @@ export function WithReversedRelationId<E extends object>({
             options.reversedRelationId?.guards?.length
               ? options.reversedRelationId.guards
               : options.general?.defaultResolveFieldGuards ?? []),
-            ...(checkPolicies ? [SimplePoliciesGuard] : [])
+            ...(checkPolicies ? [SimplePoliciesGuard] : []),
           )(constructor.prototype, reversedIdName, descriptorReversedId);
         }
       }

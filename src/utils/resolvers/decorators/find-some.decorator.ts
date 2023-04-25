@@ -9,6 +9,7 @@ import { Args, Query } from '@nestjs/graphql';
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
@@ -19,6 +20,10 @@ import { SimpleFilter } from '../types/simple-filter.type';
 import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type FindSomeOptions<E extends object> = QueryOptions & {
   Filter: SimpleFilter<E>;
@@ -67,36 +72,38 @@ export function WithFindSome<E extends object>({
         ...(options.findSome && options.findSome?.guards?.length
           ? options.findSome.guards
           : options.general?.defaultQueryGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : [])
+        ...(checkPolicies ? [SimplePoliciesGuard] : []),
       )
       @UseInterceptors(
         ...(options.findSome && options.findSome?.interceptors?.length
           ? options.findSome.interceptors
-          : options.general?.defaultQueryInterceptors ?? [])
+          : options.general?.defaultQueryInterceptors ?? []),
       )
       @UseFilters(
         ...(options.findSome && options.findSome?.filters?.length
           ? options.findSome.filters
-          : options.general?.defaultQueryFilters ?? [])
+          : options.general?.defaultQueryFilters ?? []),
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.findSome && options.findSome?.policyHandlers
           ? options.findSome.policyHandlers
-          : [options.general?.readPolicyHandler ?? (() => false)])
+          : [options.general?.readPolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.FindSome)
+      @SetUserAction(UserActionEnum.Read)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.findSome && options.findSome?.public) ??
           options.general?.defaultQueryPublic ??
-          false
+          false,
       )
       @Query(() => [Entity], {
         nullable: false,
         description: `${entityDescription} : Find some query`,
         name: `findSome${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown')
+          pascalCase(entityTokenDescription ?? 'unknown'),
         )}`,
       })
       async findSome(
@@ -105,9 +112,9 @@ export function WithFindSome<E extends object>({
           { type: () => Filter },
           ...(options.findSome && options.findSome?.filterPipes
             ? options.findSome.filterPipes
-            : options.general?.defaultQueryPipes ?? [])
+            : options.general?.defaultQueryPipes ?? []),
         )
-        filter: InstanceType<typeof Filter>
+        filter: InstanceType<typeof Filter>,
       ): Promise<E[]> {
         return this.simpleService.find(filter);
       }
