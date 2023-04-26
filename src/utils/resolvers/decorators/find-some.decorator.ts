@@ -72,24 +72,24 @@ export function WithFindSome<E extends object>({
         ...(options.findSome && options.findSome?.guards?.length
           ? options.findSome.guards
           : options.general?.defaultQueryGuards ?? []),
-        ...(checkPolicies ? [SimplePoliciesGuard] : []),
+        ...(checkPolicies ? [SimplePoliciesGuard] : [])
       )
       @UseInterceptors(
         ...(options.findSome && options.findSome?.interceptors?.length
           ? options.findSome.interceptors
-          : options.general?.defaultQueryInterceptors ?? []),
+          : options.general?.defaultQueryInterceptors ?? [])
       )
       @UseFilters(
         ...(options.findSome && options.findSome?.filters?.length
           ? options.findSome.filters
-          : options.general?.defaultQueryFilters ?? []),
+          : options.general?.defaultQueryFilters ?? [])
       )
       @CheckPolicies(
         ...(!checkPolicies
           ? [() => true]
           : options.findSome && options.findSome?.policyHandlers
           ? options.findSome.policyHandlers
-          : [options.general?.readPolicyHandler ?? (() => false)]),
+          : [options.general?.readPolicyHandler ?? (() => false)])
       )
       @SetResolverOperation(ResolverOperationEnum.FindSome)
       @SetUserAction(UserActionEnum.Read)
@@ -97,13 +97,13 @@ export function WithFindSome<E extends object>({
         IS_PUBLIC_KEY,
         (options.findSome && options.findSome?.public) ??
           options.general?.defaultQueryPublic ??
-          false,
+          false
       )
       @Query(() => [Entity], {
         nullable: false,
         description: `${entityDescription} : Find some query`,
         name: `findSome${pluralize(
-          pascalCase(entityTokenDescription ?? 'unknown'),
+          pascalCase(entityTokenDescription ?? 'unknown')
         )}`,
       })
       async findSome(
@@ -112,9 +112,9 @@ export function WithFindSome<E extends object>({
           { type: () => Filter },
           ...(options.findSome && options.findSome?.filterPipes
             ? options.findSome.filterPipes
-            : options.general?.defaultQueryPipes ?? []),
+            : options.general?.defaultQueryPipes ?? [])
         )
-        filter: InstanceType<typeof Filter>,
+        filter: InstanceType<typeof Filter>
       ): Promise<E[]> {
         return this.simpleService.find(filter);
       }

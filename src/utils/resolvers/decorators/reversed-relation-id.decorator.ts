@@ -95,7 +95,7 @@ export function WithReversedRelationId<E extends object>({
 
               if (multiple) {
                 return (
-                  await RepositoryStore.getByEntity(
+                  await RepositoryStore.getInstanceByEntity(
                     sourceMetadata.entityToken,
                   ).uncertainFind({
                     [idName]: { $in: parentId },
@@ -109,7 +109,7 @@ export function WithReversedRelationId<E extends object>({
               }
 
               return (
-                await RepositoryStore.getByEntity(
+                await RepositoryStore.getInstanceByEntity(
                   sourceMetadata.entityToken,
                 ).uncertainFind({
                   [idName]: parentId,

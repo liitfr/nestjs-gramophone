@@ -5,7 +5,9 @@ import {
   RepositoryStoreRegisterOptions,
 } from '../services/repository-store.service';
 
-export function CreateRepository(options?: RepositoryStoreRegisterOptions) {
+export function CreateRepository<S>(
+  options?: RepositoryStoreRegisterOptions<S>,
+) {
   return <T extends Constructor>(constructor: T) => {
     RepositoryStore.register(constructor, options);
 

@@ -7,29 +7,36 @@ import { getEntityToken } from '../../utils/entities/entity.util';
 
 import { Repository as IRepository } from '../abstracts/repository.abstract';
 
-interface Options {
-  SchemaFactory?: (Schema: unknown) => unknown;
+interface Options<S> {
+  SchemaTransformer?: (Schema: S) => S;
+  isDiscriminator?: boolean;
+  discriminators?: () => Type<object>[];
 }
 
-type Repository<E> = {
+type Item<E extends object, S = unknown> = {
   Entity: Type<E>;
   entityToken: symbol;
   entityRepositoryToken: symbol;
   instance?: IRepository<E>;
-  options?: Options;
+  options?: Options<S>;
 };
 
-type RegisteredRepository<E> = Repository<E> & {
+type RegisteredRepository<E extends object, S> = Item<E, S> & {
   instance: IRepository<E>;
 };
 
 export { Options as RepositoryStoreRegisterOptions };
 
+export { Item as RepositoryStoreItem };
+
 @Injectable()
 export class RepositoryStore {
-  private static repositories: Repository<object>[] = [];
+  private static repositories: Item<object>[] = [];
 
-  public static register<E extends object>(Entity: Type<E>, options?: Options) {
+  public static register<E extends object, S>(
+    Entity: Type<E>,
+    options?: Options<S>,
+  ) {
     const {
       entityToken,
       entityRepositoryToken: existingEntityRepositoryToken,
@@ -77,26 +84,26 @@ export class RepositoryStore {
     return newRepository;
   }
 
-  public static getByEntity<E extends object>(
+  public static getByEntity<E extends object, S>(
     entity: symbol | string | Type<E>,
-  ): IRepository<E> {
-    let repository: Repository<E> | undefined;
+  ): RegisteredRepository<E, S> {
+    let repository: Item<E, S> | undefined;
     let description: string | undefined;
     if (typeof entity === 'string') {
-      repository = RepositoryStore.repositories.find<Repository<E>>(
-        (r): r is Repository<E> => r.entityToken.description === entity,
+      repository = RepositoryStore.repositories.find<Item<E, S>>(
+        (r): r is Item<E, S> => r.entityToken.description === entity,
       );
       description = entity;
     } else if (typeof entity === 'symbol') {
-      repository = RepositoryStore.repositories.find<Repository<E>>(
-        (r): r is Repository<E> => r.entityToken === entity,
+      repository = RepositoryStore.repositories.find<Item<E, S>>(
+        (r): r is Item<E, S> => r.entityToken === entity,
       );
       description = entity.description;
     } else {
       const resolvedEntityToken = getEntityToken(entity);
       if (resolvedEntityToken) {
-        repository = RepositoryStore.repositories.find<Repository<E>>(
-          (r): r is Repository<E> => r.entityToken === resolvedEntityToken,
+        repository = RepositoryStore.repositories.find<Item<E, S>>(
+          (r): r is Item<E, S> => r.entityToken === resolvedEntityToken,
         );
         description = resolvedEntityToken.description;
       }
@@ -112,11 +119,21 @@ export class RepositoryStore {
       );
     }
 
+    return repository as RegisteredRepository<E, S>;
+  }
+
+  public static getInstanceByEntity<E extends object, S>(
+    entity: symbol | string | Type<E>,
+  ): IRepository<E> {
+    const repository = RepositoryStore.getByEntity<E, S>(entity);
+
     if (!repository.instance) {
-      throw new Error(`Repository for entity ${description} not registered`);
+      throw new Error(
+        `Repository for entity ${entity.toString()} not registered`,
+      );
     }
 
-    return (repository as RegisteredRepository<E>).instance;
+    return repository.instance;
   }
 
   public static getAll() {

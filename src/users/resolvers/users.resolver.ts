@@ -15,7 +15,9 @@ const SimpleUserResolver = SimpleResolverFactory<User, UsersService>(
 
 @Resolver(() => User)
 export class UsersResolver extends SimpleUserResolver {
-  @Query(() => User)
+  @Query(() => User, {
+    description: 'User : Who am I query',
+  })
   whoAmI(@CurrentUser() user: User) {
     return this.simpleService.findById(user._id);
   }

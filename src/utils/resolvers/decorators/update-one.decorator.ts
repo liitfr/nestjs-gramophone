@@ -11,6 +11,7 @@ import { CurrentUserId } from '../../../users/decorators/current-user-id.decorat
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
+import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase } from '../../string.util';
@@ -25,6 +26,10 @@ import { BaseResolver } from '../types/base-resolver.type';
 import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
 import { Options } from '../types/options.type';
 import { SimpleFilter } from '../types/simple-filter.type';
+import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+
+import { SetResolverOperation } from './set-resolver-operation.decorator';
+import { SetUserAction } from './set-user-action.decorator';
 
 export type UpdateOneOptions<E extends object> = MutationOptions & {
   Filter: SimpleFilter<E>;
@@ -45,6 +50,7 @@ export function WithUpdateOne<E extends object>({
     ...pOptions,
     updateOne: {
       ...defaultMutationOptions,
+      enable: false,
       Filter: PartialInput,
       Payload: PartialInput,
       ...pOptions.updateOne,
@@ -112,6 +118,8 @@ export function WithUpdateOne<E extends object>({
           ? options.updateOne.policyHandlers
           : [options.general?.updatePolicyHandler ?? (() => false)]),
       )
+      @SetResolverOperation(ResolverOperationEnum.UpdateOne)
+      @SetUserAction(UserActionEnum.Update)
       @SetMetadata(
         IS_PUBLIC_KEY,
         (options.updateOne && options.updateOne?.public) ??

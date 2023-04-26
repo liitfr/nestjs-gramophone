@@ -96,7 +96,7 @@ export class AuthenticationService {
     }
 
     await this.verifyPassword(plainTextPassword, user.password);
-    this.verifyStatus(user);
+    await this.verifyStatus(user);
     void this.usersService.ping(user);
     return user;
   }
@@ -125,7 +125,7 @@ export class AuthenticationService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public verifyStatus(_user: User) {
+  public async verifyStatus(_user: User) {
     // throw error if user hasn't valid status
   }
 

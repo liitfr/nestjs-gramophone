@@ -41,9 +41,10 @@ export class CheckRelations<E extends object>
 
       const { entityToken: relationToken } = EntityStore.get(target);
 
-      const relationRepository = RepositoryStore.getByEntity(relationToken);
+      const relationRepository =
+        RepositoryStore.getInstanceByEntity(relationToken);
 
-      let result;
+      let result: unknown;
 
       if (multiple) {
         const error = new CustomError(

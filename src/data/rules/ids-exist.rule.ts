@@ -22,7 +22,7 @@ export class IdsExistRule implements ValidatorConstraintInterface {
         return true;
       }
 
-      const entityRepository = RepositoryStore.getByEntity(entityToken);
+      const entityRepository = RepositoryStore.getInstanceByEntity(entityToken);
 
       const result = await entityRepository.find({ _id: { $in: ids } });
 

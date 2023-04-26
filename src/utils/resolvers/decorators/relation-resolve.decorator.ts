@@ -103,13 +103,15 @@ export function WithRelationResolve<E extends object>({
                 if (parent[idName]) {
                   const parentId = parent['idName'] as Id;
                   if (multiple) {
-                    return RepositoryStore.getByEntity(relationToken).find({
+                    return RepositoryStore.getInstanceByEntity(
+                      relationToken,
+                    ).find({
                       _id: { $in: parentId ?? [] },
                     });
                   }
-                  return RepositoryStore.getByEntity(relationToken).findById(
-                    parentId,
-                  );
+                  return RepositoryStore.getInstanceByEntity(
+                    relationToken,
+                  ).findById(parentId);
                 }
                 return undefined;
               },

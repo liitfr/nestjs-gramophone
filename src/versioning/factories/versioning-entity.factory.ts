@@ -88,12 +88,9 @@ export function VersioningEntityFactory<E extends Trackable>(
   @Schema({
     collection: collectionName,
   })
-  @CreateRepository({
-    SchemaFactory: (Schema) =>
-      (Schema as MongooseSchema)
-        // FIXME: use of `as MongooseSchema` shows a lack of design
-        // shall we use generic repository store with DI for mongo ?
-        .index({ originalId: 1, versionedAt: 1 }, { unique: true })
+  @CreateRepository<MongooseSchema>({
+    SchemaTransformer: (Schema) =>
+      Schema.index({ originalId: 1, versionedAt: 1 }, { unique: true })
         .index({ originalId: 1 })
         .index({ versionedAt: 1 }),
   })

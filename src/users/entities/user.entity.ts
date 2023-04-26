@@ -1,7 +1,8 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 
+import { GenericStatus } from '../../references/entities/generic-status.entity';
 import {
   Idable,
   SimpleEntity,
@@ -14,9 +15,8 @@ import { Relation } from '../../utils/relations/relation.decorator';
 
 @ObjectType()
 @Schema()
-@CreateRepository({
-  SchemaFactory: (Schema: MongooseSchema) =>
-    Schema.index({ email: 1 }, { unique: true }),
+@CreateRepository<MongooseSchema>({
+  SchemaTransformer: (Schema) => Schema.index({ email: 1 }, { unique: true }),
 })
 @SimpleEntity({ isIdable: true, isTrackable: true })
 export class User {
