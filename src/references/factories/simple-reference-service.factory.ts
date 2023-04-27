@@ -12,6 +12,7 @@ import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.deco
 
 import { ReferencesService } from '../services/references.service';
 import { ISimpleReference } from '../decorators/simple-reference.decorator';
+import { Repository } from '../../data/abstracts/repository.abstract';
 
 type SimpleReferenceServiceObj<D> = SimpleServiceObj<D> & {
   referencesService: ReferencesService;
@@ -26,9 +27,9 @@ interface Return<R> {
   serviceToken: symbol;
 }
 
-export const SimpleReferenceServiceFactory = (
-  Reference: Type<ISimpleReference>,
-): Return<ISimpleReference> => {
+export const SimpleReferenceServiceFactory = <R extends ISimpleReference>(
+  Reference: Type<R>,
+): Return<R> => {
   const entityMetadata = EntityStore.get(Reference);
 
   const { entityToken, entityDescription, EntityPartition, entityPartitioner } =
@@ -70,7 +71,13 @@ export const SimpleReferenceServiceFactory = (
         }
         version = reference.version;
       }
-      const result = await this.repository.find({ version }, { index: 1 });
+
+      // HACK : typing isn't correct if we don't cast.
+      // FIXME : find a better way to do this.
+      const result = await (
+        this.repository as Repository<ISimpleReference>
+      ).find({ version }, { index: 1 });
+
       if (result.length === 0) {
         throw new CustomError(
           `No ${entityDescription} for this version.`,
@@ -85,7 +92,10 @@ export const SimpleReferenceServiceFactory = (
           },
         );
       }
-      return result;
+
+      // HACK : typing isn't correct if we don't cast.
+      // FIXME : find a better way to do this.
+      return result as R[];
     }
 
     public async findAllActive() {

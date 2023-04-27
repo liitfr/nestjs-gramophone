@@ -9,10 +9,7 @@ import { ServiceStore } from '../../utils/services/service-store.service';
 import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
 import { AppAbility } from '../../authorization/factories/casl-ability.factory';
 import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
-import {
-  SimpleService,
-  SimpleServiceObj,
-} from '../../utils/services/simple-service.factory';
+import { SimpleServiceObj } from '../../utils/services/simple-service.factory';
 import { SimpleInput } from '../../utils/dtos/simple-entity-input.factory';
 
 import { UserActionEnum } from '../enums/user-action.enum';
@@ -36,7 +33,7 @@ export function SimpleReferenceResolverFactory<
 >(
   Reference: Type<R>,
   Input: SimpleInput<R>,
-  Service: SimpleService<R>,
+  Service: Type<S>,
   pOptions: ReferenceOptions<R> = defaultOptions,
 ) {
   const options = { ...defaultOptions, ...pOptions };

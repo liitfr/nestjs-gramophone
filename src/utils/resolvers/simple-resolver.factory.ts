@@ -11,10 +11,7 @@ import { InputType, PartialType, Resolver } from '@nestjs/graphql';
 
 import { IS_PUBLIC_KEY } from '../../authentication/decorators/public.decorator';
 
-import {
-  SimpleService,
-  SimpleServiceObj,
-} from '../services/simple-service.factory';
+import { SimpleServiceObj } from '../services/simple-service.factory';
 import { checkIfIsTrackable } from '../entities/simple-entity.decorator';
 import { SimpleInput } from '../dtos/simple-entity-input.factory';
 import { EntityStore } from '../entities/entity-store.service';
@@ -43,7 +40,7 @@ export function SimpleResolverFactory<
 >(
   Entity: Type<E>,
   Input: Type<unknown>, // BUG : somehow it should depend on E if only i could generate correct type for inputs
-  Service: SimpleService<E>,
+  Service: Type<S>,
   pOptions?: Options<E>,
 ) {
   const { entityToken, entityDescription, entityRelations } =

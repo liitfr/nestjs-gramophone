@@ -34,7 +34,7 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public find(_filter: Partial<D>, _options?: unknown): Promise<D[]> {
+  public find(_filter: object, _options?: unknown): Promise<D[]> {
     throw new Error('Not implemented');
   }
 

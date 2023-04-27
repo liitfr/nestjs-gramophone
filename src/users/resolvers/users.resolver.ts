@@ -7,14 +7,14 @@ import { UsersService } from '../services/users.service';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { UserInput } from '../dto/user.input';
 
-const SimpleUserResolver = SimpleResolverFactory<User, UsersService>(
+const SimpleUsersResolver = SimpleResolverFactory<User, UsersService>(
   User,
   UserInput,
   UsersService,
 );
 
 @Resolver(() => User)
-export class UsersResolver extends SimpleUserResolver {
+export class UsersResolver extends SimpleUsersResolver {
   @Query(() => User, {
     description: 'User : Who am I query',
   })
