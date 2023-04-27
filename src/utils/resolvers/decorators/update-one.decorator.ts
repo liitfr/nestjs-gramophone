@@ -144,7 +144,7 @@ export function WithUpdateOne<E extends object>({
         @Args(
           'update',
           { type: () => Payload },
-          ...(checkRelations ? [CheckRelations] : []),
+          ...(checkRelations ? [new CheckRelations(Entity)] : []),
           ...(options.updateOne && options.updateOne?.payloadPipes
             ? options.updateOne.payloadPipes
             : options.general?.defaultMutationPipes ?? []),

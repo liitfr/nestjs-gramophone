@@ -13,8 +13,8 @@ import { SetEntityMetadata } from './set-entity-metadata.decorator';
 
 export const ENTITY_METADATA = Symbol('entityMetadata');
 
-export interface EntityMetadata {
-  Entity: Type<unknown>;
+export interface EntityMetadata<E extends object = object> {
+  Entity: Type<E>;
   entityToken: symbol;
   entityDescription?: string;
   entityEnhancers?: string[];

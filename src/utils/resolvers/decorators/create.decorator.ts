@@ -132,7 +132,7 @@ export function WithCreate<E extends object>({
         @Args(
           camelCase(entityTokenDescription ?? 'unknown'),
           { type: () => Payload },
-          ...(checkRelations ? [CheckRelations] : []),
+          ...(checkRelations ? [new CheckRelations(Entity)] : []),
           ...(options.create && options.create?.payloadPipes
             ? options.create.payloadPipes
             : options.general?.defaultMutationPipes ?? []),

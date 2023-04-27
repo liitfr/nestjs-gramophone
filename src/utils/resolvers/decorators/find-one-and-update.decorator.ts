@@ -148,7 +148,7 @@ export function WithFindOneAndUpdate<E extends object>({
         @Args(
           'update',
           { type: () => Payload },
-          ...(checkRelations ? [CheckRelations] : []),
+          ...(checkRelations ? [new CheckRelations(Entity)] : []),
           ...(options.findOneAndUpdate && options.findOneAndUpdate?.payloadPipes
             ? options.findOneAndUpdate.payloadPipes
             : options.general?.defaultMutationPipes ?? []),

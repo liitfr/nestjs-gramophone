@@ -146,7 +146,7 @@ export function WithUpdateMany<E extends object>({
         @Args(
           'update',
           { type: () => Payload },
-          ...(checkRelations ? [CheckRelations] : []),
+          ...(checkRelations ? [new CheckRelations(Entity)] : []),
           ...(options.updateMany && options.updateMany?.payloadPipes
             ? options.updateMany.payloadPipes
             : options.general?.defaultMutationPipes ?? []),

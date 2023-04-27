@@ -12,7 +12,7 @@ export const defaultNestedOptions = {
 };
 
 export type NestedDetails = NestedOptions & {
-  name: string;
+  fieldName: string;
 };
 
 export interface EntityNested<E extends object = object> {

@@ -49,7 +49,7 @@ export function Nested<T extends object>(
 
     const nestedDetails: NestedDetails = {
       ...defaultNestedOptions,
-      name: propertyKey,
+      fieldName: propertyKey,
       description: `${originalMetadata.entityDescription}'s ${nestedDescription}`,
       ...nestedOptions,
     };
