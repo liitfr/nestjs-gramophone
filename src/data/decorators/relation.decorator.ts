@@ -9,41 +9,25 @@ import {
   lowerCaseFirstLetter,
   pascalCase,
   pluralize,
-} from '../string.util';
-import { IdScalar } from '../scalars/id.scalar';
-import { EntityStore } from '../entities/entity-store.service';
-import { SetEntityMetadata } from '../entities/set-entity-metadata.decorator';
-import { SetEntityToken } from '../entities/set-entity-token.decorator';
-import { EntityMetadata, getEntityToken } from '../entities/entity.util';
+} from '../../utils/string.util';
+import { IdScalar } from '../../utils/scalars/id.scalar';
+import { EntityStore } from '../../utils/entities/entity-store.service';
+import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
+import { initEntityMetadata } from '../../utils/entities/entity.util';
+import { STHandle } from '../../utils/types/handle.type';
 
 import {
   RelationDetails,
-  RelationEntity,
   RelationOptions,
   defaultRelationOptions,
-} from './relation.util';
+} from '../utils/relation.util';
 
-export function Relation(
-  relationTarget: RelationEntity,
+export function Relation<T extends object>(
+  relationTarget: STHandle<T>,
   relationOptions?: RelationOptions,
 ) {
   return function (decoratorTarget: any, propertyKey: string) {
-    let originalMetadata: Partial<EntityMetadata>;
-    if (!getEntityToken(decoratorTarget.constructor)) {
-      const token = Symbol(decoratorTarget.constructor.name);
-      SetEntityToken(token)(decoratorTarget.constructor);
-      SetEntityMetadata({
-        entityToken: Symbol(decoratorTarget.constructor.name),
-      })(decoratorTarget.constructor);
-      originalMetadata = {
-        entityToken: token,
-        entityDescription: splitPascalWithSpaces(
-          pascalCase(decoratorTarget.constructor.name),
-        ),
-      };
-    } else {
-      originalMetadata = EntityStore.get(decoratorTarget.constructor);
-    }
+    const originalMetadata = initEntityMetadata(decoratorTarget.constructor);
 
     if (
       typeof relationTarget === 'string' &&

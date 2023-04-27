@@ -4,17 +4,11 @@ import { Schema as MongooseSchema } from 'mongoose';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../types/id.type';
-import { pascalCase, pluralize, splitPascalWithSpaces } from '../string.util';
+import { pascalCase, pluralize } from '../string.util';
 import { Constructor } from '../types/constructor.type';
 
-import {
-  EntityMetadata,
-  enhancerCheckerFactory,
-  getEntityToken,
-} from './entity.util';
+import { enhancerCheckerFactory, initEntityMetadata } from './entity.util';
 import { SetEntityMetadata } from './set-entity-metadata.decorator';
-import { SetEntityToken } from './set-entity-token.decorator';
-import { EntityStore } from './entity-store.service';
 
 interface Options {
   isTrackable?: boolean;
@@ -34,19 +28,7 @@ export function SimpleEntity(
   },
 ) {
   return <T extends Constructor>(constructor: T) => {
-    let originalMetadata: Partial<EntityMetadata>;
-
-    if (!getEntityToken(constructor)) {
-      const token = Symbol(constructor.name);
-      SetEntityToken(token)(constructor);
-      SetEntityMetadata({ entityToken: Symbol(constructor.name) })(constructor);
-      originalMetadata = {
-        entityToken: token,
-        entityDescription: splitPascalWithSpaces(pascalCase(constructor.name)),
-      };
-    } else {
-      originalMetadata = EntityStore.get(constructor);
-    }
+    const originalMetadata = initEntityMetadata(constructor);
 
     if (isTrackable) {
       Object.defineProperties(constructor.prototype, {

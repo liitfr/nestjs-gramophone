@@ -2,27 +2,18 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
-import {
-  generateCollectionName,
-  pascalCase,
-  splitPascalWithSpaces,
-} from '../../utils/string.util';
+import { generateCollectionName } from '../../utils/string.util';
 import { Id } from '../../utils/types/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
-import { SetEntityToken } from '../../utils/entities/set-entity-token.decorator';
-import {
-  EntityMetadata,
-  getEntityToken,
-} from '../../utils/entities/entity.util';
+import { initEntityMetadata } from '../../utils/entities/entity.util';
 import { Constructor } from '../../utils/types/constructor.type';
+import { Nested } from '../../data/decorators/nested.decorator';
 
-import { Chip, ChipSchemas } from '../entities/chip.entity';
-import { ReferenceStore } from '../services/reference-store.service';
-import { ReferenceMetadata, getReferenceToken } from '../utils/reference.util';
+import { Chip } from '../entities/chip.entity';
+import { initReferenceMetadata } from '../utils/reference.util';
 
 import { SetReferenceMetadata } from './set-reference-metadata.decorator';
-import { SetReferenceToken } from './set-reference-token.decorator';
 
 interface Options {
   addChip?: boolean;
@@ -43,31 +34,13 @@ export function SimpleReference(
   },
 ) {
   return <T extends Constructor>(constructor: T) => {
-    let originalEntityMetadata: Partial<EntityMetadata>;
-    let originalReferenceMetadata: Partial<ReferenceMetadata>;
-
     const defaultToken = Symbol(constructor.name);
 
-    if (!getEntityToken(constructor)) {
-      SetEntityToken(defaultToken)(constructor);
-      originalEntityMetadata = {
-        entityToken: defaultToken,
-        entityDescription: splitPascalWithSpaces(pascalCase(constructor.name)),
-      };
-      SetEntityMetadata(originalEntityMetadata)(constructor);
-    } else {
-      originalEntityMetadata = EntityStore.get(constructor);
-    }
-
-    if (!getReferenceToken(constructor)) {
-      SetReferenceToken(defaultToken)(constructor);
-      originalReferenceMetadata = {
-        referenceToken: defaultToken,
-      };
-      SetReferenceMetadata(originalReferenceMetadata)(constructor);
-    } else {
-      originalReferenceMetadata = ReferenceStore.get(constructor);
-    }
+    const originalEntityMetadata = initEntityMetadata(
+      constructor,
+      defaultToken,
+    );
+    initReferenceMetadata(constructor, defaultToken);
 
     Object.defineProperties(constructor.prototype, {
       [partitioner]: { enumerable: true, configurable: true, writable: true },
@@ -132,15 +105,10 @@ export function SimpleReference(
         writable: true,
       });
 
-      Field(() => Chip, {
+      Nested(Chip, {
         nullable: false,
         description: `${originalEntityMetadata.entityDescription}'s chip`,
       })(constructor.prototype, 'chip');
-
-      Prop({ type: ChipSchemas.noIndex, required: true })(
-        constructor.prototype,
-        'chip',
-      );
     }
 
     SimpleEntity({ isIdable: true })(constructor);

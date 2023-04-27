@@ -1,6 +1,8 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import { RelationDetails } from '../relations/relation.util';
+import { RelationDetails } from '../../data/utils/relation.util';
+
+import { SSHandle, SSTHandle } from '../types/handle.type';
 
 import { EntityMetadata, getEntityToken } from './entity.util';
 
@@ -19,7 +21,7 @@ export class EntityStore {
   private static entities = new Map<symbol, EntityMetadata>();
 
   public static set(
-    entity: symbol | string | Type<object>,
+    entity: SSTHandle<object>,
     metadata: Partial<EntityMetadata>,
   ): EntityMetadata {
     const entityToken = EntityStore.getEntityToken(entity);
@@ -38,7 +40,7 @@ export class EntityStore {
   }
 
   public static uncertainGet(
-    entity: symbol | string | Type<object>,
+    entity: SSTHandle<object>,
   ): EntityMetadata | undefined {
     const entityToken = EntityStore.uncertainGetEntityToken(entity);
     if (entityToken) {
@@ -47,9 +49,7 @@ export class EntityStore {
     return undefined;
   }
 
-  public static uncertainGetEntityToken(
-    entity: symbol | string | Type<object>,
-  ) {
+  public static uncertainGetEntityToken(entity: SSTHandle<object>) {
     let entityToken: symbol | undefined;
     if (typeof entity === 'string') {
       entityToken = [...EntityStore.entities.keys()].find(
@@ -66,7 +66,7 @@ export class EntityStore {
     return entityToken;
   }
 
-  public static getEntityToken(entity: symbol | string | Type<object>) {
+  public static getEntityToken(entity: SSTHandle<object>) {
     const entityToken = EntityStore.uncertainGetEntityToken(entity);
     if (!entityToken) {
       throw new Error(`Entity not found in EntityStore : ${entity.toString()}`);
@@ -74,10 +74,10 @@ export class EntityStore {
     return entityToken;
   }
 
-  public static has = (entity: symbol | string | Type<object>): boolean =>
+  public static has = (entity: SSTHandle<object>): boolean =>
     !!EntityStore.uncertainGet(entity);
 
-  public static get(entity: symbol | string | Type<object>): EntityMetadata {
+  public static get(entity: SSTHandle<object>): EntityMetadata {
     const result = EntityStore.uncertainGet(entity);
     if (!result) {
       throw new Error(`Entity not found in EntityStore : ${entity.toString()}`);
@@ -85,9 +85,7 @@ export class EntityStore {
     return result;
   }
 
-  public static getRelationMetadata(
-    entity: symbol | string,
-  ): RelationMetadata[] {
+  public static getRelationMetadata(entity: SSHandle): RelationMetadata[] {
     const entityMetadata = EntityStore.get(entity);
     const relations = entityMetadata?.entityRelations ?? [];
     return relations.map(({ target, details }) => {
@@ -99,7 +97,7 @@ export class EntityStore {
   }
 
   public static getReversedRelationMetadata(
-    target: symbol | string,
+    target: SSHandle,
   ): ReversedRelationMetadata[] {
     const targetMetadata = EntityStore.get(target);
     const result: ReversedRelationMetadata[] = [];

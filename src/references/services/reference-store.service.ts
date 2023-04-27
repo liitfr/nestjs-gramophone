@@ -1,4 +1,6 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
+import { SSTHandle } from '../../utils/types/handle.type';
 
 import { ReferenceMetadata, getReferenceToken } from '../utils/reference.util';
 
@@ -7,7 +9,7 @@ export class ReferenceStore {
   private static references = new Map<symbol, ReferenceMetadata>();
 
   public static set(
-    reference: symbol | string | Type<unknown>,
+    reference: SSTHandle<unknown>,
     metadata: Partial<ReferenceMetadata>,
   ): ReferenceMetadata {
     let referenceToken: symbol | undefined;
@@ -45,7 +47,7 @@ export class ReferenceStore {
   }
 
   public static uncertainGet(
-    reference: symbol | string | Type<unknown>,
+    reference: SSTHandle<unknown>,
   ): ReferenceMetadata | undefined {
     let referenceToken: symbol | undefined;
     if (typeof reference === 'string') {
@@ -66,12 +68,10 @@ export class ReferenceStore {
     return undefined;
   }
 
-  public static has = (reference: symbol | string | Type<unknown>): boolean =>
+  public static has = (reference: SSTHandle<unknown>): boolean =>
     !!ReferenceStore.uncertainGet(reference);
 
-  public static get(
-    reference: symbol | string | Type<unknown>,
-  ): ReferenceMetadata {
+  public static get(reference: SSTHandle<unknown>): ReferenceMetadata {
     const result = ReferenceStore.uncertainGet(reference);
     if (!result) {
       throw new Error(

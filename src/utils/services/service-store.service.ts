@@ -1,4 +1,6 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
+import { SSTHandle } from '../types/handle.type';
 
 import { ServiceMetadata, getServiceToken } from './service.util';
 
@@ -7,7 +9,7 @@ export class ServiceStore {
   private static services = new Map<symbol, ServiceMetadata<object>>();
 
   public static set<S extends object>(
-    service: symbol | string | Type<S>,
+    service: SSTHandle<S>,
     metadata: Partial<ServiceMetadata<S>>,
   ): ServiceMetadata<S> {
     let serviceToken: symbol | undefined;
@@ -42,7 +44,7 @@ export class ServiceStore {
   }
 
   public static uncertainGet<S extends object>(
-    service: symbol | string | Type<S>,
+    service: SSTHandle<S>,
   ): ServiceMetadata<S> | undefined {
     let serviceToken: symbol | undefined;
     if (typeof service === 'string') {
@@ -63,11 +65,11 @@ export class ServiceStore {
     return undefined;
   }
 
-  public static has = (service: symbol | string | Type<object>): boolean =>
+  public static has = (service: SSTHandle<object>): boolean =>
     !!ServiceStore.uncertainGet(service);
 
   public static get<S extends object>(
-    service: symbol | string | Type<S>,
+    service: SSTHandle<S>,
   ): ServiceMetadata<S> {
     const result = ServiceStore.uncertainGet(service);
     if (!result) {

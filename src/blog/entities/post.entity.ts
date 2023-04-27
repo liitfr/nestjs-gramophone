@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
 import { Type } from '../../references/entities/type.entity';
-import { Relation } from '../../utils/relations/relation.decorator';
+import { Relation } from '../../data/decorators/relation.decorator';
 import { Color } from '../../references/entities/color.entity';
 import {
   Idable,
@@ -12,6 +12,8 @@ import {
 } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 import { Id } from '../../utils/types/id.type';
+import { Nested } from '../../data/decorators/nested.decorator';
+import { Chip } from '../../references/entities/chip.entity';
 
 @ObjectType()
 @Schema()
@@ -39,6 +41,9 @@ export class Post {
 
   @Relation('Author', { reversible: true, reversedIdName: 'postIds' })
   authorId: Id;
+
+  @Nested(Chip, { nullable: true })
+  chip?: Chip;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

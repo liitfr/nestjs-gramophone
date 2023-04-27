@@ -4,6 +4,7 @@ import { pascalCase, pluralize } from '../../utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { getEntityToken } from '../../utils/entities/entity.util';
+import { SSTHandle } from '../../utils/types/handle.type';
 
 import { Repository as IRepository } from '../abstracts/repository.abstract';
 
@@ -85,7 +86,7 @@ export class RepositoryStore {
   }
 
   public static getByEntity<E extends object, S>(
-    entity: symbol | string | Type<E>,
+    entity: SSTHandle<E>,
   ): RegisteredRepository<E, S> {
     let repository: Item<E, S> | undefined;
     let description: string | undefined;
@@ -123,7 +124,7 @@ export class RepositoryStore {
   }
 
   public static getInstanceByEntity<E extends object, S>(
-    entity: symbol | string | Type<E>,
+    entity: SSTHandle<E>,
   ): IRepository<E> {
     const repository = RepositoryStore.getByEntity<E, S>(entity);
 

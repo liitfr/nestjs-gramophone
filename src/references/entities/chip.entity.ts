@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
@@ -24,7 +24,3 @@ export class Chip {
   @Prop({ type: String, required: true, enum: IconEnum })
   icon: IconEnum;
 }
-
-export const ChipSchemas = {
-  noIndex: SchemaFactory.createForClass(Chip),
-};

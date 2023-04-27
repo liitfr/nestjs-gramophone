@@ -1,7 +1,8 @@
 import { Type } from '@nestjs/common';
 
+import { EntityRelation } from '../../../data/utils/relation.util';
+
 import { SimpleInput } from '../../dtos/simple-entity-input.factory';
-import { EntityRelation } from '../../entities/entity.util';
 
 import { Options } from './options.type';
 

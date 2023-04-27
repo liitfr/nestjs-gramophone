@@ -1,6 +1,4 @@
-import { Type } from '@nestjs/common';
-
-export type RelationEntity = Type<object> | string;
+import { STHandle } from '../../utils/types/handle.type';
 
 export type RelationOptions = {
   nullable?: boolean;
@@ -32,3 +30,8 @@ export type RelationDetails = RelationOptions & {
   reversedResolvedName?: string;
   reversedResolvedDescription?: string;
 };
+
+export interface EntityRelation<E extends object = object> {
+  target: STHandle<E>;
+  details: RelationDetails;
+}
