@@ -8,7 +8,6 @@ import {
 } from '../../data/abstracts/operations.abstract';
 import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
 
-import { camelCase, pascalCase } from '../string.util';
 import { EntityStore } from '../entities/entity-store.service';
 import { Id } from '../types/id.type';
 
@@ -32,12 +31,8 @@ export const SimpleServiceFactory = <E extends object>(
 ): Return<E> => {
   const entityMetadata = EntityStore.get(Entity);
 
-  const {
-    entityToken,
-    entityRelations,
-    entityRepositoryToken,
-    entityServiceToken,
-  } = entityMetadata;
+  const { entityToken, entityRepositoryToken, entityServiceToken } =
+    entityMetadata;
 
   const entityTokenDescription = entityToken.description;
 
@@ -152,113 +147,6 @@ export const SimpleServiceFactory = <E extends object>(
     async count(filter: Partial<D>, options?: unknown): Promise<number> {
       return this.repository.count(filter, options);
     }
-  }
-
-  if (entityRelations && entityRelations.length) {
-    entityRelations.forEach((relation) => {
-      const { target, details } = relation;
-
-      const { partitionQueries, multiple, idName } = details;
-
-      if (partitionQueries) {
-        const {
-          entityToken: relationToken,
-          entityPartitioner: relationPartitioner,
-          EntityPartition: RelationPartition,
-          entityServiceToken: relationServiceName,
-        } = EntityStore.get(target);
-
-        const relationTokenDescription = relationToken.description;
-
-        if (!relationTokenDescription) {
-          throw new Error(
-            `Description not found for token ${relationToken.toString()}`,
-          );
-        }
-
-        if (!RelationPartition || !relationPartitioner) {
-          throw new Error(
-            `The entity ${relationTokenDescription} does not have a partitioner`,
-          );
-        }
-
-        if (!relationServiceName) {
-          throw new Error(
-            `The entity ${relationTokenDescription} does not have a service`,
-          );
-        }
-
-        const relationServicePropertyName = camelCase(
-          relationServiceName.description,
-        ) as keyof typeof SimpleService;
-
-        if (!SimpleService[relationServicePropertyName]) {
-          Object.defineProperty(
-            SimpleService.prototype,
-            relationServicePropertyName,
-            {
-              writable: true,
-              enumerable: true,
-              configurable: true,
-            },
-          );
-
-          const relationServiceInjector = Inject(relationServiceName);
-          relationServiceInjector(
-            SimpleService.prototype,
-            relationServicePropertyName,
-          );
-        }
-
-        const pCRelationName = pascalCase(relationTokenDescription);
-
-        Object.entries(RelationPartition).forEach(([key]) => {
-          const pCPartition = pascalCase(key);
-
-          Object.defineProperty(
-            SimpleService.prototype,
-            `findAllWith${pCPartition}${pCRelationName}`,
-            {
-              value: async function () {
-                const partitionerId = (
-                  await this[relationServicePropertyName].find({
-                    [relationPartitioner]: key,
-                  })
-                )?.[0]?._id;
-                if (multiple) {
-                  return this.find({ [idName]: { $in: [partitionerId] } });
-                }
-                return this.find({ [idName]: partitionerId });
-              },
-              writable: true,
-              enumerable: true,
-              configurable: true,
-            },
-          );
-
-          Object.defineProperty(
-            SimpleService.prototype,
-            `countAllWith${pCPartition}${pCRelationName}`,
-            {
-              value: async function () {
-                const partitionerId = (
-                  await this[relationServicePropertyName].find({
-                    [relationPartitioner]: key,
-                  })
-                )?.[0]?._id;
-                if (multiple) {
-                  return this.count({ [idName]: { $in: [partitionerId] } });
-                }
-                return this.count({ [idName]: partitionerId });
-              },
-              writable: true,
-              enumerable: true,
-              configurable: true,
-            },
-          );
-        });
-      }
-    });
   }
 
   if (!getServiceToken(SimpleService)) {

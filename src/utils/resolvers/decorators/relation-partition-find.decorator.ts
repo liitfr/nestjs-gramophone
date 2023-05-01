@@ -10,15 +10,14 @@ import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorat
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
+import { RelationResolverDecoratorParams } from '../../../data/types/relation-resolver-decorator-params.type';
+import { RepositoryStore } from '../../../data/services/repository-store.service';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
-import { EntityStore } from '../../entities/entity-store.service';
 
 import { QueryOptions, defaultQueryOptions } from '../options/query-options';
-import { BaseResolver } from '../types/base-resolver.type';
-import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
-import { Options } from '../types/options.type';
+import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
@@ -27,13 +26,13 @@ import { SetUserAction } from './set-user-action.decorator';
 export type RelationPartitionFindOptions = QueryOptions;
 
 export function WithRelationPartitionFind<E extends object>({
-  Entity,
+  Source,
   options: pOptions,
-  entityToken,
-  entityRelations,
-  entityTokenDescription,
-}: ResolverDecoratorParams<E>) {
-  const options: Options<E> = {
+  sourceToken,
+  relationsMetadata,
+  sourceTokenDescription,
+}: RelationResolverDecoratorParams<E>) {
+  const options: ResolverOptions<E> = {
     ...pOptions,
     relationPartitionFind: {
       ...defaultQueryOptions,
@@ -51,7 +50,7 @@ export function WithRelationPartitionFind<E extends object>({
       ? options.general?.defaultQueryCheckPolicies
       : true;
 
-  return <T extends Constructor<BaseResolver<E>>>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     if (
       !options.general?.enableQueries ||
       options.relationPartitionFind === false ||
@@ -60,163 +59,169 @@ export function WithRelationPartitionFind<E extends object>({
       return constructor;
     }
 
-    if (entityRelations && entityRelations.length) {
-      entityRelations.forEach(({ target, details }) => {
-        const { partitionQueries, resolve } = details;
+    if (relationsMetadata && relationsMetadata.length) {
+      relationsMetadata.forEach(({ targetMetadata, details }) => {
+        const { partitionQueries, idName, multiple } = details;
 
-        const targetMetadata = details.weak
-          ? EntityStore.uncertainGet(target)
-          : EntityStore.get(target);
+        if (!targetMetadata) {
+          throw new Error(`Target metadata not found for ${idName}`);
+        }
 
-        if (resolve || partitionQueries) {
-          if (!targetMetadata) {
+        const {
+          entityToken: targetToken,
+          entityDescription: targetDescription,
+          EntityPartition: TargetPartition,
+          entityPartitioner: targetPartitioner,
+          entityRepositoryToken: targetRepositoryToken,
+        } = targetMetadata;
+
+        const relationTokenDescription = targetToken.description;
+
+        if (!relationTokenDescription) {
+          throw new Error(
+            `Description not found for token ${sourceToken.toString()}`,
+          );
+        }
+
+        if (!targetRepositoryToken) {
+          throw new Error(
+            `Repository token not found for entity ${relationTokenDescription}`,
+          );
+        }
+
+        if (partitionQueries) {
+          if (!TargetPartition || !targetPartitioner) {
             throw new Error(
-              `The target ${target.toString()} of weak relation isn't registered in the EntityStore. Thus, you have to disable resolve or partition queries settings.`,
+              `The relation ${relationTokenDescription} does not have a partitioner`,
             );
           }
 
-          const {
-            entityToken: relationToken,
-            entityDescription: relationDescription,
-            EntityPartition: RelationPartition,
-            entityPartitioner: relationPartitioner,
-          } = targetMetadata;
+          const pCRelationName = pascalCase(relationTokenDescription);
+          Object.entries(TargetPartition).forEach(([key]) => {
+            const pCPartition = pascalCase(key);
 
-          const relationTokenDescription = relationToken.description;
+            const resolverFindAllMethodName = `findAll${pascalCase(
+              pluralize(sourceTokenDescription),
+            )}With${pCPartition}${pCRelationName}`;
 
-          if (!relationTokenDescription) {
-            throw new Error(
-              `Description not found for token ${entityToken.toString()}`,
+            Object.defineProperty(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              {
+                value: async function () {
+                  const partitionerId =
+                    await RepositoryStore.getInstanceByEntity(
+                      targetRepositoryToken,
+                    ).find({
+                      [targetPartitioner]: key,
+                    })?.[0]?._id;
+                  if (multiple) {
+                    return RepositoryStore.getInstanceByEntity(
+                      sourceToken,
+                    ).find({ [idName]: { $in: [partitionerId] } });
+                  }
+                  return RepositoryStore.getInstanceByEntity(sourceToken).find({
+                    [idName]: partitionerId,
+                  });
+                },
+                writable: true,
+                enumerable: true,
+                configurable: true,
+              },
             );
-          }
 
-          if (partitionQueries) {
-            if (!RelationPartition || !relationPartitioner) {
+            const descriptorFindAllMethodName = Object.getOwnPropertyDescriptor(
+              constructor.prototype,
+              resolverFindAllMethodName,
+            );
+
+            if (!descriptorFindAllMethodName) {
               throw new Error(
-                `The relation ${relationTokenDescription} does not have a partitioner`,
+                `The method ${resolverFindAllMethodName} does not exist in the resolver ${constructor.name}`,
               );
             }
 
-            const pCRelationName = pascalCase(relationTokenDescription);
-            Object.entries(RelationPartition).forEach(([key]) => {
-              const pCPartition = pascalCase(key);
-              const resolverFindAllMethodName = `findAll${pascalCase(
-                pluralize(entityTokenDescription),
-              )}With${pCPartition}${pCRelationName}`;
-              const serviceFindAllMethodName = `findAllWith${pCPartition}${pCRelationName}`;
+            Query(() => [Source], {
+              nullable: false,
+              description: `${sourceTokenDescription}: Find all with ${pCPartition} ${targetDescription} query`,
+              name: resolverFindAllMethodName,
+            })(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              Object.defineProperty(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                {
-                  value: async function () {
-                    if (!this.simpleService[serviceFindAllMethodName]) {
-                      throw new Error(
-                        `The method ${serviceFindAllMethodName} does not exist in the ${entityTokenDescription} related service`,
-                      );
-                    }
-                    return this.simpleService[serviceFindAllMethodName]();
-                  },
-                  writable: true,
-                  enumerable: true,
-                  configurable: true,
-                },
-              );
+            SetMetadata(
+              IS_PUBLIC_KEY,
+              (options.relationPartitionFind &&
+                options.relationPartitionFind?.public) ??
+                options.general?.defaultQueryPublic ??
+                false,
+            )(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              const descriptorFindAllMethodName =
-                Object.getOwnPropertyDescriptor(
-                  constructor.prototype,
-                  resolverFindAllMethodName,
-                );
+            SetUserAction(UserActionEnum.Read)(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              if (!descriptorFindAllMethodName) {
-                throw new Error(
-                  `The method ${resolverFindAllMethodName} does not exist in the resolver ${constructor.name}`,
-                );
-              }
+            SetResolverOperation(ResolverOperationEnum.RelationPartitionFind)(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              Query(() => [Entity], {
-                nullable: false,
-                description: `${entityTokenDescription}: Find all with ${pCPartition} ${relationDescription} query`,
-                name: resolverFindAllMethodName,
-              })(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
+            CheckPolicies(
+              ...(!checkPolicies
+                ? [() => true]
+                : options.relationPartitionFind &&
+                  options.relationPartitionFind?.policyHandlers
+                ? options.relationPartitionFind.policyHandlers
+                : [options.general?.readPolicyHandler ?? (() => false)]),
+            )(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              SetMetadata(
-                IS_PUBLIC_KEY,
-                (options.relationPartitionFind &&
-                  options.relationPartitionFind?.public) ??
-                  options.general?.defaultQueryPublic ??
-                  false,
-              )(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
+            UseFilters(
+              ...(options.relationPartitionFind &&
+              options.relationPartitionFind?.filters?.length
+                ? options.relationPartitionFind.filters
+                : options.general?.defaultQueryFilters ?? []),
+            )(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              SetUserAction(UserActionEnum.Read)(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
+            UseInterceptors(
+              ...(options.relationPartitionFind &&
+              options.relationPartitionFind?.interceptors?.length
+                ? options.relationPartitionFind.interceptors
+                : options.general?.defaultQueryInterceptors ?? []),
+            )(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
 
-              SetResolverOperation(ResolverOperationEnum.RelationPartitionFind)(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
-
-              CheckPolicies(
-                ...(!checkPolicies
-                  ? [() => true]
-                  : options.relationPartitionFind &&
-                    options.relationPartitionFind?.policyHandlers
-                  ? options.relationPartitionFind.policyHandlers
-                  : [options.general?.readPolicyHandler ?? (() => false)]),
-              )(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
-
-              UseFilters(
-                ...(options.relationPartitionFind &&
-                options.relationPartitionFind?.filters?.length
-                  ? options.relationPartitionFind.filters
-                  : options.general?.defaultQueryFilters ?? []),
-              )(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
-
-              UseInterceptors(
-                ...(options.relationPartitionFind &&
-                options.relationPartitionFind?.interceptors?.length
-                  ? options.relationPartitionFind.interceptors
-                  : options.general?.defaultQueryInterceptors ?? []),
-              )(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
-
-              UseGuards(
-                ...(options.relationPartitionFind &&
-                options.relationPartitionFind?.guards?.length
-                  ? options.relationPartitionFind.guards
-                  : options.general?.defaultQueryGuards ?? []),
-                ...(checkPolicies ? [SimplePoliciesGuard] : []),
-              )(
-                constructor.prototype,
-                resolverFindAllMethodName,
-                descriptorFindAllMethodName,
-              );
-            });
-          }
+            UseGuards(
+              ...(options.relationPartitionFind &&
+              options.relationPartitionFind?.guards?.length
+                ? options.relationPartitionFind.guards
+                : options.general?.defaultQueryGuards ?? []),
+              ...(checkPolicies ? [SimplePoliciesGuard] : []),
+            )(
+              constructor.prototype,
+              resolverFindAllMethodName,
+              descriptorFindAllMethodName,
+            );
+          });
         }
       });
     }

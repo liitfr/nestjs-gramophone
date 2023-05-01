@@ -24,9 +24,9 @@ import {
   defaultMutationOptions,
 } from '../options/mutation-options';
 import { SimplePayload } from '../types/simple-payload.type';
-import { BaseResolver } from '../types/base-resolver.type';
-import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
-import { Options } from '../types/options.type';
+import { SimpleResolver } from '../types/simple-resolver.type';
+import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorator-params.type';
+import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
@@ -44,8 +44,8 @@ export function WithCreate<E extends object>({
   entityDescription,
   entityTokenDescription,
   isTrackable,
-}: ResolverDecoratorParams<E>) {
-  const options: Options<E> = {
+}: SimpleResolverDecoratorParams<E>) {
+  const options: ResolverOptions<E> = {
     ...pOptions,
     create: {
       ...defaultMutationOptions,
@@ -79,7 +79,7 @@ export function WithCreate<E extends object>({
     checkRelations = options.general.defaultMutationCheckRelations;
   }
 
-  return <T extends Constructor<BaseResolver<E>>>(constructor: T) => {
+  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
     if (
       !options.general?.enableMutations ||
       options.create === false ||

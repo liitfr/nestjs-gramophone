@@ -4,26 +4,24 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ResolveField, Resolver } from '@nestjs/graphql';
+import { ResolveField } from '@nestjs/graphql';
 
 import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 import { RepositoryStore } from '../../../data/services/repository-store.service';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
+import { ReversedRelationResolverDecoratorParams } from '../../../data/types/reversed-relation-resolver-decorator-params.type';
 
 import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
 import { IdScalar } from '../../scalars/id.scalar';
-import { EntityStore } from '../../entities/entity-store.service';
 
 import {
   ResolveFieldOptions,
   defaultResolveFieldOptions,
 } from '../options/resolve-field-options';
-import { BaseResolver } from '../types/base-resolver.type';
-import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
-import { Options } from '../types/options.type';
+import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
@@ -33,10 +31,9 @@ export type ReversedRelationIdOptions = ResolveFieldOptions;
 
 export function WithReversedRelationId<E extends object>({
   options: pOptions,
-  entityToken,
-  Entity,
-}: ResolverDecoratorParams<E>) {
-  const options: Options<E> = {
+  reversedRelationsMetadata,
+}: ReversedRelationResolverDecoratorParams<E>) {
+  const options: ResolverOptions<E> = {
     ...pOptions,
     reversedRelationId: {
       ...defaultResolveFieldOptions,
@@ -54,7 +51,7 @@ export function WithReversedRelationId<E extends object>({
       ? options.general?.defaultResolveFieldCheckPolicies
       : true;
 
-  return <T extends Constructor<BaseResolver<E>>>(constructor: T) => {
+  return <T extends Constructor>(constructor: T) => {
     if (
       !options.general?.enableResolveFields ||
       options.reversedRelationId === false ||
@@ -63,11 +60,8 @@ export function WithReversedRelationId<E extends object>({
       return constructor;
     }
 
-    const reversedRelationMetadatas =
-      EntityStore.getReversedRelationMetadata(entityToken);
-
-    if (reversedRelationMetadatas) {
-      for (const { details, sourceMetadata } of reversedRelationMetadatas) {
+    if (reversedRelationsMetadata) {
+      for (const { details, sourceMetadata } of reversedRelationsMetadata) {
         const {
           idName,
           multiple,
@@ -83,6 +77,8 @@ export function WithReversedRelationId<E extends object>({
             );
           }
 
+          const { entityToken: sourceToken } = sourceMetadata;
+
           Object.defineProperty(constructor.prototype, reversedIdName, {
             value: async function (parent: E) {
               if (!parent['_id']) {
@@ -96,7 +92,7 @@ export function WithReversedRelationId<E extends object>({
               if (multiple) {
                 return (
                   await RepositoryStore.getInstanceByEntity(
-                    sourceMetadata.entityToken,
+                    sourceToken,
                   ).uncertainFind({
                     [idName]: { $in: parentId },
                   })
@@ -110,7 +106,7 @@ export function WithReversedRelationId<E extends object>({
 
               return (
                 await RepositoryStore.getInstanceByEntity(
-                  sourceMetadata.entityToken,
+                  sourceToken,
                 ).uncertainFind({
                   [idName]: parentId,
                 })
@@ -136,9 +132,6 @@ export function WithReversedRelationId<E extends object>({
               `The descriptor for the method ${reversedIdName} does not exist in the resolver ${constructor.name}`,
             );
           }
-
-          // HACK : we can only use ResolveField in a class that is decorated with @Resolver
-          Resolver(() => Entity)(constructor);
 
           ResolveField(() => [IdScalar], {
             name: reversedIdName,

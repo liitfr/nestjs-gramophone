@@ -25,6 +25,7 @@ export interface EntityMetadata<E extends object = object> {
   entityRepositoryToken?: symbol;
   entitySchema?: MongooseSchema;
   nestedEntities?: EntityNested[];
+  entityBaseResolverToken?: symbol;
 }
 
 export const enhancerCheckerFactory =

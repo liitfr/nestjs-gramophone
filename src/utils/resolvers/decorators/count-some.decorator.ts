@@ -17,9 +17,9 @@ import { Pipe } from '../../types/pipe.type';
 
 import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { SimpleFilter } from '../types/simple-filter.type';
-import { BaseResolver } from '../types/base-resolver.type';
-import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
-import { Options } from '../types/options.type';
+import { SimpleResolver } from '../types/simple-resolver.type';
+import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorator-params.type';
+import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
@@ -35,8 +35,8 @@ export function WithCountSome<E extends object>({
   PartialInput,
   entityDescription,
   entityTokenDescription,
-}: ResolverDecoratorParams<E>) {
-  const options: Options<E> = {
+}: SimpleResolverDecoratorParams<E>) {
+  const options: ResolverOptions<E> = {
     ...pOptions,
     countSome: {
       ...defaultQueryOptions,
@@ -55,7 +55,7 @@ export function WithCountSome<E extends object>({
       ? options.general?.defaultQueryCheckPolicies
       : true;
 
-  return <T extends Constructor<BaseResolver<E>>>(constructor: T) => {
+  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
     if (
       !options.general?.enableQueries ||
       options.countSome === false ||

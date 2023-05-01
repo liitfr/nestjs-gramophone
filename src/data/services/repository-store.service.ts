@@ -55,6 +55,12 @@ export class RepositoryStore {
       );
     }
 
+    if (existingRepository) {
+      throw new Error(
+        `Repository for entity ${entityTokenDescription} already exists.`,
+      );
+    }
+
     const entityRepositoryToken =
       existingEntityRepositoryToken ??
       Symbol(`${pluralize(pascalCase(entityTokenDescription))}Repository`);
@@ -62,16 +68,6 @@ export class RepositoryStore {
     SetEntityMetadata({
       entityRepositoryToken,
     })(Entity);
-
-    if (existingRepository) {
-      if (existingRepository.entityRepositoryToken !== entityRepositoryToken) {
-        throw new Error(
-          `Repository for entity ${entityTokenDescription} already exists with token ${existingRepository.entityRepositoryToken.description}`,
-        );
-      }
-
-      return existingRepository;
-    }
 
     const newRepository = {
       Entity,
@@ -116,7 +112,7 @@ export class RepositoryStore {
 
     if (!repository.entityRepositoryToken) {
       throw new Error(
-        `Entity repository token not found for entity ${description} repository`,
+        `Entity Repository token not found for entity ${description} repository`,
       );
     }
 

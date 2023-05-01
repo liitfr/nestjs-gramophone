@@ -1,7 +1,7 @@
 import { Type, UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
-import { Options as SimpleResolverOptions } from '../../utils/resolvers/types/options.type';
+import { ResolverOptions } from '../../utils/resolvers/types/options.type';
 import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
@@ -14,7 +14,7 @@ import { SimpleInput } from '../../utils/dtos/simple-entity-input.factory';
 
 import { UserActionEnum } from '../enums/user-action.enum';
 
-type ReferenceOptions<E extends object> = SimpleResolverOptions<E> & {
+type ReferenceOptions<E extends object> = ResolverOptions<E> & {
   reference: { noPartition?: boolean };
 };
 

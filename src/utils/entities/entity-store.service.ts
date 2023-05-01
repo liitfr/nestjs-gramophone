@@ -6,12 +6,12 @@ import { SSHandle, SSTHandle } from '../types/handle.type';
 
 import { EntityMetadata, getEntityToken } from './entity.util';
 
-type RelationMetadata = {
+export type RelationMetadata = {
   targetMetadata?: EntityMetadata;
   details: RelationDetails;
 };
 
-type ReversedRelationMetadata = {
+export type ReversedRelationMetadata = {
   sourceMetadata: EntityMetadata;
   details: RelationDetails;
 };
@@ -85,24 +85,22 @@ export class EntityStore {
     return result;
   }
 
-  public static getRelationMetadata(entity: SSHandle): RelationMetadata[] {
+  public static getRelationsMetadata(entity: SSHandle): RelationMetadata[] {
     const entityMetadata = EntityStore.get(entity);
     const relations = entityMetadata?.entityRelations ?? [];
     return relations.map(({ target, details }) => {
-      const targetMetadata = details.weak
-        ? EntityStore.uncertainGet(target)
-        : EntityStore.get(target);
+      const targetMetadata = EntityStore.get(target);
       return { targetMetadata, details };
     });
   }
 
-  public static getReversedRelationMetadata(
+  public static getReversedRelationsMetadata(
     target: SSHandle,
   ): ReversedRelationMetadata[] {
     const targetMetadata = EntityStore.get(target);
     const result: ReversedRelationMetadata[] = [];
     for (const [sourceToken, sourceMetadata] of EntityStore.entities) {
-      const relations = EntityStore.getRelationMetadata(sourceToken).filter(
+      const relations = EntityStore.getRelationsMetadata(sourceToken).filter(
         ({ targetMetadata: sourceTargetMetadata }) =>
           sourceTargetMetadata &&
           sourceTargetMetadata.entityToken === targetMetadata.entityToken,
@@ -117,5 +115,9 @@ export class EntityStore {
       }
     }
     return result;
+  }
+
+  public static getAll() {
+    return EntityStore.entities.values();
   }
 }

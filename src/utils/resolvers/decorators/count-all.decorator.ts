@@ -15,9 +15,9 @@ import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../string.util';
 
 import { QueryOptions, defaultQueryOptions } from '../options/query-options';
-import { BaseResolver } from '../types/base-resolver.type';
-import { ResolverDecoratorParams } from '../types/resolver-decorator-params.type';
-import { Options } from '../types/options.type';
+import { SimpleResolver } from '../types/simple-resolver.type';
+import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorator-params.type';
+import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
@@ -29,8 +29,8 @@ export function WithCountAll<E extends object>({
   options: pOptions,
   entityDescription,
   entityTokenDescription,
-}: ResolverDecoratorParams<E>) {
-  const options: Options<E> = {
+}: SimpleResolverDecoratorParams<E>) {
+  const options: ResolverOptions<E> = {
     ...pOptions,
     countAll: {
       ...defaultQueryOptions,
@@ -48,7 +48,7 @@ export function WithCountAll<E extends object>({
       ? options.general?.defaultQueryCheckPolicies
       : true;
 
-  return <T extends Constructor<BaseResolver<E>>>(constructor: T) => {
+  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
     if (
       !options.general?.enableQueries ||
       options.countAll === false ||

@@ -4,11 +4,11 @@ import { EntityRelation } from '../../../data/utils/relation.util';
 
 import { SimpleInput } from '../../dtos/simple-entity-input.factory';
 
-import { Options } from './options.type';
+import { ResolverOptions } from './options.type';
 
-export type ResolverDecoratorParams<E extends object> = {
+export type SimpleResolverDecoratorParams<E extends object> = {
   Entity: Type<E>;
-  options: Options<E>;
+  options: ResolverOptions<E>;
   Input: Type<unknown>;
   PartialInput: SimpleInput<unknown>;
   entityDescription: string;

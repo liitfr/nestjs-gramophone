@@ -1,5 +1,5 @@
 import { SimpleServiceObj } from '../../services/simple-service.factory';
 
-export type BaseResolver<E> = {
+export type SimpleResolver<E> = {
   simpleService: SimpleServiceObj<E>;
 };
