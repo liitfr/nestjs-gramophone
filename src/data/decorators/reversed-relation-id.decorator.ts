@@ -6,26 +6,24 @@ import {
 } from '@nestjs/common';
 import { ResolveField } from '@nestjs/graphql';
 
-import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
-import { RepositoryStore } from '../../../data/services/repository-store.service';
-import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
-import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
-import { UserActionEnum } from '../../../references/enums/user-action.enum';
-import { ReversedRelationResolverDecoratorParams } from '../../../data/types/reversed-relation-resolver-decorator-params.type';
-
-import { Constructor } from '../../types/constructor.type';
-import { Id } from '../../types/id.type';
-import { IdScalar } from '../../scalars/id.scalar';
-
+import { IS_PUBLIC_KEY } from '../../authentication/decorators/public.decorator';
+import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
+import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
+import { UserActionEnum } from '../../references/enums/user-action.enum';
+import { Constructor } from '../../utils/types/constructor.type';
+import { Id } from '../../utils/types/id.type';
+import { IdScalar } from '../../utils/scalars/id.scalar';
 import {
   ResolveFieldOptions,
   defaultResolveFieldOptions,
-} from '../options/resolve-field-options';
-import { ResolverOptions } from '../types/options.type';
-import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+} from '../../utils/resolvers/options/resolve-field-options';
+import { ResolverOptions } from '../../utils/resolvers/types/options.type';
+import { ResolverOperationEnum } from '../../utils/resolvers/enums/resolver-operation.enum';
+import { SetResolverOperation } from '../../utils/resolvers/decorators/set-resolver-operation.decorator';
+import { SetUserAction } from '../../utils/resolvers/decorators/set-user-action.decorator';
 
-import { SetResolverOperation } from './set-resolver-operation.decorator';
-import { SetUserAction } from './set-user-action.decorator';
+import { ReversedRelationResolverDecoratorParams } from '../types/reversed-relation-resolver-decorator-params.type';
+import { RepositoryStore } from '../services/repository-store.service';
 
 export type ReversedRelationIdOptions = ResolveFieldOptions;
 

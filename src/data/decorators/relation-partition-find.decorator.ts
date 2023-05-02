@@ -6,22 +6,23 @@ import {
 } from '@nestjs/common';
 import { Query } from '@nestjs/graphql';
 
-import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
-import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
-import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
-import { UserActionEnum } from '../../../references/enums/user-action.enum';
-import { RelationResolverDecoratorParams } from '../../../data/types/relation-resolver-decorator-params.type';
-import { RepositoryStore } from '../../../data/services/repository-store.service';
+import {
+  QueryOptions,
+  defaultQueryOptions,
+} from '../../utils/resolvers/options/query-options';
+import { ResolverOptions } from '../../utils/resolvers/types/options.type';
+import { Constructor } from '../../utils/types/constructor.type';
+import { pascalCase, pluralize } from '../../utils/string.util';
+import { IS_PUBLIC_KEY } from '../../authentication/decorators/public.decorator';
+import { SetUserAction } from '../../utils/resolvers/decorators/set-user-action.decorator';
+import { UserActionEnum } from '../../references/enums/user-action.enum';
+import { SetResolverOperation } from '../../utils/resolvers/decorators/set-resolver-operation.decorator';
+import { ResolverOperationEnum } from '../../utils/resolvers/enums/resolver-operation.enum';
+import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
+import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
 
-import { Constructor } from '../../types/constructor.type';
-import { pascalCase, pluralize } from '../../string.util';
-
-import { QueryOptions, defaultQueryOptions } from '../options/query-options';
-import { ResolverOptions } from '../types/options.type';
-import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
-
-import { SetResolverOperation } from './set-resolver-operation.decorator';
-import { SetUserAction } from './set-user-action.decorator';
+import { RelationResolverDecoratorParams } from '../types/relation-resolver-decorator-params.type';
+import { RepositoryStore } from '../services/repository-store.service';
 
 export type RelationPartitionFindOptions = QueryOptions;
 

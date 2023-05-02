@@ -7,11 +7,12 @@ import {
   BaseResolverFactory,
   generateBaseResolverOptions,
 } from '../../utils/resolvers/base-resolver.factory';
-import { WithRelationPartitionCount } from '../../utils/resolvers/decorators/relation-partition-count.decorator';
-import { WithRelationPartitionFind } from '../../utils/resolvers/decorators/relation-partition-find.decorator';
-import { WithRelationResolve } from '../../utils/resolvers/decorators/relation-resolve.decorator';
-import { WithReversedRelationId } from '../../utils/resolvers/decorators/reversed-relation-id.decorator';
-import { WithReversedRelationResolve } from '../../utils/resolvers/decorators/reversed-relation-resolve.decorator';
+
+import { WithRelationPartitionCount } from '../decorators/relation-partition-count.decorator';
+import { WithRelationPartitionFind } from '../decorators/relation-partition-find.decorator';
+import { WithRelationResolve } from '../decorators/relation-resolve.decorator';
+import { WithReversedRelationId } from '../decorators/reversed-relation-id.decorator';
+import { WithReversedRelationResolve } from '../decorators/reversed-relation-resolve.decorator';
 
 export const RelationResolversFactory = () => {
   const result: Provider[] = [];
