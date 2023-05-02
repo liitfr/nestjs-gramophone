@@ -5,7 +5,7 @@ import { UsersService } from '../../users/services/users.service';
 import { User } from '../../users/entities/user.entity';
 
 import { AuthenticationService } from '../services/authentication.service';
-import { LoginInput } from '../dto/login.input';
+import { LoginInput } from '../dtos/login.input';
 import { LocalAuthenticationGuard } from '../guards/local-authentication.guard';
 import { Public } from '../decorators/public.decorator';
 import { LogoutResult } from '../entities/logout-result.entity';

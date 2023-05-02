@@ -5,7 +5,7 @@ import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.fac
 import { User } from '../entities/user.entity';
 import { UsersService } from '../services/users.service';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import { UserInput } from '../dto/user.input';
+import { UserInput } from '../dtos/user.input';
 
 const SimpleUsersResolver = SimpleResolverFactory<User, UsersService>(
   User,
