@@ -27,6 +27,9 @@ import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorato
 import { ResolverOptions } from '../types/options.type';
 import { SimpleFilter } from '../types/simple-filter.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+import { SimplePayload } from '../types/simple-payload.type';
+import { addTrackableData } from '../utils/add-trackable-data.util';
+import { PartialSimpleApiInput } from '../types/simple-api-input.type';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
@@ -34,7 +37,7 @@ import { SetUserAction } from './set-user-action.decorator';
 export type UpdateManyOptions<E extends object> = MutationOptions & {
   Filter: SimpleFilter<E>;
   filterPipes?: Pipe[];
-  Payload: SimpleFilter<E>;
+  Payload: SimplePayload<E>;
   payloadPipes?: Pipe[];
 };
 
@@ -44,7 +47,6 @@ export function WithUpdateMany<E extends object>({
   PartialInput,
   entityDescription,
   entityTokenDescription,
-  isTrackable,
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
@@ -151,12 +153,17 @@ export function WithUpdateMany<E extends object>({
             ? options.updateMany.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
-        update: InstanceType<typeof Payload>,
+        update: PartialSimpleApiInput<E>,
       ) {
-        return this.simpleService.updateMany(filter, {
-          ...update,
-          ...(isTrackable ? { updatedBy: userId, updatedAt: new Date() } : {}),
-        });
+        const trackableData = {
+          updaterId: userId,
+          updatedAt: new Date(),
+        };
+
+        return this.simpleService.updateMany(
+          filter,
+          addTrackableData({ obj: update, Entity, trackableData }),
+        );
       }
     }
 

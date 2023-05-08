@@ -1,3 +1,3 @@
-import { SimpleInput } from '../../dtos/simple-entity-input.factory';
+import { PartialSimpleApiInput } from './simple-api-input.type';
 
-export type SimplePayload<E extends object> = SimpleInput<E>;
+export type SimplePayload<E extends object> = PartialSimpleApiInput<E>;

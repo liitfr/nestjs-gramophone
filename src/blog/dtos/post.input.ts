@@ -17,5 +17,5 @@ class FieldsToAddToPostInput {
 @InputType({ description: 'Post Input' })
 export class PostInput extends SimpleVersionedEntityInputFactory(Post, {
   removeFields: ['chip'],
-  addFields: [FieldsToAddToPostInput],
+  AddFields: [FieldsToAddToPostInput],
 }) {}

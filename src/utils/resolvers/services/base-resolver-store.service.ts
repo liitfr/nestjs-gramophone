@@ -1,12 +1,12 @@
 import { Injectable, Type } from '@nestjs/common';
 
-import { pascalCase, pluralize } from '../string.util';
-import { EntityStore } from '../entities/entity-store.service';
-import { SetEntityMetadata } from '../entities/set-entity-metadata.decorator';
-import { getEntityToken } from '../entities/entity.util';
-import { SSTHandle } from '../types/handle.type';
+import { pascalCase, pluralize } from '../../string.util';
+import { EntityStore } from '../../entities/entity-store.service';
+import { SetEntityMetadata } from '../../entities/set-entity-metadata.decorator';
+import { getEntityToken } from '../../entities/entity.util';
+import { SSTHandle } from '../../types/handle.type';
 
-import { ResolverOptions } from './types/options.type';
+import { ResolverOptions } from '../types/options.type';
 
 type Item<E extends object> = {
   Entity: Type<E>;

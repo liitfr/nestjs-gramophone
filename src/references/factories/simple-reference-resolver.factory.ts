@@ -2,7 +2,7 @@ import { Type, UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
 
 import { ResolverOptions } from '../../utils/resolvers/types/options.type';
-import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
+import { SimpleResolverFactory } from '../../utils/resolvers/factories/simple-resolver.factory';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { ServiceStore } from '../../utils/services/service-store.service';
@@ -10,7 +10,7 @@ import { CheckPolicies } from '../../authorization/decorators/check-policies.dec
 import { AppAbility } from '../../authorization/factories/casl-ability.factory';
 import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
 import { SimpleServiceObj } from '../../utils/services/simple-service.factory';
-import { SimpleInput } from '../../utils/dtos/simple-entity-input.factory';
+import { SimpleApiInput } from '../../utils/resolvers/types/simple-api-input.type';
 
 import { UserActionEnum } from '../enums/user-action.enum';
 
@@ -32,7 +32,7 @@ export function SimpleReferenceResolverFactory<
   S extends SimpleServiceObj<R>,
 >(
   Reference: Type<R>,
-  Input: SimpleInput<R>,
+  Input: SimpleApiInput<R>,
   Service: Type<S>,
   pOptions: ReferenceOptions<R> = defaultOptions,
 ) {

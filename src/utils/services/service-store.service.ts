@@ -73,7 +73,9 @@ export class ServiceStore {
   ): ServiceMetadata<S> {
     const result = ServiceStore.uncertainGet(service);
     if (!result) {
-      throw new Error('Service not found in ServiceStore.');
+      throw new Error(
+        `Service ${service.toString()} not found in ServiceStore.`,
+      );
     }
     return result;
   }

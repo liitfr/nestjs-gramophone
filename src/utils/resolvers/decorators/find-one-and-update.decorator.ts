@@ -28,6 +28,8 @@ import { ResolverOptions } from '../types/options.type';
 import { SimpleFilter } from '../types/simple-filter.type';
 import { SimplePayload } from '../types/simple-payload.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+import { addTrackableData } from '../utils/add-trackable-data.util';
+import { PartialSimpleApiInput } from '../types/simple-api-input.type';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
@@ -45,7 +47,6 @@ export function WithFindOneAndUpdate<E extends object>({
   PartialInput,
   entityDescription,
   entityTokenDescription,
-  isTrackable,
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
@@ -153,12 +154,17 @@ export function WithFindOneAndUpdate<E extends object>({
             ? options.findOneAndUpdate.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
-        update: InstanceType<typeof Payload>,
+        update: PartialSimpleApiInput<E>,
       ) {
-        return this.simpleService.findOneAndUpdate(filter, {
-          ...update,
-          ...(isTrackable ? { updatedBy: userId, updatedAt: new Date() } : {}),
-        });
+        const trackableData = {
+          updaterId: userId,
+          updatedAt: new Date(),
+        };
+
+        return this.simpleService.findOneAndUpdate(
+          filter,
+          addTrackableData({ obj: update, Entity, trackableData }),
+        );
       }
     }
 

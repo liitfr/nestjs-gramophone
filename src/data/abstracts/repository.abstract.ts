@@ -2,6 +2,8 @@
 import { Injectable, Optional } from '@nestjs/common';
 
 import { Id } from '../../utils/types/id.type';
+import { SimpleRepositoryInputObj } from '../../utils/resolvers/types/simple-repository-input.type';
+import { SimpleRepositoryOutputObj } from '../../utils/resolvers/types/simple-repository-output.type';
 
 import {
   CreatedModel,
@@ -10,61 +12,69 @@ import {
 } from './operations.abstract';
 
 @Injectable()
-export abstract class Repository<D> {
+export abstract class Repository<D extends object> {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(@Optional() readonly model?: any) {
     throw new Error('Not implemented');
   }
 
   public create(
-    _doc: Partial<D>,
+    _doc: SimpleRepositoryInputObj<D>,
     _saveOptions?: unknown,
-  ): Promise<CreatedModel | D> {
+  ): Promise<CreatedModel | SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
   public createMany(
-    _docs: Partial<D>[],
+    _docs: SimpleRepositoryInputObj<D>[],
     _insertManyOptions?: unknown,
-  ): Promise<CreatedModel[] | D[]> {
+  ): Promise<CreatedModel[] | SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFind(_filter: Partial<D>, _options?: unknown): Promise<D[]> {
+  public uncertainFind(
+    _filter: object,
+    _options?: unknown,
+  ): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public find(_filter: object, _options?: unknown): Promise<D[]> {
+  public find(
+    _filter: object,
+    _options?: unknown,
+  ): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFindById(_id: Id): Promise<D | null> {
+  public uncertainFindById(
+    _id: Id,
+  ): Promise<SimpleRepositoryOutputObj<D> | null> {
     throw new Error('Not implemented');
   }
 
-  public findById(_id: Id): Promise<D> {
+  public findById(_id: Id): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
-  public findAll(): Promise<D[]> {
+  public findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public remove(_filter: Partial<D>): Promise<RemovedModel> {
+  public remove(_filter: object): Promise<RemovedModel> {
     throw new Error('Not implemented');
   }
 
   public updateOne(
-    _filter: Partial<D>,
-    _update: Partial<D>,
+    _filter: object,
+    _update: object,
     _options?: unknown,
   ): Promise<UpdatedModel> {
     throw new Error('Not implemented');
   }
 
   public updateMany(
-    _filter: Partial<D>,
-    _update: Partial<D>,
+    _filter: object,
+    _update: object,
     _options?: unknown,
   ): Promise<UpdatedModel> {
     throw new Error('Not implemented');
@@ -74,7 +84,7 @@ export abstract class Repository<D> {
     _filter: object,
     _udpate: object,
     _options?: unknown,
-  ): Promise<D | null> {
+  ): Promise<SimpleRepositoryOutputObj<D> | null> {
     throw new Error('Not implemented');
   }
 
@@ -82,7 +92,7 @@ export abstract class Repository<D> {
     _filter: object,
     _udpate: object,
     _options?: unknown,
-  ): Promise<D> {
+  ): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
@@ -90,7 +100,7 @@ export abstract class Repository<D> {
     throw new Error('Not implemented');
   }
 
-  public count(_filter: Partial<D>, _options?: unknown): Promise<number> {
+  public count(_filter: object, _options?: unknown): Promise<number> {
     throw new Error('Not implemented');
   }
 }

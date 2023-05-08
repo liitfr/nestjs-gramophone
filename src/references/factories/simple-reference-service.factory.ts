@@ -14,22 +14,33 @@ import { ReferencesService } from '../services/references.service';
 import { ISimpleReference } from '../decorators/simple-reference.decorator';
 import { Repository } from '../../data/abstracts/repository.abstract';
 
-type SimpleReferenceServiceObj<D> = SimpleServiceObj<D> & {
+type SimpleReferenceServiceObj<
+  D extends object,
+  E extends Record<string, string>,
+> = SimpleServiceObj<D> & {
   referencesService: ReferencesService;
   findAllForAVersion: (requestedVersion?: number) => Promise<D[]>;
   findAllActive: () => Promise<D[]>;
+} & {
+  [K in keyof E as `find${Capitalize<K & string>}`]: () => Promise<D>;
 };
 
-type SimpleReferenceService<D> = Type<SimpleReferenceServiceObj<D>>;
+type SimpleReferenceService<
+  D extends object,
+  E extends Record<string, string>,
+> = Type<SimpleReferenceServiceObj<D, E>>;
 
-interface Return<R> {
-  Service: SimpleReferenceService<R>;
+interface Return<R extends object, E extends Record<string, string>> {
+  Service: SimpleReferenceService<R, E>;
   serviceToken: symbol;
 }
 
-export const SimpleReferenceServiceFactory = <R extends ISimpleReference>(
+export const SimpleReferenceServiceFactory = <
+  R extends ISimpleReference,
+  E extends Record<string, string>,
+>(
   Reference: Type<R>,
-): Return<R> => {
+): Return<R, E> => {
   const entityMetadata = EntityStore.get(Reference);
 
   const { entityToken, entityDescription, EntityPartition, entityPartitioner } =
@@ -152,7 +163,7 @@ export const SimpleReferenceServiceFactory = <R extends ISimpleReference>(
   })(Reference);
 
   return {
-    Service: SimpleReferenceService,
+    Service: SimpleReferenceService as Type<SimpleReferenceServiceObj<R, E>>,
     serviceToken,
   };
 };

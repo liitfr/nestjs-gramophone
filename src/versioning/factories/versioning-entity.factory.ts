@@ -16,20 +16,22 @@ import { CreateRepository } from '../../data/decorators/create-repository.decora
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { SetEntityToken } from '../../utils/entities/set-entity-token.decorator';
+import { SimpleRepositoryOutputObj } from '../../utils/resolvers/types/simple-repository-output.type';
 
 import { versioningServices } from '../decorators/versioned.decorator';
 import { VersionDataInput } from '../dtos/version-data.input';
 
-export interface IVersioningEntity<E extends Trackable>
-  extends Trackable,
-    Idable,
+interface IdableAndTrackable extends Trackable, Idable {}
+
+export interface IVersioningEntity<E extends IdableAndTrackable>
+  extends IdableAndTrackable,
     Memoable,
     VersionDataInput {
   originalId: Id;
-  version: HydratedDocument<E>;
+  version: SimpleRepositoryOutputObj<E>;
 }
 
-export function VersioningEntityFactory<E extends Trackable>(
+export function VersioningEntityFactory<E extends IdableAndTrackable>(
   Entity: Type<E>,
 ): Type<IVersioningEntity<E>> {
   const originalMetadata = EntityStore.get(Entity);
@@ -100,7 +102,7 @@ export function VersioningEntityFactory<E extends Trackable>(
     entityDescription: versioningEntityDescription,
     entityServiceToken: versioningEntityServiceToken,
   })
-  @SimpleEntity({ isIdable: true, isTrackable: true, isMemoable: true })
+  @SimpleEntity({ isTrackable: true, isMemoable: true })
   // set metadata before simple entity decorator
   @SetEntityMetadata({
     entityToken: versioningEntityToken,

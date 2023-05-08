@@ -1,6 +1,6 @@
 import { Resolver } from '@nestjs/graphql';
 
-import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
+import { SimpleResolverFactory } from 'src/utils/resolvers/factories/simple-resolver.factory';
 
 import { Author } from '../entities/author.entity';
 import { AuthorInput } from '../dtos/author.input';

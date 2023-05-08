@@ -2,11 +2,11 @@ import { Logger, Provider } from '@nestjs/common';
 import { Resolver } from '@nestjs/graphql';
 
 import { EntityStore } from '../../utils/entities/entity-store.service';
-import { BaseResolverStore } from '../../utils/resolvers/base-resolver-store.service';
+import { BaseResolverStore } from '../../utils/resolvers/services/base-resolver-store.service';
 import {
   BaseResolverFactory,
   generateBaseResolverOptions,
-} from '../../utils/resolvers/base-resolver.factory';
+} from '../../utils/resolvers/factories/base-resolver.factory';
 
 import { WithRelationPartitionCount } from '../decorators/relation-partition-count.decorator';
 import { WithRelationPartitionFind } from '../decorators/relation-partition-find.decorator';

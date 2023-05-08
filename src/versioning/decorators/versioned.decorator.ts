@@ -1,6 +1,7 @@
 import { Inject, Injectable, Type } from '@nestjs/common';
 
 import {
+  Idable,
   Trackable,
   checkIfIsTrackable,
 } from '../../utils/entities/simple-entity.decorator';
@@ -10,13 +11,15 @@ import { Constructor } from '../../utils/types/constructor.type';
 
 import { VersioningService } from '../services/versioning.service';
 
+interface IdableAndTrackable extends Trackable, Idable {}
+
 export const versioningServices: {
-  VersionedEntity: Type<Trackable>;
+  VersionedEntity: Type<IdableAndTrackable>;
   versionedServiceToken: symbol;
   versioningServiceToken: symbol;
 }[] = [];
 
-export function registerVersioningService<E extends Trackable>(
+export function registerVersioningService<E extends IdableAndTrackable>(
   VersionedEntity: Type<E>,
   versionedServiceToken: symbol,
 ) {
@@ -43,7 +46,9 @@ export function registerVersioningService<E extends Trackable>(
   return newVersioningService;
 }
 
-export function Versioned<E extends Trackable>(VersionedEntity: Type<E>) {
+export function Versioned<E extends IdableAndTrackable>(
+  VersionedEntity: Type<E>,
+) {
   const { entityToken } = EntityStore.get(VersionedEntity);
 
   if (!checkIfIsTrackable(VersionedEntity)) {

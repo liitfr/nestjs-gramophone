@@ -21,10 +21,10 @@ const IS_MEMOABLE = 'isMemoable';
 const IS_TRACKABLE = 'isTrackable';
 
 export function SimpleEntity(
-  { isTrackable = false, isMemoable = false, isIdable = false }: Options = {
+  { isTrackable = false, isMemoable = false, isIdable = true }: Options = {
     isTrackable: false,
     isMemoable: false,
-    isIdable: false,
+    isIdable: true,
   },
 ) {
   return <T extends Constructor>(constructor: T) => {
@@ -167,8 +167,8 @@ export function SimpleEntity(
 }
 
 export interface Trackable {
-  creatorId: string;
-  updaterId: string;
+  creatorId: Id;
+  updaterId: Id;
   createdAt: Date;
   updatedAt: Date;
 }

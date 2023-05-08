@@ -1,6 +1,6 @@
 import { Query, Resolver } from '@nestjs/graphql';
 
-import { SimpleResolverFactory } from '../../utils/resolvers/simple-resolver.factory';
+import { SimpleResolverFactory } from '../../utils/resolvers/factories/simple-resolver.factory';
 
 import { User } from '../entities/user.entity';
 import { UsersService } from '../services/users.service';

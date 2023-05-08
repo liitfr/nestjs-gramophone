@@ -2,15 +2,14 @@ import { Type } from '@nestjs/common';
 
 import { EntityRelation } from '../../../data/utils/relation.util';
 
-import { SimpleInput } from '../../dtos/simple-entity-input.factory';
-
 import { ResolverOptions } from './options.type';
+import { PartialSimpleApiInput, SimpleApiInput } from './simple-api-input.type';
 
 export type SimpleResolverDecoratorParams<E extends object> = {
   Entity: Type<E>;
   options: ResolverOptions<E>;
-  Input: Type<unknown>;
-  PartialInput: SimpleInput<unknown>;
+  Input: SimpleApiInput<E>;
+  PartialInput: PartialSimpleApiInput<E>;
   entityDescription: string;
   entityToken: symbol;
   entityTokenDescription: string;

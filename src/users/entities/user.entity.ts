@@ -17,7 +17,7 @@ import { Relation } from '../../data/decorators/relation.decorator';
 @CreateRepository<MongooseSchema>({
   SchemaTransformer: (Schema) => Schema.index({ email: 1 }, { unique: true }),
 })
-@SimpleEntity({ isIdable: true, isTrackable: true })
+@SimpleEntity({ isTrackable: true })
 export class User {
   @Field(() => String, {
     nullable: false,

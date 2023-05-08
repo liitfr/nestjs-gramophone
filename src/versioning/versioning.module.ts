@@ -5,12 +5,13 @@ import { VersioningProvidersFactory } from './factories/versioning-providers.fac
 @Module({})
 export class VersioningModule {
   static forRoot(): DynamicModule {
-    const providers = VersioningProvidersFactory();
+    const { serviceProviders, resolverProviders } =
+      VersioningProvidersFactory();
 
     return {
       module: VersioningModule,
-      providers,
-      exports: providers,
+      providers: [...serviceProviders, ...resolverProviders],
+      exports: serviceProviders,
     };
   }
 }

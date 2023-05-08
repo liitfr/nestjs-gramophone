@@ -1,3 +1,5 @@
+import { Id } from '../../utils/types/id.type';
+
 export type UpdatedModel = {
   matchedCount: number;
   modifiedCount: number;
@@ -12,6 +14,6 @@ export type RemovedModel = {
 };
 
 export type CreatedModel = {
-  id: unknown;
+  _id: Id;
   created: boolean;
 };

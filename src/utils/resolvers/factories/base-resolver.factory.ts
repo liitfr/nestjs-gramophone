@@ -8,13 +8,13 @@ import {
 } from '@nestjs/common';
 import { Resolver } from '@nestjs/graphql';
 
-import { IS_PUBLIC_KEY } from '../../authentication/decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorator';
 
-import { EntityStore } from '../entities/entity-store.service';
+import { EntityStore } from '../../entities/entity-store.service';
 
-import { getDefaultGeneralOptions } from './options/general-options';
-import { ResolverOptions } from './types/options.type';
-import { BaseResolverStore } from './base-resolver-store.service';
+import { getDefaultGeneralOptions } from '../options/general-options';
+import { ResolverOptions } from '../types/options.type';
+import { BaseResolverStore } from '../services/base-resolver-store.service';
 
 export function generateBaseResolverOptions<E extends object>(
   Entity: Type<E>,

@@ -12,10 +12,18 @@ import { VERSION_DATA_FIELDNAME } from '../decorators/save-version-if-enabled.de
 
 import { VersionDataInput } from '../dtos/version-data.input';
 
-export function SimpleVersionedEntityInputFactory<E extends object>(
-  Entity: Type<E>,
-  options?: SimpleEntityInputFactoryOptions<E>,
-): SimpleInput<E> {
+export interface IWithVersionDataInput {
+  [VERSION_DATA_FIELDNAME]?: VersionDataInput;
+}
+
+export function SimpleVersionedEntityInputFactory<
+  TEntity extends object,
+  TRemove extends readonly (keyof TEntity)[] = [],
+  TAdd extends Array<Type> = [],
+>(
+  Entity: Type<TEntity>,
+  options?: SimpleEntityInputFactoryOptions<TEntity, TRemove, TAdd>,
+): SimpleInput<TEntity, TRemove, [...TAdd, Type<IWithVersionDataInput>]> {
   const { entityToken, entityDescription } = EntityStore.get(Entity);
 
   Logger.verbose(
@@ -24,7 +32,7 @@ export function SimpleVersionedEntityInputFactory<E extends object>(
   );
 
   @InputType()
-  class WithVersionDataInput {
+  class WithVersionDataInput implements IWithVersionDataInput {
     @Field(() => VersionDataInput, {
       nullable: true,
       description: `${entityDescription}'s version data`,

@@ -21,8 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@apollo/server": "^4.7.0",
-    "@casl/ability": "^6.4.0",
+    "@apollo/server": "^4.7.1",
+    "@casl/ability": "^6.5.0",
     "@nestjs/apollo": "^11.0.5",
     "@nestjs/common": "^9.4.0",
     "@nestjs/core": "^9.4.0",
@@ -36,12 +36,13 @@
     "class-validator": "^0.14.0",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
-    "mongoose": "^7.0.5",
+    "mongoose": "^7.1.0",
     "nj-request-scope": "^1.0.8",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.1",
+    "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.4.2",
@@ -52,9 +53,9 @@
     "@types/lodash": "^4.14.194",
     "@types/node": "18.11.18",
     "@types/supertest": "^2.0.12",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.39.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.2",
+    "@typescript-eslint/parser": "^5.59.2",
+    "eslint": "^8.40.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "29.3.1",

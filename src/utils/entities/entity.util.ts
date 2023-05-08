@@ -6,6 +6,7 @@ import { EntityNested } from '../../data/utils/nested.util';
 
 import { pascalCase, splitPascalWithSpaces } from '../string.util';
 import { Constructor } from '../types/constructor.type';
+import { STHandle } from '../types/handle.type';
 
 import { EntityStore } from './entity-store.service';
 import { SetEntityToken } from './set-entity-token.decorator';
@@ -30,7 +31,7 @@ export interface EntityMetadata<E extends object = object> {
 
 export const enhancerCheckerFactory =
   <E extends object>(enhancerName: string) =>
-  (Entity: Type<object>): Entity is Type<E> => {
+  (Entity: STHandle<object>): Entity is Type<E> => {
     const entityMetadata = EntityStore.get(Entity);
 
     const { entityEnhancers } = entityMetadata ?? { entityEnhancers: [] };

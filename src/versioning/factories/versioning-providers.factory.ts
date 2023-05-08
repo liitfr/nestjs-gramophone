@@ -53,5 +53,5 @@ export const VersioningProvidersFactory = () => {
     resolverProviders.push(resolver);
   }
 
-  return [...serviceProviders, ...resolverProviders];
+  return { serviceProviders, resolverProviders };
 };

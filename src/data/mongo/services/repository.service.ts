@@ -13,6 +13,8 @@ import { Document } from 'mongoose';
 
 import { Id } from '../../../utils/types/id.type';
 import { CustomError, ErrorCode } from '../../../utils/errors/custom.error';
+import { SimpleRepositoryInputObj } from '../../../utils/resolvers/types/simple-repository-input.type';
+import { SimpleRepositoryOutputObj } from '../../../utils/resolvers/types/simple-repository-output.type';
 
 import {
   CreatedModel,
@@ -48,9 +50,9 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   }
 
   async create(
-    doc: Partial<D>,
+    doc: SimpleRepositoryInputObj<D>,
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
-  ): Promise<CreatedModel | D> {
+  ): Promise<CreatedModel | SimpleRepositoryOutputObj<D>> {
     const model = this.getModel();
     const createdEntity = new model(doc);
     const savedResult = await createdEntity.save({
@@ -59,12 +61,12 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     });
 
     return saveOptions?.returnOnlyId
-      ? { id: savedResult._id, created: !!savedResult._id }
+      ? { _id: savedResult._id as Id, created: !!savedResult._id }
       : savedResult;
   }
 
   async createMany(
-    docs: Partial<D>[],
+    docs: SimpleRepositoryInputObj<D>[],
     insertManyOptions?: InsertManyOptions,
   ): Promise<CreatedModel[]> {
     const model = this.getModel();
@@ -74,7 +76,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     });
 
     return createdEntities.map((entity) => ({
-      id: entity._id,
+      _id: entity._id as Id,
       created: !!entity._id,
     }));
   }
@@ -82,18 +84,23 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   async uncertainFind(
     filter: FilterQuery<D>,
     options?: QueryOptions<D>,
-  ): Promise<D[]> {
+  ): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
 
     return model.find(filter, null, options).session(this.dbSession.get());
   }
 
-  async find(filter: FilterQuery<D>, options?: QueryOptions<D>): Promise<D[]> {
+  async find(
+    filter: FilterQuery<D>,
+    options?: QueryOptions<D>,
+  ): Promise<SimpleRepositoryOutputObj<D>[]> {
     const result = await this.uncertainFind(filter, options);
 
     if (!result || result.length === 0) {
       throw new CustomError(
-        'No result with these filters.',
+        `No result when querying ${
+          this.model?.modelName
+        } model with following filters : ${JSON.stringify(filter)}`,
         ErrorCode.NOT_FOUND,
         {
           fr: 'Aucun résultat ne correspond à votre recherche. Veuillez réessayer.',
@@ -101,7 +108,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'find',
-          model: this.getModel().name,
+          model: this.getModel().modelName,
           filter,
           options,
         },
@@ -114,13 +121,16 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   async uncertainFindById(
     id: Id,
     options?: QueryOptions<D>,
-  ): Promise<D | null> {
+  ): Promise<SimpleRepositoryOutputObj<D> | null> {
     const model = this.getModel();
 
     return model.findById(id, null, options).session(this.dbSession.get());
   }
 
-  async findById(id: Id, options?: QueryOptions<D>): Promise<D> {
+  async findById(
+    id: Id,
+    options?: QueryOptions<D>,
+  ): Promise<SimpleRepositoryOutputObj<D>> {
     const result = await this.uncertainFindById(id, options);
 
     if (!result) {
@@ -133,7 +143,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'findById',
-          model: this.getModel().name,
+          model: this.getModel().modelName,
           options,
         },
       );
@@ -142,7 +152,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return result;
   }
 
-  async findAll(): Promise<D[]> {
+  async findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
     return model.find().session(this.dbSession.get());
   }
@@ -181,7 +191,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     filter: FilterQuery<D>,
     update: UpdateQuery<D>,
     options?: QueryOptions<D>,
-  ): Promise<D | null> {
+  ): Promise<SimpleRepositoryOutputObj<D> | null> {
     const model = this.getModel();
 
     return model.findOneAndUpdate(filter, update, {
@@ -194,7 +204,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     filter: FilterQuery<D>,
     update: UpdateQuery<D>,
     options?: QueryOptions<D>,
-  ): Promise<D> {
+  ): Promise<SimpleRepositoryOutputObj<D>> {
     const result = await this.uncertainFindOneAndUpdate(
       filter,
       update,
@@ -211,7 +221,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
         {
           service: 'repository',
           method: 'findOneAndUpdate',
-          model: this.getModel().name,
+          model: this.getModel().modelName,
           options,
         },
       );

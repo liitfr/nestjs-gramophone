@@ -1,5 +1,6 @@
 import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
 import { Logger, Type } from '@nestjs/common';
+import { Object } from 'ts-toolbelt';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../types/id.type';
@@ -10,31 +11,54 @@ import {
   checkIfIsTrackable,
 } from '../entities/simple-entity.decorator';
 import { EntityStore } from '../entities/entity-store.service';
+import { OmitFieldArray } from '../types/omit-field-array.type';
+import { OptionalIds } from '../types/optional-ids.type';
+import { MergeClassesToObject } from '../types/merge-classes-to-object.type';
 
-interface Options<E> {
-  isIdMandatory?: boolean;
-  removeTrackable?: boolean;
-  removeFields?: readonly (keyof E)[];
-  addFields?: Type<unknown>[];
+interface Options<
+  TEntity extends object,
+  TRemove extends readonly (keyof TEntity)[] = [],
+  TAdd extends readonly Type[] = [],
+> {
+  removeFields?: TRemove;
+  AddFields?: TAdd;
 }
+
+type IdableDependingInput<
+  TEntity extends object,
+  TRemove extends readonly (keyof TEntity)[] = [],
+> = TEntity extends Idable
+  ? OptionalIds<OmitFieldArray<TEntity, TRemove>>
+  : OmitFieldArray<TEntity, TRemove>;
+
+type TrackableDependingInput<
+  TEntity extends object,
+  TRemove extends readonly (keyof TEntity)[] = [],
+> = TEntity extends Trackable
+  ? Object.Omit<IdableDependingInput<TEntity, TRemove>, keyof Trackable>
+  : IdableDependingInput<TEntity, TRemove>;
+
+export type SimpleInput<
+  TEntity extends object,
+  TRemove extends readonly (keyof TEntity)[],
+  TAdd extends Array<Type>,
+> = Type<
+  Object.Merge<
+    TrackableDependingInput<TEntity, TRemove>,
+    MergeClassesToObject<TAdd>
+  >
+>;
 
 export { Options as SimpleEntityInputFactoryOptions };
 
-// BUG : fix typing that is brut force casted to Partial<E>
-export type SimpleInput<E> = Type<Partial<E>>;
-
-export function SimpleEntityInputFactory<E extends object>(
-  Entity: Type<E>,
-  {
-    isIdMandatory = false,
-    removeTrackable = true,
-    removeFields,
-    addFields,
-  }: Options<E> = {
-    isIdMandatory: false,
-    removeTrackable: true,
-  },
-): SimpleInput<E> {
+export function SimpleEntityInputFactory<
+  TEntity extends object,
+  TRemove extends readonly (keyof TEntity)[] = [],
+  TAdd extends Array<Type> = [],
+>(
+  Entity: Type<TEntity>,
+  options: Options<TEntity, TRemove, TAdd> = {},
+): SimpleInput<TEntity, TRemove, TAdd> {
   const entityMetadata = EntityStore.get(Entity);
 
   const { entityToken, entityDescription } = entityMetadata;
@@ -53,38 +77,38 @@ export function SimpleEntityInputFactory<E extends object>(
     readonly _id?: Id;
   }
 
-  let Result: SimpleInput<E> = OmitType(Entity, [] as const);
+  let Result = Entity as Type;
 
-  if (removeFields) {
-    Result = OmitType(Result, removeFields) as SimpleInput<E>;
+  if (options?.removeFields && options.removeFields.length > 0) {
+    Result = OmitType(Result, options.removeFields) as Type;
   }
 
-  if (!isIdMandatory && checkIfIsIdable(Entity)) {
+  if (checkIfIsIdable(Entity)) {
     Result = OmitType(
       Result as unknown as Type<Idable>,
       ['_id'] as const,
-    ) as SimpleInput<E>;
+    ) as Type;
     Result = IntersectionType(Result, OptionalIdField);
   }
 
-  if (removeTrackable && checkIfIsTrackable(Entity)) {
+  if (checkIfIsTrackable(Entity)) {
     Result = OmitType(
       Result as unknown as Type<Trackable>,
       ['createdAt', 'updatedAt', 'creatorId', 'updaterId'] as const,
-    ) as SimpleInput<E>;
+    ) as Type;
   }
 
-  Result = OmitType(Result, [], InputType) as SimpleInput<E>;
+  Result = OmitType(Result, [], InputType) as Type;
 
-  if (!isIdMandatory && checkIfIsIdable(Entity)) {
+  if (checkIfIsIdable(Entity)) {
     Result = IntersectionType(Result, OptionalIdField);
   }
 
-  if (addFields) {
-    addFields.forEach((field) => {
+  if (options?.AddFields && options.AddFields.length > 0) {
+    options.AddFields.forEach((field: Type) => {
       Result = IntersectionType(Result, field);
     });
   }
 
-  return Result;
+  return Result as SimpleInput<TEntity, TRemove, TAdd>;
 }

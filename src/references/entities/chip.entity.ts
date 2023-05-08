@@ -8,7 +8,7 @@ import { IconEnum } from '../enums/icon.enum';
 
 @ObjectType({ description: 'Chip' })
 @Schema()
-@SimpleEntity({ isIdable: true })
+@SimpleEntity()
 export class Chip {
   @Field(() => ColorEnum, {
     nullable: false,

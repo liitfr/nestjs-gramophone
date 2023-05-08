@@ -14,7 +14,6 @@ import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
-import { SimpleInput } from '../../dtos/simple-entity-input.factory';
 import { camelCase, pascalCase } from '../../string.util';
 import { Id } from '../../types/id.type';
 import { Pipe } from '../../types/pipe.type';
@@ -28,6 +27,8 @@ import { SimpleResolver } from '../types/simple-resolver.type';
 import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorator-params.type';
 import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
+import { SimpleApiInputObj } from '../types/simple-api-input.type';
+import { addTrackableData } from '../utils/add-trackable-data.util';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
@@ -43,13 +44,12 @@ export function WithCreate<E extends object>({
   Input,
   entityDescription,
   entityTokenDescription,
-  isTrackable,
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
     create: {
       ...defaultMutationOptions,
-      Payload: Input as SimpleInput<E>, // Bug: how to link simple input & simple entity ?
+      Payload: Input,
       ...pOptions.create,
     },
   };
@@ -137,19 +137,18 @@ export function WithCreate<E extends object>({
             ? options.create.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
-        doc: InstanceType<typeof Payload>,
+        doc: SimpleApiInputObj<E>,
       ) {
-        return this.simpleService.create({
-          ...doc,
-          ...(isTrackable
-            ? {
-                creatorId: userId,
-                createdAt: new Date(),
-                updaterId: userId,
-                updatedAt: new Date(),
-              }
-            : {}),
-        });
+        const trackableData = {
+          creatorId: userId,
+          createdAt: new Date(),
+          updaterId: userId,
+          updatedAt: new Date(),
+        };
+
+        return this.simpleService.create(
+          addTrackableData({ obj: doc, Entity, trackableData }),
+        );
       }
     }
 

@@ -111,7 +111,7 @@ export function SimpleReference(
       })(constructor.prototype, 'chip');
     }
 
-    SimpleEntity({ isIdable: true })(constructor);
+    SimpleEntity()(constructor);
 
     const { entityToken } = EntityStore.get(constructor);
 
