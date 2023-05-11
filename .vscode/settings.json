@@ -1,3 +1,28 @@
 {
-  "workbench.colorTheme": "Default High Contrast"
+  "workbench.colorTheme": "Default High Contrast",
+  "git.enableCommitSigning": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "XXX",
+    "[ ]",
+    "[x]",
+    "CHANGED",
+    "IDEA",
+    "NOTE",
+    "REVIEW",
+    "NB",
+    "QUESTION",
+    "COMBAK",
+    "TEMP",
+    "DEBUG",
+    "OPTIMIZE",
+    "WARNING",
+    "MHO"
+  ],
+  "editor.stickyScroll.enabled": true
 }
