@@ -2,7 +2,7 @@ import { Type } from '@nestjs/common';
 
 import { splitPascalWithSpaces } from '../../string.util';
 
-export const RESOLVER_METADATA = Symbol('resolverMetadata');
+export const RESOLVER_METADATA: unique symbol = Symbol('resolverMetadata');
 
 export interface ResolverMetadata {
   resolverName?: string;

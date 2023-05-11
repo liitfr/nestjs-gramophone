@@ -34,7 +34,7 @@ export function SimpleReference(
   },
 ) {
   return <T extends Constructor>(constructor: T) => {
-    const defaultToken = Symbol(constructor.name);
+    const defaultToken: unique symbol = Symbol(constructor.name);
 
     const originalEntityMetadata = initEntityMetadata(
       constructor,

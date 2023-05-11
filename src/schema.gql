@@ -417,7 +417,7 @@ input PostInput {
   """
   Post's chip
   """
-  chip: [ChipInput!]
+  chip: ChipInput
 
   """
   Post's color id
@@ -474,7 +474,7 @@ input PostPartialInput {
   """
   Post's chip
   """
-  chip: [ChipInput!]
+  chip: ChipInput
 
   """
   Post's color id

@@ -4,14 +4,9 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { Id } from '../../utils/types/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
-import {
-  Idable,
-  Trackable,
-} from '../../utils/entities/simple-entity.decorator';
 
 import { VersioningService } from '../services/versioning.service';
-
-interface IdableAndTrackable extends Trackable, Idable {}
+import { IdableAndTrackable } from '../types/idable-and-trackable.type';
 
 export function VersioningResolverFactory<E extends IdableAndTrackable>(
   EntityVersion: Type<E>,

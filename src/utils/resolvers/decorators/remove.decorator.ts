@@ -29,8 +29,8 @@ import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type RemoveOptions<E extends object> = MutationOptions & {
-  Filter: SimpleFilter<E>;
-  filterPipes?: Pipe[];
+  Filter?: SimpleFilter<E>;
+  filterPipes?: readonly Pipe[];
 };
 
 export function WithRemove<E extends object>({
@@ -42,12 +42,15 @@ export function WithRemove<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    remove: {
-      ...defaultMutationOptions,
-      enable: false,
-      Filter: PartialInput,
-      ...pOptions.remove,
-    },
+    remove:
+      pOptions.remove === false
+        ? false
+        : {
+            ...defaultMutationOptions,
+            enable: false,
+            Filter: PartialInput,
+            ...pOptions.remove,
+          },
   };
 
   const checkPolicies =
@@ -69,7 +72,7 @@ export function WithRemove<E extends object>({
       return constructor;
     }
 
-    const Filter = options.remove.Filter;
+    const Filter = options.remove.Filter ?? PartialInput;
 
     class ResolverWithRemove extends constructor {
       @UseGuards(

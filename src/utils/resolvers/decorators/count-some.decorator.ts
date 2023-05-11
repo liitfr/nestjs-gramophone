@@ -26,8 +26,8 @@ import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type CountSomeOptions<E extends object> = QueryOptions & {
-  Filter: SimpleFilter<E>;
-  filterPipes?: Pipe[];
+  Filter?: SimpleFilter<E>;
+  filterPipes?: readonly Pipe[];
 };
 
 export function WithCountSome<E extends object>({
@@ -38,11 +38,13 @@ export function WithCountSome<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    countSome: {
-      ...defaultQueryOptions,
-      Filter: PartialInput,
-      ...pOptions.countSome,
-    },
+    countSome:
+      pOptions.countSome === false
+        ? false
+        : {
+            ...defaultQueryOptions,
+            ...pOptions.countSome,
+          },
   };
 
   const checkPolicies =
@@ -64,7 +66,7 @@ export function WithCountSome<E extends object>({
       return constructor;
     }
 
-    const Filter = options.countSome.Filter;
+    const Filter = options.countSome.Filter ?? PartialInput;
 
     class ResolverWithCountSome extends constructor {
       @UseGuards(

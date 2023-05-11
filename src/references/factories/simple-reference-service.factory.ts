@@ -149,7 +149,7 @@ export const SimpleReferenceServiceFactory = <
     });
   });
 
-  const serviceToken = Symbol(
+  const serviceToken: unique symbol = Symbol(
     `${pluralize(pascalCase(entityTokenDescription))}Service`,
   );
 

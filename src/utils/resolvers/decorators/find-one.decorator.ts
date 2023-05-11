@@ -27,7 +27,7 @@ import { SetUserAction } from './set-user-action.decorator';
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 
 export type FindOneOptions = QueryOptions & {
-  filterPipes?: Pipe[];
+  filterPipes?: readonly Pipe[];
 };
 
 export function WithFindOne<E extends object>({
@@ -38,10 +38,13 @@ export function WithFindOne<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    findOne: {
-      ...defaultQueryOptions,
-      ...pOptions.findOne,
-    },
+    findOne:
+      pOptions.findOne === false
+        ? false
+        : {
+            ...defaultQueryOptions,
+            ...pOptions.findOne,
+          },
   };
 
   const checkPolicies =

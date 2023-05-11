@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 
-export const SERVICE_METADATA = Symbol('serviceMetadata');
+export const SERVICE_METADATA: unique symbol = Symbol('serviceMetadata');
 
 export interface ServiceMetadata<S extends object> {
   Service: Type<S>;

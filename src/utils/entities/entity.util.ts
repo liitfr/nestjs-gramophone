@@ -12,7 +12,7 @@ import { EntityStore } from './entity-store.service';
 import { SetEntityToken } from './set-entity-token.decorator';
 import { SetEntityMetadata } from './set-entity-metadata.decorator';
 
-export const ENTITY_METADATA = Symbol('entityMetadata');
+export const ENTITY_METADATA: unique symbol = Symbol('entityMetadata');
 
 export interface EntityMetadata<E extends object = object> {
   Entity: Type<E>;

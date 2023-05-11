@@ -149,7 +149,7 @@ export function SimpleEntity(
       );
     }
 
-    const entityServiceToken = Symbol(
+    const entityServiceToken: unique symbol = Symbol(
       `${pluralize(pascalCase(entityTokenDescription))}Service`,
     );
 

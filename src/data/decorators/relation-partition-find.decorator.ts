@@ -35,10 +35,13 @@ export function WithRelationPartitionFind<E extends object>({
 }: RelationResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    relationPartitionFind: {
-      ...defaultQueryOptions,
-      ...pOptions.relationPartitionFind,
-    },
+    relationPartitionFind:
+      pOptions.relationPartitionFind === false
+        ? false
+        : {
+            ...defaultQueryOptions,
+            ...pOptions.relationPartitionFind,
+          },
   };
 
   const checkPolicies =

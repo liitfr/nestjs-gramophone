@@ -7,10 +7,8 @@ import { IdScalar } from '../../utils/scalars/id.scalar';
 import { generateCollectionName } from '../../utils/string.util';
 import { Id } from '../../utils/types/id.type';
 import {
-  Idable,
   Memoable,
   SimpleEntity,
-  Trackable,
 } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 import { EntityStore } from '../../utils/entities/entity-store.service';
@@ -20,8 +18,7 @@ import { SimpleRepositoryOutputObj } from '../../utils/resolvers/types/simple-re
 
 import { versioningServices } from '../decorators/versioned.decorator';
 import { VersionDataInput } from '../dtos/version-data.input';
-
-interface IdableAndTrackable extends Trackable, Idable {}
+import { IdableAndTrackable } from '../types/idable-and-trackable.type';
 
 export interface IVersioningEntity<E extends IdableAndTrackable>
   extends IdableAndTrackable,
@@ -50,7 +47,7 @@ export function VersioningEntityFactory<E extends IdableAndTrackable>(
     );
   }
 
-  const versioningEntityToken = Symbol(
+  const versioningEntityToken: unique symbol = Symbol(
     `${versionedEntityTokenDescription}Version`,
   );
 

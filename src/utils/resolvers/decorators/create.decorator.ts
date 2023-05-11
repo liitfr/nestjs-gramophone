@@ -34,8 +34,8 @@ import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type CreateOptions<E extends object> = MutationOptions & {
-  Payload: SimplePayload<E>;
-  payloadPipes?: Pipe[];
+  Payload?: SimplePayload<E>;
+  payloadPipes?: readonly Pipe[];
 };
 
 export function WithCreate<E extends object>({
@@ -47,11 +47,13 @@ export function WithCreate<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    create: {
-      ...defaultMutationOptions,
-      Payload: Input,
-      ...pOptions.create,
-    },
+    create:
+      pOptions.create === false
+        ? false
+        : {
+            ...defaultMutationOptions,
+            ...pOptions.create,
+          },
   };
 
   const checkPolicies =
@@ -88,7 +90,7 @@ export function WithCreate<E extends object>({
       return constructor;
     }
 
-    const Payload = options.create.Payload;
+    const Payload = options.create.Payload ?? Input;
 
     class ResolverWithCreate extends constructor {
       @UseGuards(

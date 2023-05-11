@@ -6,7 +6,7 @@ import { SetReferenceToken } from '../decorators/set-reference-token.decorator';
 import { SetReferenceMetadata } from '../decorators/set-reference-metadata.decorator';
 import { ReferenceStore } from '../services/reference-store.service';
 
-export const REFERENCE_METADATA = Symbol('referenceMetadata');
+export const REFERENCE_METADATA: unique symbol = Symbol('referenceMetadata');
 
 export interface ReferenceMetadata {
   Reference: Type<unknown>;

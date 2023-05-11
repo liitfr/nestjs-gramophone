@@ -33,10 +33,13 @@ export function WithFindAll<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    findAll: {
-      ...defaultQueryOptions,
-      ...pOptions.findAll,
-    },
+    findAll:
+      pOptions.findAll === false
+        ? false
+        : {
+            ...defaultQueryOptions,
+            ...pOptions.findAll,
+          },
   };
 
   const checkPolicies =

@@ -32,10 +32,13 @@ export function WithReversedRelationResolve<E extends object>({
 }: ReversedRelationResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    reversedRelationResolve: {
-      ...defaultResolveFieldOptions,
-      ...pOptions.reversedRelationResolve,
-    },
+    reversedRelationResolve:
+      pOptions.reversedRelationResolve === false
+        ? false
+        : {
+            ...defaultResolveFieldOptions,
+            ...pOptions.reversedRelationResolve,
+          },
   };
 
   const checkPolicies =

@@ -29,16 +29,16 @@ import { SimpleFilter } from '../types/simple-filter.type';
 import { SimplePayload } from '../types/simple-payload.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 import { addTrackableData } from '../utils/add-trackable-data.util';
-import { PartialSimpleApiInput } from '../types/simple-api-input.type';
+import { PartialSimpleApiInputObj } from '../types/simple-api-input.type';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type FindOneAndUpdateOptions<E extends object> = MutationOptions & {
-  Filter: SimpleFilter<E>;
-  filterPipes?: Pipe[];
-  Payload: SimplePayload<E>;
-  payloadPipes?: Pipe[];
+  Filter?: SimpleFilter<E>;
+  filterPipes?: readonly Pipe[];
+  Payload?: SimplePayload<E>;
+  payloadPipes?: readonly Pipe[];
 };
 
 export function WithFindOneAndUpdate<E extends object>({
@@ -50,12 +50,15 @@ export function WithFindOneAndUpdate<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    findOneAndUpdate: {
-      ...defaultMutationOptions,
-      Filter: PartialInput,
-      Payload: PartialInput,
-      ...pOptions.findOneAndUpdate,
-    },
+    findOneAndUpdate:
+      pOptions.findOneAndUpdate === false
+        ? false
+        : {
+            ...defaultMutationOptions,
+            Filter: PartialInput,
+            Payload: PartialInput,
+            ...pOptions.findOneAndUpdate,
+          },
   };
 
   const checkPolicies =
@@ -92,8 +95,8 @@ export function WithFindOneAndUpdate<E extends object>({
       return constructor;
     }
 
-    const Filter = options.findOneAndUpdate.Filter;
-    const Payload = options.findOneAndUpdate.Payload;
+    const Filter = options.findOneAndUpdate.Filter ?? PartialInput;
+    const Payload = options.findOneAndUpdate.Payload ?? PartialInput;
 
     class ResolverWithFindOneAndUpdate extends constructor {
       @UseGuards(
@@ -154,7 +157,7 @@ export function WithFindOneAndUpdate<E extends object>({
             ? options.findOneAndUpdate.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
-        update: PartialSimpleApiInput<E>,
+        update: PartialSimpleApiInputObj<E>,
       ) {
         const trackableData = {
           updaterId: userId,
@@ -163,7 +166,7 @@ export function WithFindOneAndUpdate<E extends object>({
 
         return this.simpleService.findOneAndUpdate(
           filter,
-          addTrackableData({ obj: update, Entity, trackableData }),
+          addTrackableData<E>({ obj: update, Entity, trackableData }),
         );
       }
     }

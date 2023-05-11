@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 import { Field, InputType } from '@nestjs/graphql';
-import { Object } from 'ts-toolbelt';
+import { O } from 'ts-toolbelt';
 import { If } from 'ts-toolbelt/out/Any/If'; // https://github.com/millsp/ts-toolbelt/issues/293
 
 import {
@@ -24,7 +24,7 @@ type ReferenceInput<
   TRemove extends readonly (keyof TEntity)[] = [],
   TAdd extends Array<Type> = [],
 > = If<
-  Object.Has<TEntity, 'chip', any, 'contains->'>,
+  O.Has<TEntity, 'chip', any, 'contains->'>,
   SimpleInput<
     TEntity,
     [...TRemove, 'chip'],

@@ -26,8 +26,8 @@ import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type FindSomeOptions<E extends object> = QueryOptions & {
-  Filter: SimpleFilter<E>;
-  filterPipes?: Pipe[];
+  Filter?: SimpleFilter<E>;
+  filterPipes?: readonly Pipe[];
 };
 
 export function WithFindSome<E extends object>({
@@ -39,11 +39,14 @@ export function WithFindSome<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    findSome: {
-      ...defaultQueryOptions,
-      Filter: PartialInput,
-      ...pOptions.findSome,
-    },
+    findSome:
+      pOptions.findSome === false
+        ? false
+        : {
+            ...defaultQueryOptions,
+            Filter: PartialInput,
+            ...pOptions.findSome,
+          },
   };
 
   const checkPolicies =
@@ -65,7 +68,7 @@ export function WithFindSome<E extends object>({
       return constructor;
     }
 
-    const Filter = options.findSome.Filter;
+    const Filter = options.findSome.Filter ?? PartialInput;
 
     class ResolverWithFindSome extends constructor {
       @UseGuards(

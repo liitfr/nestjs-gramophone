@@ -33,10 +33,13 @@ export function WithRelationResolve<E extends object>({
 }: RelationResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    relationResolve: {
-      ...defaultResolveFieldOptions,
-      ...pOptions.relationResolve,
-    },
+    relationResolve:
+      pOptions.relationResolve === false
+        ? false
+        : {
+            ...defaultResolveFieldOptions,
+            ...pOptions.relationResolve,
+          },
   };
 
   const checkPolicies =

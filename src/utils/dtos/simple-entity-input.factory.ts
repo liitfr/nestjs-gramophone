@@ -1,6 +1,6 @@
 import { Field, InputType, IntersectionType, OmitType } from '@nestjs/graphql';
 import { Logger, Type } from '@nestjs/common';
-import { Object } from 'ts-toolbelt';
+import { O } from 'ts-toolbelt';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../types/id.type';
@@ -11,8 +11,7 @@ import {
   checkIfIsTrackable,
 } from '../entities/simple-entity.decorator';
 import { EntityStore } from '../entities/entity-store.service';
-import { OmitFieldArray } from '../types/omit-field-array.type';
-import { OptionalIds } from '../types/optional-ids.type';
+import { TransformEntityToInput } from '../resolvers/types/transform-entity-to-input.type';
 import { MergeClassesToObject } from '../types/merge-classes-to-object.type';
 
 interface Options<
@@ -24,27 +23,13 @@ interface Options<
   AddFields?: TAdd;
 }
 
-type IdableDependingInput<
-  TEntity extends object,
-  TRemove extends readonly (keyof TEntity)[] = [],
-> = TEntity extends Idable
-  ? OptionalIds<OmitFieldArray<TEntity, TRemove>>
-  : OmitFieldArray<TEntity, TRemove>;
-
-type TrackableDependingInput<
-  TEntity extends object,
-  TRemove extends readonly (keyof TEntity)[] = [],
-> = TEntity extends Trackable
-  ? Object.Omit<IdableDependingInput<TEntity, TRemove>, keyof Trackable>
-  : IdableDependingInput<TEntity, TRemove>;
-
 export type SimpleInput<
   TEntity extends object,
   TRemove extends readonly (keyof TEntity)[],
   TAdd extends Array<Type>,
 > = Type<
-  Object.Merge<
-    TrackableDependingInput<TEntity, TRemove>,
+  O.Merge<
+    O.Omit<TransformEntityToInput<TEntity>, TRemove[number]>,
     MergeClassesToObject<TAdd>
   >
 >;

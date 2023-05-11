@@ -29,16 +29,16 @@ import { SimpleFilter } from '../types/simple-filter.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 import { SimplePayload } from '../types/simple-payload.type';
 import { addTrackableData } from '../utils/add-trackable-data.util';
-import { PartialSimpleApiInput } from '../types/simple-api-input.type';
+import { PartialSimpleApiInputObj } from '../types/simple-api-input.type';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type UpdateManyOptions<E extends object> = MutationOptions & {
-  Filter: SimpleFilter<E>;
-  filterPipes?: Pipe[];
-  Payload: SimplePayload<E>;
-  payloadPipes?: Pipe[];
+  Filter?: SimpleFilter<E>;
+  filterPipes?: readonly Pipe[];
+  Payload?: SimplePayload<E>;
+  payloadPipes?: readonly Pipe[];
 };
 
 export function WithUpdateMany<E extends object>({
@@ -50,13 +50,16 @@ export function WithUpdateMany<E extends object>({
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    updateMany: {
-      ...defaultMutationOptions,
-      enable: false,
-      Filter: PartialInput,
-      Payload: PartialInput,
-      ...pOptions.updateMany,
-    },
+    updateMany:
+      pOptions.updateMany === false
+        ? false
+        : {
+            ...defaultMutationOptions,
+            enable: false,
+            Filter: PartialInput,
+            Payload: PartialInput,
+            ...pOptions.updateMany,
+          },
   };
 
   const checkPolicies =
@@ -93,8 +96,8 @@ export function WithUpdateMany<E extends object>({
       return constructor;
     }
 
-    const Filter = options.updateMany.Filter;
-    const Payload = options.updateMany.Payload;
+    const Filter = options.updateMany.Filter ?? PartialInput;
+    const Payload = options.updateMany.Payload ?? PartialInput;
 
     class ResolverWithUpdateMany extends constructor {
       @UseGuards(
@@ -153,7 +156,7 @@ export function WithUpdateMany<E extends object>({
             ? options.updateMany.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
-        update: PartialSimpleApiInput<E>,
+        update: PartialSimpleApiInputObj<E>,
       ) {
         const trackableData = {
           updaterId: userId,
@@ -162,7 +165,7 @@ export function WithUpdateMany<E extends object>({
 
         return this.simpleService.updateMany(
           filter,
-          addTrackableData({ obj: update, Entity, trackableData }),
+          addTrackableData<E>({ obj: update, Entity, trackableData }),
         );
       }
     }

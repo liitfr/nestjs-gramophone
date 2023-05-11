@@ -8,7 +8,7 @@ import { SSTHandle } from '../../types/handle.type';
 
 import { ResolverOptions } from '../types/options.type';
 
-type Item<E extends object> = {
+type Item<E extends object = object> = {
   Entity: Type<E>;
   entityToken: symbol;
   entityBaseResolverToken: symbol;
@@ -20,7 +20,7 @@ export { Item as BaseResolverStoreItem };
 
 @Injectable()
 export class BaseResolverStore {
-  private static baseResolvers: Item<object>[] = [];
+  private static baseResolvers: Item[] = [];
 
   public static register<E extends object>(
     Entity: Type<E>,

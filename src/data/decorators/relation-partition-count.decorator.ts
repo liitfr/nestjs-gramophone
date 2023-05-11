@@ -34,10 +34,13 @@ export function WithRelationPartitionCount<E extends object>({
 }: RelationResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
-    relationPartitionCount: {
-      ...defaultQueryOptions,
-      ...pOptions.relationPartitionCount,
-    },
+    relationPartitionCount:
+      pOptions.relationPartitionCount === false
+        ? false
+        : {
+            ...defaultQueryOptions,
+            ...pOptions.relationPartitionCount,
+          },
   };
 
   const checkPolicies =
