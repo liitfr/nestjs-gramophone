@@ -44,6 +44,7 @@ export type FindOneAndUpdateOptions<E extends object> = MutationOptions & {
 export function WithFindOneAndUpdate<E extends object>({
   Entity,
   options: pOptions,
+  Input,
   PartialInput,
   entityDescription,
   entityTokenDescription,
@@ -56,7 +57,7 @@ export function WithFindOneAndUpdate<E extends object>({
         : {
             ...defaultMutationOptions,
             Filter: PartialInput,
-            Payload: PartialInput,
+            Payload: Input,
             ...pOptions.findOneAndUpdate,
           },
   };
@@ -96,7 +97,7 @@ export function WithFindOneAndUpdate<E extends object>({
     }
 
     const Filter = options.findOneAndUpdate.Filter ?? PartialInput;
-    const Payload = options.findOneAndUpdate.Payload ?? PartialInput;
+    const Payload = options.findOneAndUpdate.Payload ?? Input;
 
     class ResolverWithFindOneAndUpdate extends constructor {
       @UseGuards(

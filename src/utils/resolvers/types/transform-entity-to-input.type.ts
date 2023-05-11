@@ -14,6 +14,8 @@ import { Id } from '../../types/id.type';
 // even if it can be undefined.
 // Good thing is that it doesn't impact GraphQL type generation, so it's only a problem for code within server.
 
+// WARNING :  don't forget to change `deep-entity-partial.type.ts` if you change this file
+
 export type _TransformEntityToInput<
   T,
   R extends PropertyKey = keyof Trackable,
@@ -24,7 +26,8 @@ export type _TransformEntityToInput<
     // WARNING : We don't want to go inside Id even if it actually contains _id field.
     [K in keyof T]: K extends '_id'
       ? T[K] | undefined
-      : T[K] extends Id | U.Nullable<Id>
+      : // ----
+      T[K] extends Id | U.Nullable<Id>
       ? T[K]
       : // ----
       T[K] extends Array<infer Item>

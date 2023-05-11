@@ -1,3 +1,3 @@
-import { PartialSimpleApiInput } from './simple-api-input.type';
+import { SimpleApiInput } from './simple-api-input.type';
 
-export type SimplePayload<E extends object> = PartialSimpleApiInput<E>;
+export type SimplePayload<E extends object> = SimpleApiInput<E>;

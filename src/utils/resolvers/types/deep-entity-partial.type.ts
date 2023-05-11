@@ -1,41 +1,62 @@
+import { Object } from 'ts-toolbelt';
+
 import { Id } from '../../types/id.type';
 import { Idable } from '../../entities/simple-entity.decorator';
 
-// Warning : We don't want to go inside object as Date or Id for example.
+// WARNING : We don't want to go inside object as Date or Id for example.
 // Only Idable objects.
 
-export type DeepEntityPartial<O extends object> = {
+// WARNING :  don't forget to change `transform-entity-to-input` if you change this file
+
+export type DeepEntityPartial<O extends object> = Object.Partial<{
   [K in keyof O]: O[K] extends Id
     ? O[K] | undefined
-    : O[K] extends Array<infer ArrayType>
-    ? ArrayType extends Idable
-      ? Array<DeepEntityPartial<ArrayType> | undefined> | undefined
-      : Array<ArrayType | undefined> | undefined
-    : O[K] extends ReadonlyArray<infer ArrayType>
-    ? ArrayType extends Idable
-      ? ReadonlyArray<DeepEntityPartial<ArrayType> | undefined> | undefined
-      : ReadonlyArray<ArrayType | undefined> | undefined
-    : O[K] extends Set<infer SetType>
-    ? SetType extends Idable
-      ? Set<DeepEntityPartial<SetType> | undefined> | undefined
-      : Set<SetType | undefined> | undefined
-    : O[K] extends ReadonlySet<infer SetType>
-    ? SetType extends Idable
-      ? ReadonlySet<DeepEntityPartial<SetType> | undefined> | undefined
-      : ReadonlySet<SetType | undefined> | undefined
-    : O[K] extends Map<infer KeyType, infer ValueType>
-    ? ValueType extends Idable
-      ? Map<KeyType, DeepEntityPartial<ValueType> | undefined> | undefined
-      : Map<KeyType, ValueType | undefined> | undefined
-    : O[K] extends ReadonlyMap<infer KeyType, infer ValueType>
-    ? ValueType extends Idable
-      ?
-          | ReadonlyMap<KeyType, DeepEntityPartial<ValueType> | undefined>
-          | undefined
-      : ReadonlyMap<KeyType, ValueType | undefined> | undefined
-    : O[K] extends object
+    : // ----
+    O[K] extends Array<infer Item>
+    ? Item extends Id
+      ? Array<Item> | undefined
+      : Item extends Idable
+      ? Array<DeepEntityPartial<Item>> | undefined
+      : Array<Item> | undefined
+    : // ----
+    O[K] extends ReadonlyArray<infer Item>
+    ? Item extends Id
+      ? ReadonlyArray<Item> | undefined
+      : Item extends Idable
+      ? ReadonlyArray<DeepEntityPartial<Item>> | undefined
+      : ReadonlyArray<Item> | undefined
+    : // ----
+    O[K] extends Set<infer Item>
+    ? Item extends Id
+      ? Set<Item> | undefined
+      : Item extends Idable
+      ? Set<DeepEntityPartial<Item>> | undefined
+      : Set<Item> | undefined
+    : // ----
+    O[K] extends ReadonlySet<infer Item>
+    ? Item extends Id
+      ? ReadonlySet<Item> | undefined
+      : Item extends Idable
+      ? ReadonlySet<DeepEntityPartial<Item>> | undefined
+      : ReadonlySet<Item> | undefined
+    : // ----
+    O[K] extends Map<infer Key, infer Value>
+    ? Value extends Id
+      ? Map<Key, Value> | undefined
+      : Value extends Idable
+      ? Map<Key, DeepEntityPartial<Value>> | undefined
+      : Map<Key, Value> | undefined
+    : // ----
+    O[K] extends ReadonlyMap<infer Key, infer Value>
+    ? Value extends Id
+      ? ReadonlyMap<Key, Value> | undefined
+      : Value extends Idable
+      ? ReadonlyMap<Key, DeepEntityPartial<Value>> | undefined
+      : ReadonlyMap<Key, Value> | undefined
+    : // ----
+    O[K] extends object
     ? O[K] extends Idable
       ? DeepEntityPartial<O[K]> | undefined
       : O[K] | undefined
     : O[K] | undefined;
-};
+}>;

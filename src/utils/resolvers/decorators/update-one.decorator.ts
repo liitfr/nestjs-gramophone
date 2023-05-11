@@ -44,6 +44,7 @@ export type UpdateOneOptions<E extends object> = MutationOptions & {
 export function WithUpdateOne<E extends object>({
   Entity,
   options: pOptions,
+  Input,
   PartialInput,
   entityDescription,
   entityTokenDescription,
@@ -57,7 +58,7 @@ export function WithUpdateOne<E extends object>({
             ...defaultMutationOptions,
             enable: false,
             Filter: PartialInput,
-            Payload: PartialInput,
+            Payload: Input,
             ...pOptions.updateOne,
           },
   };
@@ -97,7 +98,7 @@ export function WithUpdateOne<E extends object>({
     }
 
     const Filter = options.updateOne.Filter ?? PartialInput;
-    const Payload = options.updateOne.Payload ?? PartialInput;
+    const Payload = options.updateOne.Payload ?? Input;
 
     class ResolverWithUpdateOne extends constructor {
       @UseGuards(
