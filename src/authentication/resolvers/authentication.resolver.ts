@@ -2,7 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { Mutation, Context, Query, Args, Resolver } from '@nestjs/graphql';
 
 import { UsersService } from '../../users/services/users.service';
-import { User } from '../../users/entities/user.entity';
+import { UserWithNoFieldResolver } from '../../users/entities/user-with-no-field-resolver.entity';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { LoginInput } from '../dtos/login.input';
@@ -19,7 +19,9 @@ export class AuthenticationResolver {
   ) {}
 
   @Public()
-  @Mutation(() => User, { description: 'Authentication : Login mutation' })
+  @Mutation(() => UserWithNoFieldResolver, {
+    description: 'Authentication : Login mutation',
+  })
   @UseGuards(LocalAuthenticationGuard)
   async login(
     @Args('credentials') _credentials: LoginInput,
@@ -54,13 +56,15 @@ export class AuthenticationResolver {
     };
   }
 
-  @Query(() => User, { description: 'Authentication : Context user query' })
+  @Query(() => UserWithNoFieldResolver, {
+    description: 'Authentication : Context user query',
+  })
   authentication(@Context() ctx: any) {
     return ctx.req.user;
   }
 
   @UseGuards(JwtRefreshGuard)
-  @Mutation(() => User, {
+  @Mutation(() => UserWithNoFieldResolver, {
     description: 'Authentication : Refresh token mutation',
   })
   refreshToken(@Context() ctx: any) {

@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+// import { ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './app/app.module';
@@ -7,6 +8,8 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // FIXME : make it work
+  /*
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -17,6 +20,7 @@ async function bootstrap() {
       // expectedType: Input,
     }),
   );
+  */
 
   // useContainer(app, { fallback: true });
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

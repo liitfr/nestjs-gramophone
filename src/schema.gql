@@ -273,29 +273,23 @@ type Mutation {
   """
   findOneAndUpdateAuthor(
     filter: AuthorPartialInput!
-    update: AuthorPartialInput!
+    update: AuthorInput!
   ): Author!
 
   """
   Post : Find one and update mutation
   """
-  findOneAndUpdatePost(
-    filter: PostPartialInput!
-    update: PostPartialInput!
-  ): Post!
+  findOneAndUpdatePost(filter: PostPartialInput!, update: PostInput!): Post!
 
   """
   User : Find one and update mutation
   """
-  findOneAndUpdateUser(
-    filter: UserPartialInput!
-    update: UserPartialInput!
-  ): User!
+  findOneAndUpdateUser(filter: UserPartialInput!, update: UserInput!): User!
 
   """
   Authentication : Login mutation
   """
-  login(credentials: LoginInput!): User!
+  login(credentials: LoginInput!): UserWithNoFieldResolver!
 
   """
   Authentication : Logout mutation
@@ -305,7 +299,7 @@ type Mutation {
   """
   Authentication : Refresh token mutation
   """
-  refreshToken: User!
+  refreshToken: UserWithNoFieldResolver!
 }
 
 type Post {
@@ -573,7 +567,7 @@ type Query {
   """
   Authentication : Context user query
   """
-  authentication: User!
+  authentication: UserWithNoFieldResolver!
 
   """
   Author : Count all query
@@ -1316,6 +1310,43 @@ input UserRolePartialInput {
   User Role's version
   """
   version: Int
+}
+
+type UserWithNoFieldResolver {
+  """
+  User's id
+  """
+  _id: Id!
+
+  """
+  User's created at
+  """
+  createdAt: DateTime!
+
+  """
+  User's creator id
+  """
+  creatorId: Id!
+
+  """
+  User's email address
+  """
+  email: String!
+
+  """
+  User's role ids
+  """
+  roleIds: [Id!]!
+
+  """
+  User's updated at
+  """
+  updatedAt: DateTime!
+
+  """
+  User's updater id
+  """
+  updaterId: Id!
 }
 
 input VersionDataInput {
