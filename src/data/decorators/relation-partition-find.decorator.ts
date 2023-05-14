@@ -12,7 +12,7 @@ import {
 } from '../../utils/resolvers/options/query-options';
 import { ResolverOptions } from '../../utils/resolvers/types/options.type';
 import { Constructor } from '../../utils/types/constructor.type';
-import { pascalCase, pluralize } from '../../utils/string.util';
+import { pascalCase, pluralize } from '../../utils/utils/string.util';
 import { IS_PUBLIC_KEY } from '../../authentication/decorators/public.decorator';
 import { SetUserAction } from '../../utils/resolvers/decorators/set-user-action.decorator';
 import { UserActionEnum } from '../../references/enums/user-action.enum';

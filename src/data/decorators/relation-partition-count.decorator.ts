@@ -10,7 +10,7 @@ import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.
 import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
 import { UserActionEnum } from '../../references/enums/user-action.enum';
 import { Constructor } from '../../utils/types/constructor.type';
-import { pascalCase, pluralize } from '../../utils/string.util';
+import { pascalCase, pluralize } from '../../utils/utils/string.util';
 import {
   QueryOptions,
   defaultQueryOptions,

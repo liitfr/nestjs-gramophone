@@ -8,7 +8,7 @@ import {
   lowerCaseFirstLetter,
   pascalCase,
   pluralize,
-} from '../../utils/string.util';
+} from '../../utils/utils/string.util';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';

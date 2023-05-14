@@ -4,7 +4,7 @@ import {
   SimpleServiceFactory,
   SimpleServiceObj,
 } from '../../utils/services/simple-service.factory';
-import { pascalCase, pluralize } from '../../utils/string.util';
+import { pascalCase, pluralize } from '../../utils/utils/string.util';
 import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 import { SetServiceMetadata } from '../../utils/services/set-service-metadata.decorator';
 import { EntityStore } from '../../utils/entities/entity-store.service';

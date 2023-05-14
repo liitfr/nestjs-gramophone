@@ -20,4 +20,4 @@ export class Reference {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Reference extends ISimpleReference {}
+export interface Reference extends ISimpleReference<false> {}

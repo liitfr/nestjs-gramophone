@@ -12,7 +12,7 @@ import { CheckPolicies } from '../../../authorization/decorators/check-policies.
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
-import { pascalCase, pluralize } from '../../string.util';
+import { pascalCase, pluralize } from '../../utils/string.util';
 
 import { QueryOptions, defaultQueryOptions } from '../options/query-options';
 import { SimpleResolver } from '../types/simple-resolver.type';

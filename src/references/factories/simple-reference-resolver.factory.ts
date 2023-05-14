@@ -3,7 +3,7 @@ import { Query, Resolver } from '@nestjs/graphql';
 
 import { ResolverOptions } from '../../utils/resolvers/types/options.type';
 import { SimpleResolverFactory } from '../../utils/resolvers/factories/simple-resolver.factory';
-import { pascalCase, pluralize } from '../../utils/string.util';
+import { pascalCase, pluralize } from '../../utils/utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { ServiceStore } from '../../utils/services/service-store.service';
 import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';

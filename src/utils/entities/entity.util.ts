@@ -4,7 +4,7 @@ import { Schema as MongooseSchema } from 'mongoose';
 import { EntityRelation } from '../../data/utils/relation.util';
 import { EntityNested } from '../../data/utils/nested.util';
 
-import { pascalCase, splitPascalWithSpaces } from '../string.util';
+import { pascalCase, splitPascalWithSpaces } from '../utils/string.util';
 import { Constructor } from '../types/constructor.type';
 import { STHandle } from '../types/handle.type';
 

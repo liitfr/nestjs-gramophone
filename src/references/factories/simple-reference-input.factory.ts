@@ -1,7 +1,5 @@
 import { Type } from '@nestjs/common';
 import { Field, InputType } from '@nestjs/graphql';
-import { O } from 'ts-toolbelt';
-import { If } from 'ts-toolbelt/out/Any/If'; // https://github.com/millsp/ts-toolbelt/issues/293
 
 import {
   SimpleEntityInputFactory,
@@ -9,11 +7,17 @@ import {
   SimpleInput,
 } from '../../utils/dtos/simple-entity-input.factory';
 import { EntityStore } from '../../utils/entities/entity-store.service';
-import { pascalCase, splitPascalWithSpaces } from '../../utils/string.util';
+import {
+  pascalCase,
+  splitPascalWithSpaces,
+} from '../../utils/utils/string.util';
 
 import { ChipInput } from '../dtos/chip.input';
 import { ReferenceStore } from '../services/reference-store.service';
-import { ISimpleReference } from '../decorators/simple-reference.decorator';
+import {
+  ISimpleReference,
+  ISimpleReferenceWithChip,
+} from '../decorators/simple-reference.decorator';
 
 export interface IMandatoryChipField {
   chip: ChipInput;
@@ -23,15 +27,21 @@ type ReferenceInput<
   TEntity extends ISimpleReference,
   TRemove extends readonly (keyof TEntity)[] = [],
   TAdd extends Array<Type> = [],
-> = If<
-  O.Has<TEntity, 'chip', any, 'contains->'>,
-  SimpleInput<
-    TEntity,
-    [...TRemove, 'chip'],
-    [...TAdd, Type<IMandatoryChipField>]
-  >,
-  SimpleInput<TEntity, TRemove, TAdd>
->;
+> = TEntity extends ISimpleReferenceWithChip
+  ? SimpleInput<
+      TEntity,
+      [...TRemove, 'chip'],
+      [...TAdd, Type<IMandatoryChipField>]
+    >
+  : SimpleInput<TEntity, TRemove, TAdd>;
+
+const isReferenceWithChip = (
+  Reference: Type<object>,
+): Reference is Type<ISimpleReferenceWithChip> => {
+  const reference = ReferenceStore.uncertainGet(Reference);
+
+  return reference?.addChip ?? false;
+};
 
 export function SimpleReferenceInputFactory<
   TEntity extends ISimpleReference,
@@ -41,9 +51,7 @@ export function SimpleReferenceInputFactory<
   Reference: Type<TEntity>,
   options?: SimpleEntityInputFactoryOptions<TEntity, TRemove, TAdd>,
 ): ReferenceInput<TEntity, TRemove, TAdd> {
-  const reference = ReferenceStore.uncertainGet(Reference);
-
-  if (reference?.addChip) {
+  if (isReferenceWithChip(Reference)) {
     const { entityDescription } = EntityStore.get(Reference);
 
     @InputType({ isAbstract: true })

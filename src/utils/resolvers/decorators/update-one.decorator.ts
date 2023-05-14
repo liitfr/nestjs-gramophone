@@ -14,7 +14,7 @@ import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
-import { pascalCase } from '../../string.util';
+import { pascalCase } from '../../utils/string.util';
 import { Id } from '../../types/id.type';
 import { Pipe } from '../../types/pipe.type';
 

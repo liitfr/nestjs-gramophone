@@ -13,7 +13,7 @@ import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
 import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
-import { pascalCase } from '../../string.util';
+import { pascalCase } from '../../utils/string.util';
 import { IdScalar } from '../../scalars/id.scalar';
 import { Pipe } from '../../types/pipe.type';
 

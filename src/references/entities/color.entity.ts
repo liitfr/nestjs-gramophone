@@ -10,4 +10,4 @@ import { ColorEnum } from '../enums/color.enum';
 export class Color {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Color extends ISimpleReference {}
+export interface Color extends ISimpleReference<false> {}

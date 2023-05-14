@@ -2,7 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
 import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
-import { generateCollectionName } from '../../utils/string.util';
+import { generateCollectionName } from '../../utils/utils/string.util';
 import { Id } from '../../utils/types/id.type';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
@@ -15,19 +15,19 @@ import { initReferenceMetadata } from '../utils/reference.util';
 
 import { SetReferenceMetadata } from './set-reference-metadata.decorator';
 
-interface Options {
-  addChip?: boolean;
+interface Options<C extends boolean = false> {
+  addChip: C | boolean;
   partitioner?: string;
   partitionerDescription?: string;
 }
 
-export function SimpleReference(
+export function SimpleReference<C extends boolean = false>(
   Partition: Record<string, string>,
   {
     addChip = false,
     partitioner = 'code',
     partitionerDescription = 'code',
-  }: Options = {
+  }: Options<C> = {
     addChip: false,
     partitioner: 'code',
     partitionerDescription: 'code',
@@ -148,13 +148,19 @@ export function SimpleReference(
   };
 }
 
-// BUG : chip is not uncertain but depends on addChip option
-export interface ISimpleReference {
+interface ISimpleReferenceWithoutChip {
   _id: Id;
   code: string;
   version: number;
   index: number;
   label: string;
   isSelectedByDefault: boolean;
-  chip?: Chip;
 }
+
+export interface ISimpleReferenceWithChip extends ISimpleReferenceWithoutChip {
+  chip: Chip;
+}
+
+export type ISimpleReference<C extends boolean = false> = C extends true
+  ? ISimpleReferenceWithChip
+  : ISimpleReferenceWithoutChip;

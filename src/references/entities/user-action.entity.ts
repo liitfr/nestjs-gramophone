@@ -10,4 +10,4 @@ import { CreateReferenceRepository } from '../decorators/create-reference-reposi
 export class UserAction {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserAction extends ISimpleReference {}
+export interface UserAction extends ISimpleReference<false> {}

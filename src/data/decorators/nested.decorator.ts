@@ -1,7 +1,10 @@
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Field } from '@nestjs/graphql';
 
-import { camelCase, splitPascalWithSpaces } from '../../utils/string.util';
+import {
+  camelCase,
+  splitPascalWithSpaces,
+} from '../../utils/utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { initEntityMetadata } from '../../utils/entities/entity.util';

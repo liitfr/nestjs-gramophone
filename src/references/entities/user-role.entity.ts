@@ -10,4 +10,4 @@ import { CreateReferenceRepository } from '../decorators/create-reference-reposi
 export class UserRole {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserRole extends ISimpleReference {}
+export interface UserRole extends ISimpleReference<false> {}

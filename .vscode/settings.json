@@ -1,5 +1,4 @@
 {
-  "workbench.colorTheme": "Default High Contrast",
   "git.enableCommitSigning": true,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -24,5 +23,6 @@
     "WARNING",
     "MHO"
   ],
-  "editor.stickyScroll.enabled": true
+  "editor.stickyScroll.enabled": true,
+  "workbench.colorTheme": "Ayu Mirage"
 }

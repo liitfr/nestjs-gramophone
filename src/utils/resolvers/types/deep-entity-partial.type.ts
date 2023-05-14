@@ -9,7 +9,7 @@ import { Idable } from '../../entities/simple-entity.decorator';
 // WARNING :  don't forget to change `transform-entity-to-input` if you change this file
 
 export type DeepEntityPartial<O extends object> = Object.Partial<{
-  [K in keyof O]: O[K] extends Id
+  [K in keyof O]?: O[K] extends Id
     ? O[K] | undefined
     : // ----
     O[K] extends Array<infer Item>

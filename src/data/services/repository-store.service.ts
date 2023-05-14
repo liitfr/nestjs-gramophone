@@ -1,6 +1,6 @@
 import { Injectable, Type } from '@nestjs/common';
 
-import { pascalCase, pluralize } from '../../utils/string.util';
+import { pascalCase, pluralize } from '../../utils/utils/string.util';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { getEntityToken } from '../../utils/entities/entity.util';

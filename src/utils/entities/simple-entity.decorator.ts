@@ -4,7 +4,7 @@ import { Schema as MongooseSchema } from 'mongoose';
 
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../types/id.type';
-import { pascalCase, pluralize } from '../string.util';
+import { pascalCase, pluralize } from '../utils/string.util';
 import { Constructor } from '../types/constructor.type';
 
 import { enhancerCheckerFactory, initEntityMetadata } from './entity.util';
