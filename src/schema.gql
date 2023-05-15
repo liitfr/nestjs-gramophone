@@ -266,25 +266,31 @@ type Mutation {
   """
   User : Create mutation
   """
-  createUser(user: UserInput!): User!
+  createUser(user: UserCreateInput!): User!
 
   """
   Author : Find one and update mutation
   """
   findOneAndUpdateAuthor(
     filter: AuthorPartialInput!
-    update: AuthorInput!
+    update: AuthorPartialInput!
   ): Author!
 
   """
   Post : Find one and update mutation
   """
-  findOneAndUpdatePost(filter: PostPartialInput!, update: PostInput!): Post!
+  findOneAndUpdatePost(
+    filter: PostPartialInput!
+    update: PostPartialInput!
+  ): Post!
 
   """
   User : Find one and update mutation
   """
-  findOneAndUpdateUser(filter: UserPartialInput!, update: UserInput!): User!
+  findOneAndUpdateUser(
+    filter: UserPartialInput!
+    update: UserUpdateInput!
+  ): User!
 
   """
   Authentication : Login mutation
@@ -1209,9 +1215,9 @@ input UserActionPartialInput {
 }
 
 """
-User Input
+User Create Input
 """
-input UserInput {
+input UserCreateInput {
   """
   User's id
   """
@@ -1221,6 +1227,11 @@ input UserInput {
   User's email address
   """
   email: String!
+
+  """
+  User's password
+  """
+  password: String!
 
   """
   User's role ids
@@ -1310,6 +1321,26 @@ input UserRolePartialInput {
   User Role's version
   """
   version: Int
+}
+
+"""
+User Update Input
+"""
+input UserUpdateInput {
+  """
+  User's id
+  """
+  _id: Id
+
+  """
+  User's email address
+  """
+  email: String!
+
+  """
+  User's role ids
+  """
+  roleIds: [Id!]!
 }
 
 type UserWithNoFieldResolver {

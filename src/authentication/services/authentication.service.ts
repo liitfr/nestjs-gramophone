@@ -73,7 +73,7 @@ export class AuthenticationService {
           fr: "Il ne devrait y avoir qu'un seul utilisateur avec cet email.",
         },
         {
-          service: 'authenticationService',
+          service: 'AuthenticationService',
           method: 'getAuthenticatedUser',
         },
       );
@@ -89,7 +89,7 @@ export class AuthenticationService {
           fr: "L'utilisateur n'existe pas.",
         },
         {
-          service: 'authenticationService',
+          service: 'AuthenticationService',
           method: 'getAuthenticatedUser',
         },
       );
@@ -117,7 +117,7 @@ export class AuthenticationService {
           fr: 'Aucun compte ne correspond à ces informations.',
         },
         {
-          service: 'authenticationService',
+          service: 'AuthenticationService',
           method: 'verifyPassword',
         },
       );

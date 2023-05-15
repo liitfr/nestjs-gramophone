@@ -23,12 +23,12 @@ export const SaveVersion = (
       if (!this.versioningService) {
         throw new CustomError(
           'Entity versioning is not enabled.',
-          ErrorCode.UNKNOWN_ERROR,
+          ErrorCode.INTERNAL_SERVER_ERROR,
           {
             fr: "Le versionage des entités n'est pas activé.",
           },
           {
-            service: 'saveVersion',
+            service: 'SaveVersion',
           },
         );
       }

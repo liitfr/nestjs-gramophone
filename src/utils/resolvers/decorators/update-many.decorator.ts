@@ -27,7 +27,7 @@ import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorato
 import { ResolverOptions } from '../types/options.type';
 import { SimpleFilter } from '../types/simple-filter.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
-import { SimplePayload } from '../types/simple-payload.type';
+import { SimpleUpdatePayload } from '../types/simple-update-payload.type';
 import { addTrackableData } from '../utils/add-trackable-data.util';
 import { PartialSimpleApiInputObj } from '../types/simple-api-input.type';
 
@@ -37,14 +37,13 @@ import { SetUserAction } from './set-user-action.decorator';
 export type UpdateManyOptions<E extends object> = MutationOptions & {
   Filter?: SimpleFilter<E>;
   filterPipes?: readonly Pipe[];
-  Payload?: SimplePayload<E>;
+  Payload?: SimpleUpdatePayload<E>;
   payloadPipes?: readonly Pipe[];
 };
 
 export function WithUpdateMany<E extends object>({
   Entity,
   options: pOptions,
-  Input,
   PartialInput,
   entityDescription,
   entityTokenDescription,
@@ -58,7 +57,7 @@ export function WithUpdateMany<E extends object>({
             ...defaultMutationOptions,
             enable: false,
             Filter: PartialInput,
-            Payload: Input,
+            Payload: PartialInput,
             ...pOptions.updateMany,
           },
   };
@@ -98,7 +97,7 @@ export function WithUpdateMany<E extends object>({
     }
 
     const Filter = options.updateMany.Filter ?? PartialInput;
-    const Payload = options.updateMany.Payload ?? Input;
+    const Payload = options.updateMany.Payload ?? PartialInput;
 
     class ResolverWithUpdateMany extends constructor {
       @UseGuards(

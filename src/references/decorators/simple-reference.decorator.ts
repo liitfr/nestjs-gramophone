@@ -148,7 +148,7 @@ export function SimpleReference<C extends boolean = false>(
   };
 }
 
-interface ISimpleReferenceWithoutChip {
+export interface ISimpleReferenceWithoutChip {
   _id: Id;
   code: string;
   version: number;

@@ -47,7 +47,7 @@ export class CheckRelations<E extends object>
               fr: `Certains ou tous les ${idDescription} n'existent pas. Liste: ${value[idName]}`,
             },
             {
-              service: 'checkRelationsPipe',
+              service: 'CheckRelationsPipe',
               method: 'transform',
             },
           );
@@ -71,7 +71,7 @@ export class CheckRelations<E extends object>
               fr: `${idDescription} n'existe pas. Id: ${value[idName]}`,
             },
             {
-              service: 'checkRelationsPipe',
+              service: 'CheckRelationsPipe',
               method: 'transform',
             },
           );
@@ -96,12 +96,12 @@ export class CheckRelations<E extends object>
     if (!this.Entity) {
       throw new CustomError(
         'Entity is not defined.',
-        ErrorCode.UNKNOWN_ERROR,
+        ErrorCode.INTERNAL_SERVER_ERROR,
         {
           fr: "L'entité n'est pas définie.",
         },
         {
-          service: 'checkRelationsPipe',
+          service: 'CheckRelationsPipe',
           method: 'transform',
         },
       );

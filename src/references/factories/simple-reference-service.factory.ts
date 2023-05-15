@@ -74,7 +74,7 @@ export const SimpleReferenceServiceFactory = <
               fr: "Il n'existe pas de référence pour cette version.",
             },
             {
-              service: 'simpleReferenceService',
+              service: 'SimpleReferenceService',
               method: 'findAllForAVersion',
               version,
             },
@@ -97,7 +97,7 @@ export const SimpleReferenceServiceFactory = <
             fr: "Il n'existe pas de référence pour cette version.",
           },
           {
-            service: 'simpleReferenceService',
+            service: 'SimpleReferenceService',
             method: 'findAllForAVersion',
             version,
           },

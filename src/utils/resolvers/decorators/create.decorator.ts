@@ -22,19 +22,19 @@ import {
   MutationOptions,
   defaultMutationOptions,
 } from '../options/mutation-options';
-import { SimplePayload } from '../types/simple-payload.type';
 import { SimpleResolver } from '../types/simple-resolver.type';
 import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorator-params.type';
 import { ResolverOptions } from '../types/options.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 import { SimpleApiInputObj } from '../types/simple-api-input.type';
 import { addTrackableData } from '../utils/add-trackable-data.util';
+import { SimpleCreatePayload } from '../types/simple-create-payload.type';
 
 import { SetResolverOperation } from './set-resolver-operation.decorator';
 import { SetUserAction } from './set-user-action.decorator';
 
 export type CreateOptions<E extends object> = MutationOptions & {
-  Payload?: SimplePayload<E>;
+  Payload?: SimpleCreatePayload<E>;
   payloadPipes?: readonly Pipe[];
 };
 

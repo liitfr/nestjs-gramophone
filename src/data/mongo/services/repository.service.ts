@@ -36,12 +36,12 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     if (!this.model) {
       throw new CustomError(
         'Model not found',
-        ErrorCode.UNKNOWN_ERROR,
+        ErrorCode.INTERNAL_SERVER_ERROR,
         {
           fr: "Le modèle n'a pas été trouvé.",
         },
         {
-          service: 'repositoryService',
+          service: 'MongoRepository',
           method: 'checkModel',
         },
       );
@@ -54,15 +54,19 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     saveOptions?: SaveOptions & { returnOnlyId?: boolean },
   ): Promise<CreatedModel | SimpleRepositoryOutputObj<D>> {
     const model = this.getModel();
+
     const createdEntity = new model(doc);
+
     const savedResult = await createdEntity.save({
       ...saveOptions,
       session: this.dbSession.get(),
     });
 
+    const pojoResult = savedResult.toObject();
+
     return saveOptions?.returnOnlyId
-      ? { _id: savedResult._id as Id, created: !!savedResult._id }
-      : savedResult;
+      ? { _id: pojoResult._id as Id, created: !!pojoResult._id }
+      : pojoResult;
   }
 
   async createMany(
@@ -70,15 +74,20 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     insertManyOptions?: InsertManyOptions,
   ): Promise<CreatedModel[]> {
     const model = this.getModel();
+
     const createdEntities = await model.insertMany(docs, {
       session: this.dbSession.get(),
       ...insertManyOptions,
     });
 
-    return createdEntities.map((entity) => ({
-      _id: entity._id as Id,
-      created: !!entity._id,
-    }));
+    return createdEntities.map((entity) => {
+      const pojoEntity = entity.toObject();
+
+      return {
+        _id: pojoEntity._id as Id,
+        created: !!pojoEntity._id,
+      };
+    });
   }
 
   async uncertainFind(
@@ -87,7 +96,13 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   ): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
 
-    return model.find(filter, null, options).session(this.dbSession.get());
+    const result = await model
+      .find(filter, null, options)
+      .session(this.dbSession.get());
+
+    const pojoResult = result.map((doc) => doc.toObject());
+
+    return pojoResult;
   }
 
   async find(
@@ -106,7 +121,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
           fr: 'Aucun résultat ne correspond à votre recherche. Veuillez réessayer.',
         },
         {
-          service: 'repository',
+          service: 'MongoRepository',
           method: 'find',
           model: this.getModel().modelName,
           filter,
@@ -124,7 +139,13 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   ): Promise<SimpleRepositoryOutputObj<D> | null> {
     const model = this.getModel();
 
-    return model.findById(id, null, options).session(this.dbSession.get());
+    const result = await model
+      .findById(id, null, options)
+      .session(this.dbSession.get());
+
+    const pojoResult = result ? result.toObject() : null;
+
+    return pojoResult;
   }
 
   async findById(
@@ -141,7 +162,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
           fr: 'Aucun résultat ne correspond à cet identifiant. Veuillez réessayer',
         },
         {
-          service: 'repository',
+          service: 'MongoRepository',
           method: 'findById',
           model: this.getModel().modelName,
           options,
@@ -154,7 +175,12 @@ export class MongoRepository<D extends Document> implements Repository<D> {
 
   async findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
-    return model.find().session(this.dbSession.get());
+
+    const result = await model.find().session(this.dbSession.get());
+
+    const pojoResult = result.map((doc) => doc.toObject());
+
+    return pojoResult;
   }
 
   async remove(filter: FilterQuery<D>): Promise<RemovedModel> {
@@ -171,6 +197,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
     const model = this.getModel();
+
     return model
       .updateOne(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
@@ -182,6 +209,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     options?: QueryOptions<D>,
   ): Promise<UpdatedModel> {
     const model = this.getModel();
+
     return model
       .updateMany(filter, update, { new: true, ...options })
       .session(this.dbSession.get());
@@ -194,10 +222,14 @@ export class MongoRepository<D extends Document> implements Repository<D> {
   ): Promise<SimpleRepositoryOutputObj<D> | null> {
     const model = this.getModel();
 
-    return model.findOneAndUpdate(filter, update, {
+    const result = await model.findOneAndUpdate(filter, update, {
       new: true,
       ...options,
     });
+
+    const pojoResult = result ? result.toObject() : null;
+
+    return pojoResult;
   }
 
   public async findOneAndUpdate(
@@ -219,7 +251,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
           fr: 'Aucun élément ne correspond à cet identifiant. Veuillez réessayer',
         },
         {
-          service: 'repository',
+          service: 'MongoRepository',
           method: 'findOneAndUpdate',
           model: this.getModel().modelName,
           options,

@@ -4,5 +4,8 @@ import { SimpleEntityInputFactory } from '../../utils/dtos/simple-entity-input.f
 
 import { User } from '../entities/user.entity';
 
-@InputType({ description: 'User Input' })
-export class UserInput extends SimpleEntityInputFactory(User) {}
+@InputType({ description: 'User Update Input' })
+export class UserUpdateInput extends SimpleEntityInputFactory(User, {
+  removeFields: [],
+  AddFields: [],
+}) {}

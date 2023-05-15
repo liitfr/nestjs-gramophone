@@ -89,9 +89,9 @@ export function VersioningEntityFactory<E extends IdableAndTrackable>(
   })
   @CreateRepository<MongooseSchema>({
     SchemaTransformer: (Schema) =>
-      Schema.index({ originalId: 1, versionedAt: 1 }, { unique: true })
+      Schema.index({ originalId: 1, updatedAt: 1 }, { unique: true })
         .index({ originalId: 1 })
-        .index({ versionedAt: 1 }),
+        .index({ updatedAt: 1 }),
   })
   // set metadata after simple entity decorator
   @SetEntityMetadata({

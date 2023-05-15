@@ -26,7 +26,7 @@ import { SimpleResolver } from '../types/simple-resolver.type';
 import { SimpleResolverDecoratorParams } from '../types/simple-resolver-decorator-params.type';
 import { ResolverOptions } from '../types/options.type';
 import { SimpleFilter } from '../types/simple-filter.type';
-import { SimplePayload } from '../types/simple-payload.type';
+import { SimpleUpdatePayload } from '../types/simple-update-payload.type';
 import { ResolverOperationEnum } from '../enums/resolver-operation.enum';
 import { addTrackableData } from '../utils/add-trackable-data.util';
 import { PartialSimpleApiInputObj } from '../types/simple-api-input.type';
@@ -37,14 +37,13 @@ import { SetUserAction } from './set-user-action.decorator';
 export type FindOneAndUpdateOptions<E extends object> = MutationOptions & {
   Filter?: SimpleFilter<E>;
   filterPipes?: readonly Pipe[];
-  Payload?: SimplePayload<E>;
+  Payload?: SimpleUpdatePayload<E>;
   payloadPipes?: readonly Pipe[];
 };
 
 export function WithFindOneAndUpdate<E extends object>({
   Entity,
   options: pOptions,
-  Input,
   PartialInput,
   entityDescription,
   entityTokenDescription,
@@ -57,7 +56,7 @@ export function WithFindOneAndUpdate<E extends object>({
         : {
             ...defaultMutationOptions,
             Filter: PartialInput,
-            Payload: Input,
+            Payload: PartialInput,
             ...pOptions.findOneAndUpdate,
           },
   };
@@ -97,7 +96,7 @@ export function WithFindOneAndUpdate<E extends object>({
     }
 
     const Filter = options.findOneAndUpdate.Filter ?? PartialInput;
-    const Payload = options.findOneAndUpdate.Payload ?? Input;
+    const Payload = options.findOneAndUpdate.Payload ?? PartialInput;
 
     class ResolverWithFindOneAndUpdate extends constructor {
       @UseGuards(
