@@ -117,15 +117,19 @@ export function WithRelationPartitionFind<E extends object>({
                     await RepositoryStore.getInstanceByEntity(
                       targetRepositoryToken,
                     ).find({
-                      [targetPartitioner]: key,
+                      filter: {
+                        [targetPartitioner]: key,
+                      },
                     })?.[0]?._id;
                   if (multiple) {
                     return RepositoryStore.getInstanceByEntity(
                       sourceToken,
-                    ).find({ [idName]: { $in: [partitionerId] } });
+                    ).find({ filter: { [idName]: { $in: [partitionerId] } } });
                   }
                   return RepositoryStore.getInstanceByEntity(sourceToken).find({
-                    [idName]: partitionerId,
+                    filter: {
+                      [idName]: partitionerId,
+                    },
                   });
                 },
                 writable: true,

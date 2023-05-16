@@ -119,7 +119,7 @@ export function WithFindSome<E extends object>({
         )
         filter: InstanceType<typeof Filter>,
       ): Promise<E[]> {
-        return this.simpleService.find(filter);
+        return this.simpleService.find({ filter });
       }
     }
 

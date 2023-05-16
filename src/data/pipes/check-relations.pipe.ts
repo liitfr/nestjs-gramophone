@@ -7,7 +7,7 @@ import { STHandle } from '../../utils/types/handle.type';
 import { RepositoryStore } from '../services/repository-store.service';
 
 @Injectable()
-export class CheckRelations<E extends object>
+export class CheckRelationsPipe<E extends object>
   implements PipeTransform<E, Promise<E>>
 {
   constructor(@Optional() private readonly Entity: Type<E>) {}
@@ -54,7 +54,9 @@ export class CheckRelations<E extends object>
 
           try {
             result = await relationRepository.find({
-              _id: { $in: value[idName] },
+              filter: {
+                _id: { $in: value[idName] },
+              },
             });
           } catch (e) {
             throw error;
@@ -77,7 +79,7 @@ export class CheckRelations<E extends object>
           );
 
           try {
-            result = await relationRepository.findById(value[idName]);
+            result = await relationRepository.findById({ id: value[idName] });
           } catch (e) {
             throw error;
           }

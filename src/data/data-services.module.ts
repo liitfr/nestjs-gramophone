@@ -10,7 +10,7 @@ import { MongoRepositoriesFactory } from './mongo/factories/repositories.factory
 import { MongoRepository } from './mongo/services/repository.service';
 import { MongoModelsFactory } from './mongo/factories/models.factory';
 import { RepositoryStore } from './services/repository-store.service';
-import { CheckRelations } from './pipes/check-relations.pipe';
+import { CheckRelationsPipe } from './pipes/check-relations.pipe';
 import { RelationResolversFactory } from './factories/relation-resolvers.factory';
 
 @Global()
@@ -37,14 +37,14 @@ export class DataServicesModule {
         ...MongoRepositories,
         RepositoryStore,
         ...RelationResolvers,
-        CheckRelations,
+        CheckRelationsPipe,
       ],
       exports: [
         DbSession,
         Repository,
         ...MongoRepositories,
         RepositoryStore,
-        CheckRelations,
+        CheckRelationsPipe,
       ],
     };
   }

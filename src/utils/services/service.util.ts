@@ -6,6 +6,7 @@ export interface ServiceMetadata<S extends object> {
   Service: Type<S>;
   serviceToken: symbol;
   serviceDescription?: string;
+  isVersioned?: boolean;
 }
 
 export const isServiceDecorated = (Service: Type<object>) =>

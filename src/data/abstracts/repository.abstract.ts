@@ -5,11 +5,7 @@ import { Id } from '../../utils/types/id.type';
 import { SimpleRepositoryInputObj } from '../../utils/resolvers/types/simple-repository-input.type';
 import { SimpleRepositoryOutputObj } from '../../utils/resolvers/types/simple-repository-output.type';
 
-import {
-  CreatedModel,
-  RemovedModel,
-  UpdatedModel,
-} from './operations.abstract';
+import { RemovedModel, UpdatedModel } from './operations.abstract';
 
 @Injectable()
 export abstract class Repository<D extends object> {
@@ -18,41 +14,41 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public create(
-    _doc: SimpleRepositoryInputObj<D>,
-    _saveOptions?: unknown,
-  ): Promise<CreatedModel | SimpleRepositoryOutputObj<D>> {
+  public create(_params: {
+    doc: SimpleRepositoryInputObj<D>;
+    saveOptions?: unknown;
+  }): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
-  public createMany(
-    _docs: SimpleRepositoryInputObj<D>[],
-    _insertManyOptions?: unknown,
-  ): Promise<CreatedModel[] | SimpleRepositoryOutputObj<D>[]> {
+  public createMany(_params: {
+    docs: SimpleRepositoryInputObj<D>[];
+    insertManyOptions?: unknown;
+  }): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFind(
-    _filter: object,
-    _options?: unknown,
-  ): Promise<SimpleRepositoryOutputObj<D>[]> {
+  public uncertainFind(_params: {
+    filter: object;
+    options?: unknown;
+  }): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public find(
-    _filter: object,
-    _options?: unknown,
-  ): Promise<SimpleRepositoryOutputObj<D>[]> {
+  public find(_params: {
+    filter: object;
+    options?: unknown;
+  }): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFindById(
-    _id: Id,
-  ): Promise<SimpleRepositoryOutputObj<D> | null> {
+  public uncertainFindById(_params: {
+    id: Id;
+  }): Promise<SimpleRepositoryOutputObj<D> | null> {
     throw new Error('Not implemented');
   }
 
-  public findById(_id: Id): Promise<SimpleRepositoryOutputObj<D>> {
+  public findById(_params: { id: Id }): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
@@ -60,39 +56,39 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public remove(_filter: object): Promise<RemovedModel> {
+  public remove(_params: { filter: object }): Promise<RemovedModel> {
     throw new Error('Not implemented');
   }
 
-  public updateOne(
-    _filter: object,
-    _update: object,
-    _options?: unknown,
-  ): Promise<UpdatedModel> {
+  public updateOne(_params: {
+    filter: object;
+    update: object;
+    options?: unknown;
+  }): Promise<UpdatedModel> {
     throw new Error('Not implemented');
   }
 
-  public updateMany(
-    _filter: object,
-    _update: object,
-    _options?: unknown,
-  ): Promise<UpdatedModel> {
+  public updateMany(_params: {
+    filter: object;
+    update: object;
+    options?: unknown;
+  }): Promise<UpdatedModel> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFindOneAndUpdate(
-    _filter: object,
-    _udpate: object,
-    _options?: unknown,
-  ): Promise<SimpleRepositoryOutputObj<D> | null> {
+  public uncertainFindOneAndUpdate(_params: {
+    filter: object;
+    update: object;
+    options?: unknown;
+  }): Promise<SimpleRepositoryOutputObj<D> | null> {
     throw new Error('Not implemented');
   }
 
-  public findOneAndUpdate(
-    _filter: object,
-    _udpate: object,
-    _options?: unknown,
-  ): Promise<SimpleRepositoryOutputObj<D>> {
+  public findOneAndUpdate(_params: {
+    filter: object;
+    update: object;
+    options?: unknown;
+  }): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
@@ -100,7 +96,10 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public count(_filter: object, _options?: unknown): Promise<number> {
+  public count(_params: {
+    filter: object;
+    options?: unknown;
+  }): Promise<number> {
     throw new Error('Not implemented');
   }
 }

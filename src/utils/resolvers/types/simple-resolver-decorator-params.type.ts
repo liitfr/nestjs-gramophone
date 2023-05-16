@@ -16,4 +16,5 @@ export type SimpleResolverDecoratorParams<E extends object> = {
   isTrackable: boolean;
   entityRelations: readonly EntityRelation[];
   hasRelations: boolean;
+  isVersioned?: boolean;
 };

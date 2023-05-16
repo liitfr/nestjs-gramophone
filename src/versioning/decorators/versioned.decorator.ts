@@ -7,6 +7,7 @@ import { Constructor } from '../../utils/types/constructor.type';
 
 import { VersioningService } from '../services/versioning.service';
 import { IdableAndTrackable } from '../types/idable-and-trackable.type';
+import { SetServiceMetadata } from '../../utils/services/set-service-metadata.decorator';
 
 export const versioningServices: {
   VersionedEntity: Type<IdableAndTrackable>;
@@ -67,6 +68,10 @@ export function Versioned<E extends IdableAndTrackable>(
       @Inject(versioningService.versioningServiceToken)
       versioningService: VersioningService<E>;
     }
+
+    SetServiceMetadata({
+      isVersioned: true,
+    })(VersionedService);
 
     return VersionedService;
   };

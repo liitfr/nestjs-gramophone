@@ -113,7 +113,7 @@ export function WithFindOne<E extends object>({
         )
         id: Id,
       ): Promise<E | null> {
-        return this.simpleService.findById(id);
+        return this.simpleService.findById({ id });
       }
     }
 

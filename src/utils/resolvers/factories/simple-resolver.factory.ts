@@ -1,8 +1,9 @@
 import { Inject, Logger, Type } from '@nestjs/common';
 
-import { SimpleServiceObj } from '../../services/simple-service.factory';
 import { checkIfIsTrackable } from '../../entities/simple-entity.decorator';
 import { EntityStore } from '../../entities/entity-store.service';
+import { ServiceStore } from '../../services/service-store.service';
+import { SimpleServiceObj } from '../../services/simple-service.type';
 
 import { WithCountAll } from '../decorators/count-all.decorator';
 import { WithCountSome } from '../decorators/count-some.decorator';
@@ -34,6 +35,8 @@ export function SimpleResolverFactory<
 ) {
   const { entityToken, entityDescription, entityRelations } =
     EntityStore.get(Entity);
+
+  const serviceMetadata = ServiceStore.get(Service);
 
   const entityTokenDescription = entityToken.description;
 
@@ -69,6 +72,7 @@ export function SimpleResolverFactory<
     isTrackable,
     entityRelations: entityRelations ?? [],
     hasRelations: hasRelations ?? false,
+    isVersioned: serviceMetadata.isVersioned,
   };
 
   @WithUpdateOne<E>(decoratorParameters)

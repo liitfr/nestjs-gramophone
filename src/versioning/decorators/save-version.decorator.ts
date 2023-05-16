@@ -6,11 +6,22 @@ import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 export const VERSION_DATA_FIELDNAME = 'versionData';
 export const VERSION_DATA_PATH = `[0].${VERSION_DATA_FIELDNAME}`;
 
-type VersionDataGetter = (...args: any[]) => VersionDataInput;
+export type VersionDataGetter = (...args: any[]) => VersionDataInput;
+
+export const defaultVersionDataGetter = (...args: any[]) =>
+  get(args, VERSION_DATA_PATH);
 
 export const SaveVersion = (
-  versionDataGetter: VersionDataGetter = (...args: any[]) =>
-    get(args, VERSION_DATA_PATH),
+  {
+    versionDataGetter = defaultVersionDataGetter,
+    multiple = false,
+  }: {
+    versionDataGetter?: VersionDataGetter;
+    multiple?: boolean;
+  } = {
+    versionDataGetter: defaultVersionDataGetter,
+    multiple: false,
+  },
 ) => {
   return function decorator(
     _target: any,
@@ -36,7 +47,14 @@ export const SaveVersion = (
       const result = await originalMethod.apply(this, args);
 
       const versionData = versionDataGetter(...args);
-      await this.versioningService.saveVersion(result, versionData);
+
+      if (multiple) {
+        for (const resultItem of result) {
+          await this.versioningService.saveVersion(resultItem, versionData);
+        }
+      } else {
+        await this.versioningService.saveVersion(result, versionData);
+      }
 
       return result;
     };

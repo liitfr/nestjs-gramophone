@@ -116,16 +116,22 @@ export function WithRelationPartitionCount<E extends object>({
                     await RepositoryStore.getInstanceByEntity(
                       targetRepositoryToken,
                     ).find({
-                      [targetPartitioner]: key,
+                      filter: {
+                        [targetPartitioner]: key,
+                      },
                     })?.[0]?._id;
+
                   if (multiple) {
                     return RepositoryStore.getInstanceByEntity(
                       sourceToken,
-                    ).count({ [idName]: { $in: [partitionerId] } });
+                    ).count({ filter: { [idName]: { $in: [partitionerId] } } });
                   }
+
                   return RepositoryStore.getInstanceByEntity(sourceToken).count(
                     {
-                      [idName]: partitionerId,
+                      filter: {
+                        [idName]: partitionerId,
+                      },
                     },
                   );
                 },

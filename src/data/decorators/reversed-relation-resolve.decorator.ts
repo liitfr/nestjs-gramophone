@@ -95,14 +95,18 @@ export function WithReversedRelationResolve<E extends object>({
                   return RepositoryStore.getInstanceByEntity(
                     sourceToken,
                   ).uncertainFind({
-                    [idName]: { $in: parentId },
+                    filter: {
+                      [idName]: { $in: parentId },
+                    },
                   });
                 }
 
                 return RepositoryStore.getInstanceByEntity(
                   sourceToken,
                 ).uncertainFind({
-                  [idName]: parentId,
+                  filter: {
+                    [idName]: parentId,
+                  },
                 });
               },
               writable: true,

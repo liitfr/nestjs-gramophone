@@ -9,8 +9,8 @@ import { ServiceStore } from '../../utils/services/service-store.service';
 import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
 import { AppAbility } from '../../authorization/factories/casl-ability.factory';
 import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
-import { SimpleServiceObj } from '../../utils/services/simple-service.factory';
 import { SimpleApiInput } from '../../utils/resolvers/types/simple-api-input.type';
+import { SimpleServiceObj } from '../../utils/services/simple-service.type';
 
 import { UserActionEnum } from '../enums/user-action.enum';
 

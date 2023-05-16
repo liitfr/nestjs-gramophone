@@ -1,18 +1,16 @@
 import { Inject, Type } from '@nestjs/common';
 
-import {
-  SimpleServiceFactory,
-  SimpleServiceObj,
-} from '../../utils/services/simple-service.factory';
+import { SimpleServiceFactory } from '../../utils/services/simple-service.factory';
 import { pascalCase, pluralize } from '../../utils/utils/string.util';
 import { CustomError, ErrorCode } from '../../utils/errors/custom.error';
 import { SetServiceMetadata } from '../../utils/services/set-service-metadata.decorator';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
+import { Repository } from '../../data/abstracts/repository.abstract';
+import { SimpleServiceObj } from '../../utils/services/simple-service.type';
 
 import { ReferencesService } from '../services/references.service';
 import { ISimpleReference } from '../decorators/simple-reference.decorator';
-import { Repository } from '../../data/abstracts/repository.abstract';
 
 type SimpleReferenceServiceObj<
   D extends object,
@@ -63,7 +61,9 @@ export const SimpleReferenceServiceFactory = <
       if (!version) {
         const reference = (
           await this.referencesService.find({
-            code: entityTokenDescription,
+            filter: {
+              code: entityTokenDescription,
+            },
           })
         )?.[0];
         if (!reference) {
@@ -87,7 +87,7 @@ export const SimpleReferenceServiceFactory = <
       // FIXME : find a better way to do this.
       const result = await (
         this.repository as Repository<ISimpleReference>
-      ).find({ version }, { index: 1 });
+      ).find({ filter: { version }, options: { sort: { index: 1 } } });
 
       if (result.length === 0) {
         throw new CustomError(
@@ -132,7 +132,11 @@ export const SimpleReferenceServiceFactory = <
 
     Object.defineProperty(SimpleReferenceService.prototype, `find${pCKey}`, {
       value: async function () {
-        return (await this.repository.find({ [entityPartitioner]: key }))?.[0];
+        return (
+          await (this.repository as Repository<ISimpleReference>).find({
+            filter: { [entityPartitioner]: key },
+          })
+        )?.[0];
       },
       writable: true,
       enumerable: true,

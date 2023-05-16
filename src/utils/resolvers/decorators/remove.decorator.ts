@@ -123,7 +123,7 @@ export function WithRemove<E extends object>({
         )
         filter: InstanceType<typeof Filter>,
       ) {
-        return this.simpleService.remove(filter);
+        return this.simpleService.remove({ filter });
       }
     }
 

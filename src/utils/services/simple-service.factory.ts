@@ -2,11 +2,11 @@ import { Inject, Logger, Type } from '@nestjs/common';
 
 import { Repository } from '../../data/abstracts/repository.abstract';
 import {
-  CreatedModel,
   RemovedModel,
   UpdatedModel,
 } from '../../data/abstracts/operations.abstract';
 import { SaveVersionIfEnabled } from '../../versioning/decorators/save-version-if-enabled.decorator';
+import { VersionDataInput } from '../../versioning/dtos/version-data.input';
 
 import { EntityStore } from '../entities/entity-store.service';
 import { Id } from '../types/id.type';
@@ -19,12 +19,7 @@ import { SimpleRepositoryOutputObj } from '../resolvers/types/simple-repository-
 import { SetServiceMetadata } from './set-service-metadata.decorator';
 import { getServiceToken } from './service.util';
 import { SetServiceToken } from './set-service-token.decorator';
-
-export type SimpleServiceObj<D extends object> = Repository<D> & {
-  repository: Repository<D>;
-};
-
-export type SimpleService<D extends object> = Type<SimpleServiceObj<D>>;
+import { SimpleService } from './simple-service.type';
 
 interface Return<E extends object> {
   Service: SimpleService<E>;
@@ -69,101 +64,145 @@ export const SimpleServiceFactory = <E extends object>(
     public readonly repository!: Repository<D>;
 
     @SaveVersionIfEnabled()
-    public create(
-      doc: SimpleRepositoryInputObj<D>,
-      saveOptions?: unknown,
-    ): Promise<CreatedModel | SimpleRepositoryOutputObj<D>> {
-      return this.repository.create(doc, saveOptions);
+    public create({
+      doc,
+      saveOptions,
+    }: {
+      doc: SimpleRepositoryInputObj<D>;
+      versionData?: VersionDataInput;
+      saveOptions?: unknown;
+    }): Promise<SimpleRepositoryOutputObj<D>> {
+      return this.repository.create({ doc, saveOptions });
     }
 
     @SaveVersionIfEnabled()
-    async createMany(
-      docs: SimpleRepositoryInputObj<D>[],
-      insertManyOptions?: unknown,
-    ): Promise<CreatedModel[] | SimpleRepositoryOutputObj<D>[]> {
-      return this.repository.createMany(docs, insertManyOptions);
+    async createMany({
+      docs,
+      insertManyOptions,
+    }: {
+      docs: SimpleRepositoryInputObj<D>[];
+      versionData?: VersionDataInput;
+      insertManyOptions?: unknown;
+    }): Promise<SimpleRepositoryOutputObj<D>[]> {
+      return this.repository.createMany({ docs, insertManyOptions });
     }
 
-    async uncertainFind(
-      filter: PartialSimpleRepositoryInputObj<D>,
-      options?: unknown,
-    ): Promise<SimpleRepositoryOutputObj<D>[]> {
-      return this.repository.uncertainFind(filter, options);
+    async uncertainFind({
+      filter,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+      options?: unknown;
+    }): Promise<SimpleRepositoryOutputObj<D>[]> {
+      return this.repository.uncertainFind({ filter, options });
     }
 
-    async find(
-      filter: PartialSimpleRepositoryInputObj<D>,
-      options?: unknown,
-    ): Promise<SimpleRepositoryOutputObj<D>[]> {
-      return this.repository.find(filter, options);
+    async find({
+      filter,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+      options?: unknown;
+    }): Promise<SimpleRepositoryOutputObj<D>[]> {
+      return this.repository.find({ filter, options });
     }
 
-    async uncertainFindById(
-      id: Id,
-    ): Promise<SimpleRepositoryOutputObj<D> | null> {
-      return this.repository.uncertainFindById(id);
+    async uncertainFindById({
+      id,
+    }: {
+      id: Id;
+    }): Promise<SimpleRepositoryOutputObj<D> | null> {
+      return this.repository.uncertainFindById({ id });
     }
 
-    async findById(id: Id): Promise<SimpleRepositoryOutputObj<D>> {
-      return this.repository.findById(id);
+    async findById({ id }: { id: Id }): Promise<SimpleRepositoryOutputObj<D>> {
+      return this.repository.findById({ id });
     }
 
     async findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
       return this.repository.findAll();
     }
 
-    @SaveVersionIfEnabled()
-    async remove(
-      filter: PartialSimpleRepositoryInputObj<D>,
-    ): Promise<RemovedModel> {
-      return this.repository.remove(filter);
+    async remove({
+      filter,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+    }): Promise<RemovedModel> {
+      return this.repository.remove({ filter });
     }
 
     @SaveVersionIfEnabled()
-    async updateOne(
-      filter: PartialSimpleRepositoryInputObj<D>,
-      update: PartialSimpleRepositoryInputObj<D>,
-      options?: unknown,
-    ): Promise<UpdatedModel> {
-      return this.repository.updateOne(filter, update, options);
+    async updateOne({
+      filter,
+      update,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+      update: PartialSimpleRepositoryInputObj<D>;
+      versionData?: VersionDataInput;
+      options?: unknown;
+    }): Promise<UpdatedModel> {
+      return this.repository.updateOne({ filter, update, options });
     }
 
     @SaveVersionIfEnabled()
-    async updateMany(
-      filter: PartialSimpleRepositoryInputObj<D>,
-      update: PartialSimpleRepositoryInputObj<D>,
-      options?: unknown,
-    ): Promise<UpdatedModel> {
-      return this.repository.updateMany(filter, update, options);
+    async updateMany({
+      filter,
+      update,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+      update: PartialSimpleRepositoryInputObj<D>;
+      versionData?: VersionDataInput;
+      options?: unknown;
+    }): Promise<UpdatedModel> {
+      return this.repository.updateMany({ filter, update, options });
     }
 
     @SaveVersionIfEnabled()
-    async uncertainFindOneAndUpdate(
-      filter: PartialSimpleRepositoryInputObj<D>,
-      update: PartialSimpleRepositoryInputObj<D>,
-      options?: unknown,
-    ): Promise<SimpleRepositoryOutputObj<D> | null> {
-      return this.repository.uncertainFindOneAndUpdate(filter, update, options);
+    async uncertainFindOneAndUpdate({
+      filter,
+      update,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+      update: PartialSimpleRepositoryInputObj<D>;
+      versionData?: VersionDataInput;
+      options?: unknown;
+    }): Promise<SimpleRepositoryOutputObj<D> | null> {
+      return this.repository.uncertainFindOneAndUpdate({
+        filter,
+        update,
+        options,
+      });
     }
 
     @SaveVersionIfEnabled()
-    async findOneAndUpdate(
-      filter: PartialSimpleRepositoryInputObj<D>,
-      update: PartialSimpleRepositoryInputObj<D>,
-      options?: unknown,
-    ): Promise<SimpleRepositoryOutputObj<D>> {
-      return this.repository.findOneAndUpdate(filter, update, options);
+    async findOneAndUpdate({
+      filter,
+      update,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<D>;
+      update: PartialSimpleRepositoryInputObj<D>;
+      versionData?: VersionDataInput;
+      options?: unknown;
+    }): Promise<SimpleRepositoryOutputObj<D>> {
+      return this.repository.findOneAndUpdate({ filter, update, options });
     }
 
     async countAll(): Promise<number> {
       return this.repository.countAll();
     }
 
-    async count(
-      filter: PartialSimpleRepositoryInputObj<E>,
-      options?: unknown,
-    ): Promise<number> {
-      return this.repository.count(filter, options);
+    async count({
+      filter,
+      options,
+    }: {
+      filter: PartialSimpleRepositoryInputObj<E>;
+      options?: unknown;
+    }): Promise<number> {
+      return this.repository.count({ filter, options });
     }
   }
 

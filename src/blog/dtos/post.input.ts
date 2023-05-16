@@ -1,9 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
 
-import { SimpleVersionedEntityInputFactory } from '../../versioning/factories/simple-versioned-entity-input.factory';
-
 import { Post } from '../entities/post.entity';
-import { ChipInput } from 'src/references/dtos/chip.input';
+import { ChipInput } from '../../references/dtos/chip.input';
+import { SimpleEntityInputFactory } from '../../utils/dtos/simple-entity-input.factory';
 
 @InputType({ isAbstract: true })
 class FieldsToAddToPostInput {
@@ -15,7 +14,7 @@ class FieldsToAddToPostInput {
 }
 
 @InputType({ description: 'Post Input' })
-export class PostInput extends SimpleVersionedEntityInputFactory(Post, {
+export class PostInput extends SimpleEntityInputFactory(Post, {
   removeFields: ['chip'],
   AddFields: [FieldsToAddToPostInput],
 }) {}

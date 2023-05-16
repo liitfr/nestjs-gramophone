@@ -95,7 +95,9 @@ export function WithReversedRelationId<E extends object>({
                   await RepositoryStore.getInstanceByEntity(
                     sourceToken,
                   ).uncertainFind({
-                    [idName]: { $in: parentId },
+                    filter: {
+                      [idName]: { $in: parentId },
+                    },
                   })
                 ).map((item: Record<string, unknown>) => {
                   if (!item['_id']) {
@@ -109,7 +111,9 @@ export function WithReversedRelationId<E extends object>({
                 await RepositoryStore.getInstanceByEntity(
                   sourceToken,
                 ).uncertainFind({
-                  [idName]: parentId,
+                  filter: {
+                    [idName]: parentId,
+                  },
                 })
               ).map((item: Record<string, unknown>) => {
                 if (!item['_id']) {

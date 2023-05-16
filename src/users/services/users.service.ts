@@ -10,13 +10,18 @@ const { Service, serviceToken } = SimpleServiceFactory(User);
 
 export class UsersService extends Service {
   async ping(user: User) {
-    return this.findOneAndUpdate(user._id, {
-      lastSeenAt: new Date(),
+    return this.findOneAndUpdate({
+      filter: {
+        _id: user._id,
+      },
+      update: {
+        lastSeenAt: new Date(),
+      },
     });
   }
 
   async getUserIfRefreshTokenMatches(userId: Id, refreshToken: string) {
-    const user = await this.findById(userId);
+    const user = await this.findById({ id: userId });
 
     if (user.currentHashedRefreshToken) {
       const isRefreshTokenMatching = await argon2.verify(
@@ -34,14 +39,20 @@ export class UsersService extends Service {
 
   async setCurrentRefreshToken(userId: Id, refreshToken: string) {
     const currentHashedRefreshToken = await argon2.hash(refreshToken);
-    await this.findOneAndUpdate(userId, {
-      currentHashedRefreshToken,
+    await this.findOneAndUpdate({
+      filter: { _id: userId },
+      update: {
+        currentHashedRefreshToken,
+      },
     });
   }
 
   async removeRefreshToken(userId: Id) {
-    return await this.findOneAndUpdate(userId, {
-      currentHashedRefreshToken: undefined,
+    return await this.findOneAndUpdate({
+      filter: { _id: userId },
+      update: {
+        currentHashedRefreshToken: undefined,
+      },
     });
   }
 }

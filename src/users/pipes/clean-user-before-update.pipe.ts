@@ -47,7 +47,9 @@ export class CleanUserBeforeUpdatePipe
       );
     }
 
-    const filterResult = await this.usersService.find(value[FILTER_VALUE]);
+    const filterResult = await this.usersService.find({
+      filter: value[FILTER_VALUE],
+    });
 
     if (filterResult.length === 0 || !filterResult[0]?._id) {
       throw new CustomError(

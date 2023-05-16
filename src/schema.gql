@@ -2,168 +2,106 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""
-All References
-"""
+"""All References"""
 type AllReferences {
-  """
-  All References's all active colors
-  """
+  """All References's all active colors"""
   activeColors: [Color!]!
 
-  """
-  All References's all active generic statuses
-  """
+  """All References's all active generic statuses"""
   activeTypes: [Type!]!
 
-  """
-  All References's all active user actions
-  """
+  """All References's all active user actions"""
   activeUserActions: [UserAction!]!
 
-  """
-  All References's all active user roles
-  """
+  """All References's all active user roles"""
   activeUserRoles: [UserRole!]!
 
-  """
-  All References's all colors
-  """
+  """All References's all colors"""
   colors: [Color!]!
 
-  """
-  All References's all references
-  """
+  """All References's all references"""
   references: [Reference!]!
 
-  """
-  All References's all types
-  """
+  """All References's all types"""
   types: [Type!]!
 
-  """
-  All References's all user actions
-  """
+  """All References's all user actions"""
   userActions: [UserAction!]!
 
-  """
-  All References's all user roles
-  """
+  """All References's all user roles"""
   userRoles: [UserRole!]!
 }
 
 type Author {
-  """
-  Author's id
-  """
+  """Author's id"""
   _id: Id!
   firstName: String!
   lastName: String!
 
-  """
-  Author's post ids
-  """
+  """Author's post ids"""
   postIds: [Id!]!
 
-  """
-  Author's posts
-  """
+  """Author's posts"""
   posts: [Post!]!
 }
 
-"""
-Author Input
-"""
+"""Author Input"""
 input AuthorInput {
-  """
-  Author's id
-  """
+  """Author's id"""
   _id: Id
   firstName: String!
   lastName: String!
 }
 
 input AuthorPartialInput {
-  """
-  Author's id
-  """
+  """Author's id"""
   _id: Id
   firstName: String
   lastName: String
 }
 
-"""
-Chip
-"""
+"""Chip"""
 type Chip {
-  """
-  Chip's id
-  """
+  """Chip's id"""
   _id: Id!
 
-  """
-  Chip's color
-  """
+  """Chip's color"""
   color: ColorEnum!
 
-  """
-  Chip's icon
-  """
+  """Chip's icon"""
   icon: IconEnum!
 }
 
-"""
-Chip Input
-"""
+"""Chip Input"""
 input ChipInput {
-  """
-  Chip's id
-  """
+  """Chip's id"""
   _id: Id
 
-  """
-  Chip's color
-  """
+  """Chip's color"""
   color: ColorEnum!
 
-  """
-  Chip's icon
-  """
+  """Chip's icon"""
   icon: IconEnum!
 }
 
-"""
-Color
-"""
+"""Color"""
 type Color {
-  """
-  Color's id
-  """
+  """Color's id"""
   _id: Id!
 
-  """
-  Color's code
-  """
+  """Color's code"""
   code: ColorEnum!
 
-  """
-  Color's index
-  """
+  """Color's index"""
   index: Int!
 
-  """
-  Color's is selected by default ?
-  """
+  """Color's is selected by default ?"""
   isSelectedByDefault: Boolean!
 
-  """
-  Color's label
-  """
+  """Color's label"""
   label: String!
 
-  """
-  Color's version
-  """
+  """Color's version"""
   version: Int!
 }
 
@@ -178,34 +116,22 @@ enum ColorEnum {
 }
 
 input ColorPartialInput {
-  """
-  Color's id
-  """
+  """Color's id"""
   _id: Id
 
-  """
-  Color's code
-  """
+  """Color's code"""
   code: ColorEnum
 
-  """
-  Color's index
-  """
+  """Color's index"""
   index: Int
 
-  """
-  Color's is selected by default ?
-  """
+  """Color's is selected by default ?"""
   isSelectedByDefault: Boolean
 
-  """
-  Color's label
-  """
+  """Color's label"""
   label: String
 
-  """
-  Color's version
-  """
+  """Color's version"""
   version: Int
 }
 
@@ -222,757 +148,448 @@ enum IconEnum {
   Verified
 }
 
-"""
-Id scalar type
-"""
+"""Id scalar type"""
 scalar Id
 
-"""
-Login Input
-"""
+"""Login Input"""
 input LoginInput {
-  """
-  Login's email
-  """
+  """Login's email"""
   email: String!
 
-  """
-  Login's password
-  """
+  """Login's password"""
   password: String!
 }
 
-"""
-Logout Result
-"""
+"""Logout Result"""
 type LogoutResult {
-  """
-  Logout Result's loggued out ?
-  """
+  """Logout Result's loggued out ?"""
   loggedOut: Boolean!
 }
 
 type Mutation {
-  """
-  Author : Create mutation
-  """
+  """Author : Create mutation"""
   createAuthor(author: AuthorInput!): Author!
 
-  """
-  Post : Create mutation
-  """
-  createPost(post: PostInput!): Post!
+  """Post : Create mutation"""
+  createPost(post: PostInput!, versionData: VersionDataInput): Post!
 
-  """
-  User : Create mutation
-  """
+  """User : Create mutation"""
   createUser(user: UserCreateInput!): User!
 
-  """
-  Author : Find one and update mutation
-  """
-  findOneAndUpdateAuthor(
-    filter: AuthorPartialInput!
-    update: AuthorPartialInput!
-  ): Author!
+  """Author : Find one and update mutation"""
+  findOneAndUpdateAuthor(filter: AuthorPartialInput!, update: AuthorPartialInput!): Author!
 
-  """
-  Post : Find one and update mutation
-  """
-  findOneAndUpdatePost(
-    filter: PostPartialInput!
-    update: PostPartialInput!
-  ): Post!
+  """Post : Find one and update mutation"""
+  findOneAndUpdatePost(filter: PostPartialInput!, update: PostPartialInput!, versionData: VersionDataInput): Post!
 
-  """
-  User : Find one and update mutation
-  """
-  findOneAndUpdateUser(
-    filter: UserPartialInput!
-    update: UserUpdateInput!
-  ): User!
+  """User : Find one and update mutation"""
+  findOneAndUpdateUser(filter: UserPartialInput!, update: UserUpdateInput!): User!
 
-  """
-  Authentication : Login mutation
-  """
+  """Authentication : Login mutation"""
   login(credentials: LoginInput!): UserWithNoFieldResolver!
 
-  """
-  Authentication : Logout mutation
-  """
+  """Authentication : Logout mutation"""
   logout: LogoutResult!
 
-  """
-  Authentication : Refresh token mutation
-  """
+  """Authentication : Refresh token mutation"""
   refreshToken: UserWithNoFieldResolver!
 }
 
 type Post {
-  """
-  Post's id
-  """
+  """Post's id"""
   _id: Id!
 
-  """
-  Post's author
-  """
+  """Post's author"""
   author: Author!
 
-  """
-  Post's author id
-  """
+  """Post's author id"""
   authorId: Id!
 
-  """
-  Post's automatic memo
-  """
+  """Post's automatic memo"""
   automaticMemo: String
 
-  """
-  Post's chip
-  """
+  """Post's chip"""
   chip: Chip
 
-  """
-  Post's color
-  """
+  """Post's color"""
   color: Color
 
-  """
-  Post's color id
-  """
+  """Post's color id"""
   colorId: Id
 
-  """
-  Post's content
-  """
+  """Post's content"""
   content: String!
 
-  """
-  Post's created at
-  """
+  """Post's created at"""
   createdAt: DateTime!
 
-  """
-  Post's creator id
-  """
+  """Post's creator id"""
   creatorId: Id!
 
-  """
-  Post's internal memo
-  """
+  """Post's internal memo"""
   internalMemo: String
 
-  """
-  Post's memo
-  """
+  """Post's memo"""
   memo: String
 
-  """
-  Post's title
-  """
+  """Post's title"""
   title: String!
 
-  """
-  Post's type
-  """
+  """Post's type"""
   type: Type!
 
-  """
-  Post's type id
-  """
+  """Post's type id"""
   typeId: Id!
 
-  """
-  Post's updated at
-  """
+  """Post's updated at"""
   updatedAt: DateTime!
 
-  """
-  Post's updater id
-  """
+  """Post's updater id"""
   updaterId: Id!
 }
 
-"""
-Post Input
-"""
+"""Post Input"""
 input PostInput {
-  """
-  Post's id
-  """
+  """Post's id"""
   _id: Id
 
-  """
-  Post's author id
-  """
+  """Post's author id"""
   authorId: Id!
 
-  """
-  Post's automatic memo
-  """
+  """Post's automatic memo"""
   automaticMemo: String
 
-  """
-  Post's chip
-  """
+  """Post's chip"""
   chip: ChipInput
 
-  """
-  Post's color id
-  """
+  """Post's color id"""
   colorId: Id
 
-  """
-  Post's content
-  """
+  """Post's content"""
   content: String!
 
-  """
-  Post's internal memo
-  """
+  """Post's internal memo"""
   internalMemo: String
 
-  """
-  Post's memo
-  """
+  """Post's memo"""
   memo: String
 
-  """
-  Post's title
-  """
+  """Post's title"""
   title: String!
 
-  """
-  Post's type id
-  """
+  """Post's type id"""
   typeId: Id!
-
-  """
-  Post's version data
-  """
-  versionData: VersionDataInput
 }
 
 input PostPartialInput {
-  """
-  Post's id
-  """
+  """Post's id"""
   _id: Id
 
-  """
-  Post's author id
-  """
+  """Post's author id"""
   authorId: Id
 
-  """
-  Post's automatic memo
-  """
+  """Post's automatic memo"""
   automaticMemo: String
 
-  """
-  Post's chip
-  """
+  """Post's chip"""
   chip: ChipInput
 
-  """
-  Post's color id
-  """
+  """Post's color id"""
   colorId: Id
 
-  """
-  Post's content
-  """
+  """Post's content"""
   content: String
 
-  """
-  Post's internal memo
-  """
+  """Post's internal memo"""
   internalMemo: String
 
-  """
-  Post's memo
-  """
+  """Post's memo"""
   memo: String
 
-  """
-  Post's title
-  """
+  """Post's title"""
   title: String
 
-  """
-  Post's type id
-  """
+  """Post's type id"""
   typeId: Id
-
-  """
-  Post's version data
-  """
-  versionData: VersionDataInput
 }
 
 type PostVersion {
-  """
-  Post Version's id
-  """
+  """Post Version's id"""
   _id: Id!
 
-  """
-  Post Version's automatic memo
-  """
+  """Post Version's automatic memo"""
   automaticMemo: String
 
-  """
-  Post Version's created at
-  """
+  """Post Version's created at"""
   createdAt: DateTime!
 
-  """
-  Post Version's creator id
-  """
+  """Post Version's creator id"""
   creatorId: Id!
 
-  """
-  Post Version's internal memo
-  """
+  """Post Version's internal memo"""
   internalMemo: String
 
-  """
-  Post Version's memo
-  """
+  """Post Version's memo"""
   memo: String
 
-  """
-  Post Version's original id
-  """
+  """Post Version's original id"""
   originalId: Id!
 
-  """
-  Post Version's updated at
-  """
+  """Post Version's updated at"""
   updatedAt: DateTime!
 
-  """
-  Post Version's updater id
-  """
+  """Post Version's updater id"""
   updaterId: Id!
 
-  """
-  Post Version's version
-  """
+  """Post Version's version"""
   version: Post!
 }
 
 type Query {
-  """
-  References : All references query
-  """
+  """References : All references query"""
   AllReferences: AllReferences!
 
-  """
-  Authentication : Context user query
-  """
+  """Authentication : Context user query"""
   authentication: UserWithNoFieldResolver!
 
-  """
-  Author : Count all query
-  """
+  """Author : Count all query"""
   countAllAuthors: Int!
 
-  """
-  Color : Count all query
-  """
+  """Color : Count all query"""
   countAllColors: Int!
 
-  """
-  Post : Count all query
-  """
+  """Post : Count all query"""
   countAllPosts: Int!
 
-  """
-  Post : Count all with CoverPage Type query
-  """
+  """Post : Count all with CoverPage Type query"""
   countAllPostsWithCoverPageType: Int!
 
-  """
-  Post : Count all with Default Color query
-  """
+  """Post : Count all with Default Color query"""
   countAllPostsWithDefaultColor: Int!
 
-  """
-  Post : Count all with Error Color query
-  """
+  """Post : Count all with Error Color query"""
   countAllPostsWithErrorColor: Int!
 
-  """
-  Post : Count all with Info Color query
-  """
+  """Post : Count all with Info Color query"""
   countAllPostsWithInfoColor: Int!
 
-  """
-  Post : Count all with Normal Type query
-  """
+  """Post : Count all with Normal Type query"""
   countAllPostsWithNormalType: Int!
 
-  """
-  Post : Count all with Primary Color query
-  """
+  """Post : Count all with Primary Color query"""
   countAllPostsWithPrimaryColor: Int!
 
-  """
-  Post : Count all with Secondary Color query
-  """
+  """Post : Count all with Secondary Color query"""
   countAllPostsWithSecondaryColor: Int!
 
-  """
-  Post : Count all with Success Color query
-  """
+  """Post : Count all with Success Color query"""
   countAllPostsWithSuccessColor: Int!
 
-  """
-  Post : Count all with TableOfContents Type query
-  """
+  """Post : Count all with TableOfContents Type query"""
   countAllPostsWithTableOfContentsType: Int!
 
-  """
-  Post : Count all with Warning Color query
-  """
+  """Post : Count all with Warning Color query"""
   countAllPostsWithWarningColor: Int!
 
-  """
-  Reference : Count all query
-  """
+  """Reference : Count all query"""
   countAllReferences: Int!
 
-  """
-  Type : Count all query
-  """
+  """Type : Count all query"""
   countAllTypes: Int!
 
-  """
-  User Action : Count all query
-  """
+  """User Action : Count all query"""
   countAllUserActions: Int!
 
-  """
-  User Role : Count all query
-  """
+  """User Role : Count all query"""
   countAllUserRoles: Int!
 
-  """
-  User : Count all query
-  """
+  """User : Count all query"""
   countAllUsers: Int!
 
-  """
-  User : Count all with Admin User Role query
-  """
+  """User : Count all with Admin User Role query"""
   countAllUsersWithAdminUserRole: Int!
 
-  """
-  User : Count all with User User Role query
-  """
+  """User : Count all with User User Role query"""
   countAllUsersWithUserUserRole: Int!
 
-  """
-  Author : Count some query
-  """
+  """Author : Count some query"""
   countSomeAuthors(filter: AuthorPartialInput!): Int!
 
-  """
-  Color : Count some query
-  """
+  """Color : Count some query"""
   countSomeColors(filter: ColorPartialInput!): Int!
 
-  """
-  Post : Count some query
-  """
+  """Post : Count some query"""
   countSomePosts(filter: PostPartialInput!): Int!
 
-  """
-  Reference : Count some query
-  """
+  """Reference : Count some query"""
   countSomeReferences(filter: ReferencePartialInput!): Int!
 
-  """
-  Type : Count some query
-  """
+  """Type : Count some query"""
   countSomeTypes(filter: TypePartialInput!): Int!
 
-  """
-  User Action : Count some query
-  """
+  """User Action : Count some query"""
   countSomeUserActions(filter: UserActionPartialInput!): Int!
 
-  """
-  User Role : Count some query
-  """
+  """User Role : Count some query"""
   countSomeUserRoles(filter: UserRolePartialInput!): Int!
 
-  """
-  User : Count some query
-  """
+  """User : Count some query"""
   countSomeUsers(filter: UserPartialInput!): Int!
 
-  """
-  Color : Find all active query
-  """
+  """Color : Find all active query"""
   findAllActiveColors: [Color!]!
 
-  """
-  Reference : Find all active query
-  """
+  """Reference : Find all active query"""
   findAllActiveReferences: [Reference!]!
 
-  """
-  Type : Find all active query
-  """
+  """Type : Find all active query"""
   findAllActiveTypes: [Type!]!
 
-  """
-  UserAction : Find all active query
-  """
+  """UserAction : Find all active query"""
   findAllActiveUserActions: [UserAction!]!
 
-  """
-  UserRole : Find all active query
-  """
+  """UserRole : Find all active query"""
   findAllActiveUserRoles: [UserRole!]!
 
-  """
-  Author : Find all query
-  """
+  """Author : Find all query"""
   findAllAuthors: [Author!]!
 
-  """
-  Color : Find all query
-  """
+  """Color : Find all query"""
   findAllColors: [Color!]!
 
-  """
-  Post Version : Find all versions for one original id query
-  """
+  """Post Version : Find all versions for one original id query"""
   findAllPostVersionsForOneOriginalId(originalId: Id!): [PostVersion!]!
 
-  """
-  Post : Find all query
-  """
+  """Post : Find all query"""
   findAllPosts: [Post!]!
 
-  """
-  Post: Find all with CoverPage Type query
-  """
+  """Post: Find all with CoverPage Type query"""
   findAllPostsWithCoverPageType: [Post!]!
 
-  """
-  Post: Find all with Default Color query
-  """
+  """Post: Find all with Default Color query"""
   findAllPostsWithDefaultColor: [Post!]!
 
-  """
-  Post: Find all with Error Color query
-  """
+  """Post: Find all with Error Color query"""
   findAllPostsWithErrorColor: [Post!]!
 
-  """
-  Post: Find all with Info Color query
-  """
+  """Post: Find all with Info Color query"""
   findAllPostsWithInfoColor: [Post!]!
 
-  """
-  Post: Find all with Normal Type query
-  """
+  """Post: Find all with Normal Type query"""
   findAllPostsWithNormalType: [Post!]!
 
-  """
-  Post: Find all with Primary Color query
-  """
+  """Post: Find all with Primary Color query"""
   findAllPostsWithPrimaryColor: [Post!]!
 
-  """
-  Post: Find all with Secondary Color query
-  """
+  """Post: Find all with Secondary Color query"""
   findAllPostsWithSecondaryColor: [Post!]!
 
-  """
-  Post: Find all with Success Color query
-  """
+  """Post: Find all with Success Color query"""
   findAllPostsWithSuccessColor: [Post!]!
 
-  """
-  Post: Find all with TableOfContents Type query
-  """
+  """Post: Find all with TableOfContents Type query"""
   findAllPostsWithTableOfContentsType: [Post!]!
 
-  """
-  Post: Find all with Warning Color query
-  """
+  """Post: Find all with Warning Color query"""
   findAllPostsWithWarningColor: [Post!]!
 
-  """
-  Reference : Find all query
-  """
+  """Reference : Find all query"""
   findAllReferences: [Reference!]!
 
-  """
-  Type : Find all query
-  """
+  """Type : Find all query"""
   findAllTypes: [Type!]!
 
-  """
-  User Action : Find all query
-  """
+  """User Action : Find all query"""
   findAllUserActions: [UserAction!]!
 
-  """
-  User Role : Find all query
-  """
+  """User Role : Find all query"""
   findAllUserRoles: [UserRole!]!
 
-  """
-  User : Find all query
-  """
+  """User : Find all query"""
   findAllUsers: [User!]!
 
-  """
-  User: Find all with Admin User Role query
-  """
+  """User: Find all with Admin User Role query"""
   findAllUsersWithAdminUserRole: [User!]!
 
-  """
-  User: Find all with User User Role query
-  """
+  """User: Find all with User User Role query"""
   findAllUsersWithUserUserRole: [User!]!
 
-  """
-  Author : Find one query
-  """
+  """Author : Find one query"""
   findOneAuthor(id: Id!): Author!
 
-  """
-  Color : Find one query
-  """
+  """Color : Find one query"""
   findOneColor(id: Id!): Color!
 
-  """
-  Post : Find one query
-  """
+  """Post : Find one query"""
   findOnePost(id: Id!): Post!
 
-  """
-  Post Version : Find one version by id query
-  """
+  """Post Version : Find one version by id query"""
   findOnePostVersionById(id: Id!): PostVersion!
 
-  """
-  Reference : Find one query
-  """
+  """Reference : Find one query"""
   findOneReference(id: Id!): Reference!
 
-  """
-  Type : Find one query
-  """
+  """Type : Find one query"""
   findOneType(id: Id!): Type!
 
-  """
-  User : Find one query
-  """
+  """User : Find one query"""
   findOneUser(id: Id!): User!
 
-  """
-  User Action : Find one query
-  """
+  """User Action : Find one query"""
   findOneUserAction(id: Id!): UserAction!
 
-  """
-  User Role : Find one query
-  """
+  """User Role : Find one query"""
   findOneUserRole(id: Id!): UserRole!
 
-  """
-  Author : Find some query
-  """
+  """Author : Find some query"""
   findSomeAuthors(filter: AuthorPartialInput!): [Author!]!
 
-  """
-  Color : Find some query
-  """
+  """Color : Find some query"""
   findSomeColors(filter: ColorPartialInput!): [Color!]!
 
-  """
-  Post : Find some query
-  """
+  """Post : Find some query"""
   findSomePosts(filter: PostPartialInput!): [Post!]!
 
-  """
-  Reference : Find some query
-  """
+  """Reference : Find some query"""
   findSomeReferences(filter: ReferencePartialInput!): [Reference!]!
 
-  """
-  Type : Find some query
-  """
+  """Type : Find some query"""
   findSomeTypes(filter: TypePartialInput!): [Type!]!
 
-  """
-  User Action : Find some query
-  """
+  """User Action : Find some query"""
   findSomeUserActions(filter: UserActionPartialInput!): [UserAction!]!
 
-  """
-  User Role : Find some query
-  """
+  """User Role : Find some query"""
   findSomeUserRoles(filter: UserRolePartialInput!): [UserRole!]!
 
-  """
-  User : Find some query
-  """
+  """User : Find some query"""
   findSomeUsers(filter: UserPartialInput!): [User!]!
 
-  """
-  User : Who am I query
-  """
+  """User : Who am I query"""
   whoAmI: User!
 }
 
-"""
-Reference
-"""
+"""Reference"""
 type Reference {
-  """
-  Reference's id
-  """
+  """Reference's id"""
   _id: Id!
 
-  """
-  Reference's active version
-  """
+  """Reference's active version"""
   activeVersion: Int!
 
-  """
-  Reference's code
-  """
+  """Reference's code"""
   code: ReferenceEnum!
 
-  """
-  Reference's index
-  """
+  """Reference's index"""
   index: Int!
 
-  """
-  Reference's is selected by default ?
-  """
+  """Reference's is selected by default ?"""
   isSelectedByDefault: Boolean!
 
-  """
-  Reference's label
-  """
+  """Reference's label"""
   label: String!
 
-  """
-  Reference's version
-  """
+  """Reference's version"""
   version: Int!
 }
 
@@ -983,39 +600,25 @@ enum ReferenceEnum {
 }
 
 input ReferencePartialInput {
-  """
-  Reference's id
-  """
+  """Reference's id"""
   _id: Id
 
-  """
-  Reference's active version
-  """
+  """Reference's active version"""
   activeVersion: Int
 
-  """
-  Reference's code
-  """
+  """Reference's code"""
   code: ReferenceEnum
 
-  """
-  Reference's index
-  """
+  """Reference's index"""
   index: Int
 
-  """
-  Reference's is selected by default ?
-  """
+  """Reference's is selected by default ?"""
   isSelectedByDefault: Boolean
 
-  """
-  Reference's label
-  """
+  """Reference's label"""
   label: String
 
-  """
-  Reference's version
-  """
+  """Reference's version"""
   version: Int
 }
 
@@ -1024,38 +627,24 @@ enum RoleEnum {
   User
 }
 
-"""
-Type
-"""
+"""Type"""
 type Type {
-  """
-  Type's id
-  """
+  """Type's id"""
   _id: Id!
 
-  """
-  Type's code
-  """
+  """Type's code"""
   code: TypeEnum!
 
-  """
-  Type's index
-  """
+  """Type's index"""
   index: Int!
 
-  """
-  Type's is selected by default ?
-  """
+  """Type's is selected by default ?"""
   isSelectedByDefault: Boolean!
 
-  """
-  Type's label
-  """
+  """Type's label"""
   label: String!
 
-  """
-  Type's version
-  """
+  """Type's version"""
   version: Int!
 }
 
@@ -1066,111 +655,69 @@ enum TypeEnum {
 }
 
 input TypePartialInput {
-  """
-  Type's id
-  """
+  """Type's id"""
   _id: Id
 
-  """
-  Type's code
-  """
+  """Type's code"""
   code: TypeEnum
 
-  """
-  Type's index
-  """
+  """Type's index"""
   index: Int
 
-  """
-  Type's is selected by default ?
-  """
+  """Type's is selected by default ?"""
   isSelectedByDefault: Boolean
 
-  """
-  Type's label
-  """
+  """Type's label"""
   label: String
 
-  """
-  Type's version
-  """
+  """Type's version"""
   version: Int
 }
 
 type User {
-  """
-  User's id
-  """
+  """User's id"""
   _id: Id!
 
-  """
-  User's created at
-  """
+  """User's created at"""
   createdAt: DateTime!
 
-  """
-  User's creator id
-  """
+  """User's creator id"""
   creatorId: Id!
 
-  """
-  User's email address
-  """
+  """User's email address"""
   email: String!
 
-  """
-  User's role
-  """
+  """User's role"""
   role: [UserRole!]!
 
-  """
-  User's role ids
-  """
+  """User's role ids"""
   roleIds: [Id!]!
 
-  """
-  User's updated at
-  """
+  """User's updated at"""
   updatedAt: DateTime!
 
-  """
-  User's updater id
-  """
+  """User's updater id"""
   updaterId: Id!
 }
 
-"""
-User Action
-"""
+"""User Action"""
 type UserAction {
-  """
-  User Action's id
-  """
+  """User Action's id"""
   _id: Id!
 
-  """
-  User Action's code
-  """
+  """User Action's code"""
   code: UserActionEnum!
 
-  """
-  User Action's index
-  """
+  """User Action's index"""
   index: Int!
 
-  """
-  User Action's is selected by default ?
-  """
+  """User Action's is selected by default ?"""
   isSelectedByDefault: Boolean!
 
-  """
-  User Action's label
-  """
+  """User Action's label"""
   label: String!
 
-  """
-  User Action's version
-  """
+  """User Action's version"""
   version: Int!
 }
 
@@ -1183,216 +730,134 @@ enum UserActionEnum {
 }
 
 input UserActionPartialInput {
-  """
-  User Action's id
-  """
+  """User Action's id"""
   _id: Id
 
-  """
-  User Action's code
-  """
+  """User Action's code"""
   code: UserActionEnum
 
-  """
-  User Action's index
-  """
+  """User Action's index"""
   index: Int
 
-  """
-  User Action's is selected by default ?
-  """
+  """User Action's is selected by default ?"""
   isSelectedByDefault: Boolean
 
-  """
-  User Action's label
-  """
+  """User Action's label"""
   label: String
 
-  """
-  User Action's version
-  """
+  """User Action's version"""
   version: Int
 }
 
-"""
-User Create Input
-"""
+"""User Create Input"""
 input UserCreateInput {
-  """
-  User's id
-  """
+  """User's id"""
   _id: Id
 
-  """
-  User's email address
-  """
+  """User's email address"""
   email: String!
 
-  """
-  User's password
-  """
+  """User's password"""
   password: String!
 
-  """
-  User's role ids
-  """
+  """User's role ids"""
   roleIds: [Id!]!
 }
 
 input UserPartialInput {
-  """
-  User's id
-  """
+  """User's id"""
   _id: Id
 
-  """
-  User's email address
-  """
+  """User's email address"""
   email: String
 
-  """
-  User's role ids
-  """
+  """User's role ids"""
   roleIds: [Id!]
 }
 
-"""
-User Role
-"""
+"""User Role"""
 type UserRole {
-  """
-  User Role's id
-  """
+  """User Role's id"""
   _id: Id!
 
-  """
-  User Role's code
-  """
+  """User Role's code"""
   code: RoleEnum!
 
-  """
-  User Role's index
-  """
+  """User Role's index"""
   index: Int!
 
-  """
-  User Role's is selected by default ?
-  """
+  """User Role's is selected by default ?"""
   isSelectedByDefault: Boolean!
 
-  """
-  User Role's label
-  """
+  """User Role's label"""
   label: String!
 
-  """
-  User Role's version
-  """
+  """User Role's version"""
   version: Int!
 }
 
 input UserRolePartialInput {
-  """
-  User Role's id
-  """
+  """User Role's id"""
   _id: Id
 
-  """
-  User Role's code
-  """
+  """User Role's code"""
   code: RoleEnum
 
-  """
-  User Role's index
-  """
+  """User Role's index"""
   index: Int
 
-  """
-  User Role's is selected by default ?
-  """
+  """User Role's is selected by default ?"""
   isSelectedByDefault: Boolean
 
-  """
-  User Role's label
-  """
+  """User Role's label"""
   label: String
 
-  """
-  User Role's version
-  """
+  """User Role's version"""
   version: Int
 }
 
-"""
-User Update Input
-"""
+"""User Update Input"""
 input UserUpdateInput {
-  """
-  User's id
-  """
+  """User's id"""
   _id: Id
 
-  """
-  User's email address
-  """
+  """User's email address"""
   email: String!
 
-  """
-  User's role ids
-  """
+  """User's role ids"""
   roleIds: [Id!]!
 }
 
 type UserWithNoFieldResolver {
-  """
-  User's id
-  """
+  """User's id"""
   _id: Id!
 
-  """
-  User's created at
-  """
+  """User's created at"""
   createdAt: DateTime!
 
-  """
-  User's creator id
-  """
+  """User's creator id"""
   creatorId: Id!
 
-  """
-  User's email address
-  """
+  """User's email address"""
   email: String!
 
-  """
-  User's role ids
-  """
+  """User's role ids"""
   roleIds: [Id!]!
 
-  """
-  User's updated at
-  """
+  """User's updated at"""
   updatedAt: DateTime!
 
-  """
-  User's updater id
-  """
+  """User's updater id"""
   updaterId: Id!
 }
 
 input VersionDataInput {
-  """
-  Version Data's automatic memo
-  """
+  """Version Data's automatic memo"""
   automaticMemo: String
 
-  """
-  Version Data's internal memo
-  """
+  """Version Data's internal memo"""
   internalMemo: String
 
-  """
-  Version Data's memo
-  """
+  """Version Data's memo"""
   memo: String
 }

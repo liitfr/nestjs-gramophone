@@ -36,6 +36,6 @@ export class UsersResolver extends SimpleUsersResolver {
     description: 'User : Who am I query',
   })
   whoAmI(@CurrentUser() user: User) {
-    return this.simpleService.findById(user._id);
+    return this.simpleService.findById({ id: user._id });
   }
 }

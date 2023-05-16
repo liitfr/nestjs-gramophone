@@ -10,13 +10,15 @@ import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorat
 import { CurrentUserId } from '../../../users/decorators/current-user-id.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
-import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
+import { CheckRelationsPipe } from '../../../data/pipes/check-relations.pipe';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
+import { VersionDataInput } from '../../../versioning/dtos/version-data.input';
 
 import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
 import { pascalCase } from '../../utils/string.util';
 import { Pipe } from '../../types/pipe.type';
+import { Conditional } from '../../decorators/conditional.decorator';
 
 import {
   MutationOptions,
@@ -47,6 +49,7 @@ export function WithFindOneAndUpdate<E extends object>({
   PartialInput,
   entityDescription,
   entityTokenDescription,
+  isVersioned,
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
@@ -152,22 +155,31 @@ export function WithFindOneAndUpdate<E extends object>({
         @Args(
           'update',
           { type: () => Payload },
-          ...(checkRelations ? [new CheckRelations(Entity)] : []),
+          ...(checkRelations ? [new CheckRelationsPipe(Entity)] : []),
           ...(options.findOneAndUpdate && options.findOneAndUpdate?.payloadPipes
             ? options.findOneAndUpdate.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
         update: PartialSimpleApiInputObj<E>,
+        @Conditional(
+          isVersioned ?? false,
+          Args('versionData', {
+            type: () => VersionDataInput,
+            nullable: true,
+          }),
+        )
+        versionData?: VersionDataInput,
       ) {
         const trackableData = {
           updaterId: userId,
           updatedAt: new Date(),
         };
 
-        return this.simpleService.findOneAndUpdate(
+        return this.simpleService.findOneAndUpdate({
           filter,
-          addTrackableData<E>({ obj: update, Entity, trackableData }),
-        );
+          update: addTrackableData<E>({ obj: update, Entity, trackableData }),
+          versionData,
+        });
       }
     }
 

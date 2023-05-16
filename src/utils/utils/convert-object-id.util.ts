@@ -1,10 +1,10 @@
-import { Types as MongooseTypes } from 'mongoose';
 import { L, A, Object } from 'ts-toolbelt';
 import { update, cloneDeep } from 'lodash';
 
 import { Id } from '../types/id.type';
 
 import { resolveWildcardPathsInObject } from './resolve-wildcard-paths-in-object.util';
+import { IdFactory } from './id-factory.util';
 
 type RecurseUpdate<
   O extends object,
@@ -31,7 +31,7 @@ export const convertObjectIds = <
         value.length === 24 &&
         value.match(/^[0-9a-fA-F]{24}$/)
       ) {
-        return new MongooseTypes.ObjectId(value);
+        return IdFactory(value);
       }
 
       throw new Error(

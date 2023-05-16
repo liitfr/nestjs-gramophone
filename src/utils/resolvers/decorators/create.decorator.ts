@@ -10,13 +10,15 @@ import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorat
 import { CurrentUserId } from '../../../users/decorators/current-user-id.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
-import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
+import { CheckRelationsPipe } from '../../../data/pipes/check-relations.pipe';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
+import { VersionDataInput } from '../../../versioning/dtos/version-data.input';
 
 import { Constructor } from '../../types/constructor.type';
 import { camelCase, pascalCase } from '../../utils/string.util';
 import { Id } from '../../types/id.type';
 import { Pipe } from '../../types/pipe.type';
+import { Conditional } from '../../decorators/conditional.decorator';
 
 import {
   MutationOptions,
@@ -44,6 +46,7 @@ export function WithCreate<E extends object>({
   Input,
   entityDescription,
   entityTokenDescription,
+  isVersioned,
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
@@ -134,12 +137,20 @@ export function WithCreate<E extends object>({
         @Args(
           camelCase(entityTokenDescription ?? 'unknown'),
           { type: () => Payload },
-          ...(checkRelations ? [new CheckRelations(Entity)] : []),
+          ...(checkRelations ? [new CheckRelationsPipe(Entity)] : []),
           ...(options.create && options.create?.payloadPipes
             ? options.create.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
         doc: SimpleApiInputObj<E>,
+        @Conditional(
+          isVersioned ?? false,
+          Args('versionData', {
+            type: () => VersionDataInput,
+            nullable: true,
+          }),
+        )
+        versionData?: VersionDataInput,
       ) {
         const trackableData = {
           creatorId: userId,
@@ -148,9 +159,10 @@ export function WithCreate<E extends object>({
           updatedAt: new Date(),
         };
 
-        return this.simpleService.create(
-          addTrackableData({ obj: doc, Entity, trackableData }),
-        );
+        return this.simpleService.create({
+          doc: addTrackableData({ obj: doc, Entity, trackableData }),
+          versionData,
+        });
       }
     }
 

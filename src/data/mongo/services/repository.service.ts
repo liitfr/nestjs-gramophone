@@ -16,13 +16,12 @@ import { CustomError, ErrorCode } from '../../../utils/errors/custom.error';
 import { SimpleRepositoryInputObj } from '../../../utils/resolvers/types/simple-repository-input.type';
 import { SimpleRepositoryOutputObj } from '../../../utils/resolvers/types/simple-repository-output.type';
 
+import { DbSession } from '../../abstracts/db-session.abstract';
+import { Repository } from '../../abstracts/repository.abstract';
 import {
-  CreatedModel,
   RemovedModel,
   UpdatedModel,
 } from '../../abstracts/operations.abstract';
-import { DbSession } from '../../abstracts/db-session.abstract';
-import { Repository } from '../../abstracts/repository.abstract';
 
 @Injectable()
 export class MongoRepository<D extends Document> implements Repository<D> {
@@ -49,10 +48,13 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return this.model;
   }
 
-  async create(
-    doc: SimpleRepositoryInputObj<D>,
-    saveOptions?: SaveOptions & { returnOnlyId?: boolean },
-  ): Promise<CreatedModel | SimpleRepositoryOutputObj<D>> {
+  async create({
+    doc,
+    saveOptions,
+  }: {
+    doc: SimpleRepositoryInputObj<D>;
+    saveOptions?: SaveOptions;
+  }): Promise<SimpleRepositoryOutputObj<D>> {
     const model = this.getModel();
 
     const createdEntity = new model(doc);
@@ -64,15 +66,16 @@ export class MongoRepository<D extends Document> implements Repository<D> {
 
     const pojoResult = savedResult.toObject();
 
-    return saveOptions?.returnOnlyId
-      ? { _id: pojoResult._id as Id, created: !!pojoResult._id }
-      : pojoResult;
+    return pojoResult;
   }
 
-  async createMany(
-    docs: SimpleRepositoryInputObj<D>[],
-    insertManyOptions?: InsertManyOptions,
-  ): Promise<CreatedModel[]> {
+  async createMany({
+    docs,
+    insertManyOptions,
+  }: {
+    docs: SimpleRepositoryInputObj<D>[];
+    insertManyOptions?: InsertManyOptions;
+  }): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
 
     const createdEntities = await model.insertMany(docs, {
@@ -80,20 +83,16 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       ...insertManyOptions,
     });
 
-    return createdEntities.map((entity) => {
-      const pojoEntity = entity.toObject();
-
-      return {
-        _id: pojoEntity._id as Id,
-        created: !!pojoEntity._id,
-      };
-    });
+    return createdEntities.map((entity) => entity.toObject());
   }
 
-  async uncertainFind(
-    filter: FilterQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<SimpleRepositoryOutputObj<D>[]> {
+  async uncertainFind({
+    filter,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
 
     const result = await model
@@ -105,11 +104,14 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async find(
-    filter: FilterQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<SimpleRepositoryOutputObj<D>[]> {
-    const result = await this.uncertainFind(filter, options);
+  async find({
+    filter,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<SimpleRepositoryOutputObj<D>[]> {
+    const result = await this.uncertainFind({ filter, options });
 
     if (!result || result.length === 0) {
       throw new CustomError(
@@ -133,10 +135,13 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return result;
   }
 
-  async uncertainFindById(
-    id: Id,
-    options?: QueryOptions<D>,
-  ): Promise<SimpleRepositoryOutputObj<D> | null> {
+  async uncertainFindById({
+    id,
+    options,
+  }: {
+    id: Id;
+    options?: QueryOptions<D>;
+  }): Promise<SimpleRepositoryOutputObj<D> | null> {
     const model = this.getModel();
 
     const result = await model
@@ -148,11 +153,14 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async findById(
-    id: Id,
-    options?: QueryOptions<D>,
-  ): Promise<SimpleRepositoryOutputObj<D>> {
-    const result = await this.uncertainFindById(id, options);
+  async findById({
+    id,
+    options,
+  }: {
+    id: Id;
+    options?: QueryOptions<D>;
+  }): Promise<SimpleRepositoryOutputObj<D>> {
+    const result = await this.uncertainFindById({ id, options });
 
     if (!result) {
       throw new CustomError(
@@ -183,19 +191,21 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async remove(filter: FilterQuery<D>): Promise<RemovedModel> {
+  async remove({ filter }: { filter: FilterQuery<D> }): Promise<RemovedModel> {
     const model = this.getModel();
-    const { deletedCount } = await model
-      .deleteMany(filter)
-      .session(this.dbSession.get());
-    return { deletedCount, deleted: !!deletedCount };
+
+    return model.deleteMany(filter).session(this.dbSession.get());
   }
 
-  async updateOne(
-    filter: FilterQuery<D>,
-    update: UpdateWithAggregationPipeline | UpdateQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<UpdatedModel> {
+  async updateOne({
+    filter,
+    update,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    update: UpdateWithAggregationPipeline | UpdateQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<UpdatedModel> {
     const model = this.getModel();
 
     return model
@@ -203,11 +213,15 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
   }
 
-  async updateMany(
-    filter: FilterQuery<D>,
-    update: UpdateWithAggregationPipeline | UpdateQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<UpdatedModel> {
+  async updateMany({
+    filter,
+    update,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    update: UpdateWithAggregationPipeline | UpdateQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<UpdatedModel> {
     const model = this.getModel();
 
     return model
@@ -215,14 +229,19 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
   }
 
-  public async uncertainFindOneAndUpdate(
-    filter: FilterQuery<D>,
-    update: UpdateQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<SimpleRepositoryOutputObj<D> | null> {
+  public async uncertainFindOneAndUpdate({
+    filter,
+    update,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    update: UpdateQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<SimpleRepositoryOutputObj<D> | null> {
     const model = this.getModel();
 
     const result = await model.findOneAndUpdate(filter, update, {
+      session: this.dbSession.get(),
       new: true,
       ...options,
     });
@@ -232,23 +251,27 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  public async findOneAndUpdate(
-    filter: FilterQuery<D>,
-    update: UpdateQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<SimpleRepositoryOutputObj<D>> {
-    const result = await this.uncertainFindOneAndUpdate(
+  public async findOneAndUpdate({
+    filter,
+    update,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    update: UpdateQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<SimpleRepositoryOutputObj<D>> {
+    const result = await this.uncertainFindOneAndUpdate({
       filter,
       update,
       options,
-    );
+    });
 
     if (!result) {
       throw new CustomError(
-        'No item with this id.',
+        'No item was found with this filter.',
         ErrorCode.NOT_FOUND,
         {
-          fr: 'Aucun élément ne correspond à cet identifiant. Veuillez réessayer',
+          fr: 'Aucun élément ne correspond à ce filtre. Veuillez réessayer',
         },
         {
           service: 'MongoRepository',
@@ -267,10 +290,13 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return model.countDocuments().session(this.dbSession.get());
   }
 
-  async count(
-    filter: FilterQuery<D>,
-    options?: QueryOptions<D>,
-  ): Promise<number> {
+  async count({
+    filter,
+    options,
+  }: {
+    filter: FilterQuery<D>;
+    options?: QueryOptions<D>;
+  }): Promise<number> {
     const model = this.getModel();
     return model.countDocuments(filter, options).session(this.dbSession.get());
   }

@@ -10,13 +10,15 @@ import { IS_PUBLIC_KEY } from '../../../authentication/decorators/public.decorat
 import { CurrentUserId } from '../../../users/decorators/current-user-id.decorator';
 import { SimplePoliciesGuard } from '../../../authorization/guards/simple-policies.guard';
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
-import { CheckRelations } from '../../../data/pipes/check-relations.pipe';
+import { CheckRelationsPipe } from '../../../data/pipes/check-relations.pipe';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
+import { VersionDataInput } from '../../../versioning/dtos/version-data.input';
 
 import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { Id } from '../../types/id.type';
 import { Pipe } from '../../types/pipe.type';
+import { Conditional } from '../../decorators/conditional.decorator';
 
 import {
   MutationOptions,
@@ -47,6 +49,7 @@ export function WithUpdateMany<E extends object>({
   PartialInput,
   entityDescription,
   entityTokenDescription,
+  isVersioned,
 }: SimpleResolverDecoratorParams<E>) {
   const options: ResolverOptions<E> = {
     ...pOptions,
@@ -151,22 +154,31 @@ export function WithUpdateMany<E extends object>({
         @Args(
           'update',
           { type: () => Payload },
-          ...(checkRelations ? [new CheckRelations(Entity)] : []),
+          ...(checkRelations ? [new CheckRelationsPipe(Entity)] : []),
           ...(options.updateMany && options.updateMany?.payloadPipes
             ? options.updateMany.payloadPipes
             : options.general?.defaultMutationPipes ?? []),
         )
         update: PartialSimpleApiInputObj<E>,
+        @Conditional(
+          isVersioned ?? false,
+          Args('versionData', {
+            type: () => VersionDataInput,
+            nullable: true,
+          }),
+        )
+        versionData?: VersionDataInput,
       ) {
         const trackableData = {
           updaterId: userId,
           updatedAt: new Date(),
         };
 
-        return this.simpleService.updateMany(
+        return this.simpleService.updateMany({
           filter,
-          addTrackableData<E>({ obj: update, Entity, trackableData }),
-        );
+          update: addTrackableData<E>({ obj: update, Entity, trackableData }),
+          versionData,
+        });
       }
     }
 

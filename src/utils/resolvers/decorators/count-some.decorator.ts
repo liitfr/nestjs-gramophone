@@ -117,7 +117,7 @@ export function WithCountSome<E extends object>({
         )
         filter: InstanceType<typeof Filter>,
       ): Promise<number> {
-        return this.simpleService.count(filter);
+        return this.simpleService.count({ filter });
       }
     }
 

@@ -63,7 +63,7 @@ export class AuthenticationService {
   }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
-    const result = await this.usersService.find({ email });
+    const result = await this.usersService.find({ filter: { email } });
 
     if (result.length > 1) {
       throw new CustomError(
@@ -134,7 +134,7 @@ export class AuthenticationService {
       secret: environment.jwtAccessTokenSecret,
     });
     if (payload.userId) {
-      return this.usersService.findById(payload.userId);
+      return this.usersService.findById({ id: payload.userId });
     }
     return;
   }

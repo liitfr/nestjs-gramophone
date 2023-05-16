@@ -1,15 +1,17 @@
-import { get } from 'lodash';
-
-import { VersionDataInput } from '../dtos/version-data.input';
-
-export const VERSION_DATA_FIELDNAME = 'versionData';
-export const VERSION_DATA_PATH = `[0].${VERSION_DATA_FIELDNAME}`;
-
-type VersionDataGetter = (...args: any[]) => VersionDataInput;
+import { defaultVersionDataGetter } from './save-version.decorator';
+import type { VersionDataGetter } from './save-version.decorator';
 
 export const SaveVersionIfEnabled = (
-  versionDataGetter: VersionDataGetter = (...args: any[]) =>
-    get(args, VERSION_DATA_PATH),
+  {
+    versionDataGetter = defaultVersionDataGetter,
+    multiple = false,
+  }: {
+    versionDataGetter?: VersionDataGetter;
+    multiple?: boolean;
+  } = {
+    versionDataGetter: defaultVersionDataGetter,
+    multiple: false,
+  },
 ) => {
   return function decorator(
     _target: any,
@@ -23,7 +25,14 @@ export const SaveVersionIfEnabled = (
 
       if (this.versioningService) {
         const versionData = versionDataGetter(...args);
-        await this.versioningService.saveVersion(result, versionData);
+
+        if (multiple) {
+          for (const resultItem of result) {
+            await this.versioningService.saveVersion(resultItem, versionData);
+          }
+        } else {
+          await this.versioningService.saveVersion(result, versionData);
+        }
       }
 
       return result;
