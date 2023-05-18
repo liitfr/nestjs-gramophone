@@ -2,7 +2,10 @@ import { Logger, Provider } from '@nestjs/common';
 
 import { EntityStore } from '../../utils/entities/entity-store.service';
 
-import { versioningServices } from '../decorators/versioned.decorator';
+import {
+  markAllVersioningServicesAsProcessed,
+  versioningServices,
+} from '../decorators/versioned.decorator';
 import { VersioningService } from '../services/versioning.service';
 
 import { VersioningEntityFactory } from './versioning-entity.factory';
@@ -12,10 +15,14 @@ export const VersioningProvidersFactory = () => {
   const serviceProviders: Provider[] = [VersioningService];
   const resolverProviders: Provider[] = [VersioningService];
 
+  const versioningServicesToProcess = versioningServices.filter(
+    (service) => !service.hasBeenProcessed,
+  );
+
   for (const {
     versioningServiceToken,
     VersionedEntity,
-  } of versioningServices) {
+  } of versioningServicesToProcess) {
     const VersioningEntity = VersioningEntityFactory(VersionedEntity);
 
     const { entityToken, entityRepositoryToken } =
@@ -52,6 +59,8 @@ export const VersioningProvidersFactory = () => {
 
     resolverProviders.push(resolver);
   }
+
+  markAllVersioningServicesAsProcessed();
 
   return { serviceProviders, resolverProviders };
 };

@@ -13,7 +13,14 @@ export const versioningServices: {
   VersionedEntity: Type<IdableAndTrackable>;
   versionedServiceToken: symbol;
   versioningServiceToken: symbol;
+  hasBeenProcessed?: boolean;
 }[] = [];
+
+export const markAllVersioningServicesAsProcessed = () => {
+  for (const versioningService of versioningServices) {
+    versioningService.hasBeenProcessed = true;
+  }
+};
 
 export function registerVersioningService<E extends IdableAndTrackable>(
   VersionedEntity: Type<E>,
