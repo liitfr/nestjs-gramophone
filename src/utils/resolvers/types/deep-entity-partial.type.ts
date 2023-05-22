@@ -1,7 +1,7 @@
 import { Object } from 'ts-toolbelt';
 
 import { Id } from '../../types/id.type';
-import { Idable } from '../../entities/simple-entity.decorator';
+import { Idable } from '../../types/idable.type';
 
 // WARNING : We don't want to go inside object as Date or Id for example.
 // Only Idable objects.

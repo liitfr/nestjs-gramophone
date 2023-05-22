@@ -19,6 +19,8 @@ type SimpleReferenceServiceObj<
   referencesService: ReferencesService;
   findAllForAVersion: (requestedVersion?: number) => Promise<D[]>;
   findAllActive: () => Promise<D[]>;
+  findActiveVersion: () => Promise<number>;
+  findOneWithCode: (code: keyof E, requestedVersion?: number) => Promise<D>;
 } & {
   [K in keyof E as `find${Capitalize<K & string>}`]: () => Promise<D>;
 };
@@ -109,8 +111,57 @@ export const SimpleReferenceServiceFactory = <
       return result as R[];
     }
 
+    public async findActiveVersion() {
+      const result = await this.referencesService.find({
+        filter: {
+          code: entityTokenDescription,
+        },
+      });
+
+      if (!result || !result[0] || result.length > 1) {
+        throw new CustomError(
+          'Error while retrieving active version.',
+          ErrorCode.INTERNAL_SERVER_ERROR,
+          {
+            fr: 'Erreur lors de la récupération de la version active.',
+          },
+          {
+            service: 'SimpleReferenceService',
+            method: 'findActiveVersion',
+          },
+        );
+      }
+
+      return result[0].activeVersion;
+    }
+
     public async findAllActive() {
       return await this.findAllForAVersion();
+    }
+
+    public async findOneWithCode(
+      code: keyof E,
+      requestedVersion?: number,
+    ): Promise<R> {
+      const version = requestedVersion ?? (await this.findActiveVersion());
+
+      const result = await this.find({ filter: { code, version } });
+
+      if (!result || !result[0] || result.length > 1) {
+        throw new CustomError(
+          'Error while retrieving a reference value.',
+          ErrorCode.INTERNAL_SERVER_ERROR,
+          {
+            fr: "Erreur lors de la récupération d'une valeur de référence.",
+          },
+          {
+            service: 'SimpleReferenceService',
+            method: 'findOneWithCode',
+          },
+        );
+      }
+
+      return result[0];
     }
   }
 

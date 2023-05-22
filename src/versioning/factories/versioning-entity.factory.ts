@@ -6,15 +6,13 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { IdScalar } from '../../utils/scalars/id.scalar';
 import { generateCollectionName } from '../../utils/utils/string.util';
 import { Id } from '../../utils/types/id.type';
-import {
-  Memoable,
-  SimpleEntity,
-} from '../../utils/entities/simple-entity.decorator';
+import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 import { EntityStore } from '../../utils/entities/entity-store.service';
 import { SetEntityMetadata } from '../../utils/entities/set-entity-metadata.decorator';
 import { SetEntityToken } from '../../utils/entities/set-entity-token.decorator';
 import { SimpleRepositoryOutputObj } from '../../utils/resolvers/types/simple-repository-output.type';
+import { Memoable } from '../../utils/types/memoable.type';
 
 import { versioningServices } from '../decorators/versioned.decorator';
 import { VersionDataInput } from '../dtos/version-data.input';

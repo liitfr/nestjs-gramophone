@@ -11,7 +11,6 @@ import { SimplePoliciesGuard } from '../../../authorization/guards/simple-polici
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
-import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../utils/string.util';
 import { Pipe } from '../../types/pipe.type';
 
@@ -63,7 +62,7 @@ export function WithRemove<E extends object>({
       ? options.general?.defaultMutationCheckPolicies
       : true;
 
-  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
+  return <T extends SimpleResolver<E>>(constructor: T) => {
     if (
       !options.general?.enableMutations ||
       options.remove === false ||

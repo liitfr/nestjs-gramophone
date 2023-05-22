@@ -5,14 +5,14 @@ import { O } from 'ts-toolbelt';
 import { IdScalar } from '../scalars/id.scalar';
 import { Id } from '../types/id.type';
 import {
-  Idable,
-  Trackable,
   checkIfIsIdable,
   checkIfIsTrackable,
 } from '../entities/simple-entity.decorator';
 import { EntityStore } from '../entities/entity-store.service';
 import { TransformEntityToInput } from '../resolvers/types/transform-entity-to-input.type';
 import { MergeClassesToObject } from '../types/merge-classes-to-object.type';
+import { Trackable } from '../types/trackable.type';
+import { Idable } from '../types/idable.type';
 
 interface Options<
   TEntity extends object,

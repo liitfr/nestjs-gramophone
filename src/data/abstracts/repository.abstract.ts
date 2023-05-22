@@ -14,53 +14,55 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public create(_params: {
+  public async create(_params: {
     doc: SimpleRepositoryInputObj<D>;
     saveOptions?: unknown;
   }): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
-  public createMany(_params: {
+  public async createMany(_params: {
     docs: SimpleRepositoryInputObj<D>[];
     insertManyOptions?: unknown;
   }): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFind(_params: {
+  public async uncertainFind(_params: {
     filter: object;
     options?: unknown;
   }): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public find(_params: {
+  public async find(_params: {
     filter: object;
     options?: unknown;
   }): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFindById(_params: {
+  public async uncertainFindById(_params: {
     id: Id;
   }): Promise<SimpleRepositoryOutputObj<D> | null> {
     throw new Error('Not implemented');
   }
 
-  public findById(_params: { id: Id }): Promise<SimpleRepositoryOutputObj<D>> {
+  public async findById(_params: {
+    id: Id;
+  }): Promise<SimpleRepositoryOutputObj<D>> {
     throw new Error('Not implemented');
   }
 
-  public findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
+  public async findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
     throw new Error('Not implemented');
   }
 
-  public remove(_params: { filter: object }): Promise<RemovedModel> {
+  public async remove(_params: { filter: object }): Promise<RemovedModel> {
     throw new Error('Not implemented');
   }
 
-  public updateOne(_params: {
+  public async updateOne(_params: {
     filter: object;
     update: object;
     options?: unknown;
@@ -68,7 +70,7 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public updateMany(_params: {
+  public async updateMany(_params: {
     filter: object;
     update: object;
     options?: unknown;
@@ -76,7 +78,7 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public uncertainFindOneAndUpdate(_params: {
+  public async uncertainFindOneAndUpdate(_params: {
     filter: object;
     update: object;
     options?: unknown;
@@ -84,7 +86,7 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public findOneAndUpdate(_params: {
+  public async findOneAndUpdate(_params: {
     filter: object;
     update: object;
     options?: unknown;
@@ -92,11 +94,11 @@ export abstract class Repository<D extends object> {
     throw new Error('Not implemented');
   }
 
-  public countAll(): Promise<number> {
+  public async countAll(): Promise<number> {
     throw new Error('Not implemented');
   }
 
-  public count(_params: {
+  public async count(_params: {
     filter: object;
     options?: unknown;
   }): Promise<number> {

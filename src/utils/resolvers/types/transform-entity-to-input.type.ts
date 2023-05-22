@@ -1,7 +1,8 @@
 import { U, O } from 'ts-toolbelt';
 
-import { Idable, Trackable } from '../../entities/simple-entity.decorator';
 import { Id } from '../../types/id.type';
+import { Trackable } from '../../types/trackable.type';
+import { Idable } from '../../types/idable.type';
 
 // here we remove trackable properties recursively and we make _id optional
 

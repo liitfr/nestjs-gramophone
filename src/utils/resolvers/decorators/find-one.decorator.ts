@@ -11,7 +11,6 @@ import { SimplePoliciesGuard } from '../../../authorization/guards/simple-polici
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
-import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
 import { pascalCase } from '../../utils/string.util';
 import { IdScalar } from '../../scalars/id.scalar';
@@ -57,7 +56,7 @@ export function WithFindOne<E extends object>({
       ? options.general?.defaultQueryCheckPolicies
       : true;
 
-  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
+  return <T extends SimpleResolver<E>>(constructor: T) => {
     if (
       !options.general?.enableQueries ||
       options.findOne === false ||

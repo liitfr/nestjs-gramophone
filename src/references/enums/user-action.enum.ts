@@ -4,11 +4,11 @@ import { registerEnumType } from '@nestjs/graphql';
 // because CASL expects actions to be lowercase
 
 export enum UserActionEnum {
-  Manage = 'manage',
-  Create = 'create',
-  Read = 'read',
-  Update = 'update',
-  Remove = 'remove',
+  Manage = 'Manage',
+  Create = 'Create',
+  Read = 'Read',
+  Update = 'Update',
+  Remove = 'Remove',
 }
 
 registerEnumType(UserActionEnum, {

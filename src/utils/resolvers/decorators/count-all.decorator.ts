@@ -11,7 +11,6 @@ import { SimplePoliciesGuard } from '../../../authorization/guards/simple-polici
 import { CheckPolicies } from '../../../authorization/decorators/check-policies.decorator';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 
-import { Constructor } from '../../types/constructor.type';
 import { pascalCase, pluralize } from '../../utils/string.util';
 
 import { QueryOptions, defaultQueryOptions } from '../options/query-options';
@@ -48,7 +47,7 @@ export function WithCountAll<E extends object>({
       ? options.general?.defaultQueryCheckPolicies
       : true;
 
-  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
+  return <T extends SimpleResolver<E>>(constructor: T) => {
     if (
       !options.general?.enableQueries ||
       options.countAll === false ||

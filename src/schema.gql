@@ -595,8 +595,10 @@ type Reference {
 
 enum ReferenceEnum {
   Color
-  References
+  Reference
   Type
+  UserAction
+  UserRole
 }
 
 input ReferencePartialInput {

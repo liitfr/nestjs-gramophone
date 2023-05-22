@@ -1,6 +1,6 @@
 import { Type } from '@nestjs/common';
 
-import { Trackable } from '../../entities/simple-entity.decorator';
+import { Trackable } from '../../types/trackable.type';
 
 import { TransformEntityToInput } from './transform-entity-to-input.type';
 import { DeepEntityPartial } from './deep-entity-partial.type';

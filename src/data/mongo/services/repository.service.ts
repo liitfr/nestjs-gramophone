@@ -48,7 +48,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return this.model;
   }
 
-  async create({
+  public async create({
     doc,
     saveOptions,
   }: {
@@ -69,7 +69,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async createMany({
+  public async createMany({
     docs,
     insertManyOptions,
   }: {
@@ -86,7 +86,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return createdEntities.map((entity) => entity.toObject());
   }
 
-  async uncertainFind({
+  public async uncertainFind({
     filter,
     options,
   }: {
@@ -104,7 +104,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async find({
+  public async find({
     filter,
     options,
   }: {
@@ -135,7 +135,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return result;
   }
 
-  async uncertainFindById({
+  public async uncertainFindById({
     id,
     options,
   }: {
@@ -153,7 +153,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async findById({
+  public async findById({
     id,
     options,
   }: {
@@ -181,7 +181,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return result;
   }
 
-  async findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
+  public async findAll(): Promise<SimpleRepositoryOutputObj<D>[]> {
     const model = this.getModel();
 
     const result = await model.find().session(this.dbSession.get());
@@ -191,13 +191,17 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return pojoResult;
   }
 
-  async remove({ filter }: { filter: FilterQuery<D> }): Promise<RemovedModel> {
+  public async remove({
+    filter,
+  }: {
+    filter: FilterQuery<D>;
+  }): Promise<RemovedModel> {
     const model = this.getModel();
 
     return model.deleteMany(filter).session(this.dbSession.get());
   }
 
-  async updateOne({
+  public async updateOne({
     filter,
     update,
     options,
@@ -213,7 +217,7 @@ export class MongoRepository<D extends Document> implements Repository<D> {
       .session(this.dbSession.get());
   }
 
-  async updateMany({
+  public async updateMany({
     filter,
     update,
     options,
@@ -285,12 +289,12 @@ export class MongoRepository<D extends Document> implements Repository<D> {
     return result;
   }
 
-  async countAll(): Promise<number> {
+  public async countAll(): Promise<number> {
     const model = this.getModel();
     return model.countDocuments().session(this.dbSession.get());
   }
 
-  async count({
+  public async count({
     filter,
     options,
   }: {

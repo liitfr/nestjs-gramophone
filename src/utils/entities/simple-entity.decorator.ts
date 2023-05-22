@@ -3,9 +3,11 @@ import { Prop } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 
 import { IdScalar } from '../scalars/id.scalar';
-import { Id } from '../types/id.type';
 import { pascalCase, pluralize } from '../utils/string.util';
 import { Constructor } from '../types/constructor.type';
+import { Idable } from '../types/idable.type';
+import { Memoable } from '../types/memoable.type';
+import { Trackable } from '../types/trackable.type';
 
 import { enhancerCheckerFactory, initEntityMetadata } from './entity.util';
 import { SetEntityMetadata } from './set-entity-metadata.decorator';
@@ -16,9 +18,9 @@ interface Options {
   isIdable?: boolean;
 }
 
-const IS_IDABLE = 'isIdable';
-const IS_MEMOABLE = 'isMemoable';
-const IS_TRACKABLE = 'isTrackable';
+const IS_IDABLE = 'isIdable' as const;
+const IS_MEMOABLE = 'isMemoable' as const;
+const IS_TRACKABLE = 'isTrackable' as const;
 
 export function SimpleEntity(
   { isTrackable = false, isMemoable = false, isIdable = true }: Options = {
@@ -164,23 +166,6 @@ export function SimpleEntity(
       entityServiceToken,
     })(constructor);
   };
-}
-
-export interface Trackable {
-  creatorId: Id;
-  updaterId: Id;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Memoable {
-  memo?: string;
-  internalMemo?: string;
-  automaticMemo?: string;
-}
-
-export interface Idable {
-  _id: Id;
 }
 
 export const checkIfIsIdable = enhancerCheckerFactory<Idable>(IS_IDABLE);

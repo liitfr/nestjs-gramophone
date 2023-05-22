@@ -1,4 +1,9 @@
 import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+
+import { SimplePoliciesGuard } from '../../authorization/guards/simple-policies.guard';
+import { CheckPolicies } from '../../authorization/decorators/check-policies.decorator';
+import { AppAbility } from '../../authorization/factories/casl-ability.factory';
 
 import { AllReferences } from '../entities/all-references.entity';
 import { ReferencesService } from '../services/references.service';
@@ -11,6 +16,7 @@ import { UserActionsService } from '../services/user-actions.service';
 import { UserRolesService } from '../services/user-roles.service';
 import { UserAction } from '../entities/user-action.entity';
 import { UserRole } from '../entities/user-role.entity';
+import { UserActionEnum } from '../enums/user-action.enum';
 
 @Resolver(() => AllReferences)
 export class AllReferencesResolver {
@@ -26,6 +32,10 @@ export class AllReferencesResolver {
     name: 'AllReferences',
     description: 'References : All references query',
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, Reference),
+  )
   async getAllReferences() {
     return {};
   }
@@ -34,6 +44,10 @@ export class AllReferencesResolver {
     name: 'colors',
     description: "All References's all colors",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, Color),
+  )
   async findColors() {
     return this.colorsService.findAll();
   }
@@ -42,6 +56,10 @@ export class AllReferencesResolver {
     name: 'activeColors',
     description: "All References's all active colors",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, Color),
+  )
   async findActiveColors() {
     return this.colorsService.findAllActive();
   }
@@ -50,6 +68,10 @@ export class AllReferencesResolver {
     name: 'types',
     description: "All References's all types",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, Type),
+  )
   async findTypes() {
     return this.typesService.findAll();
   }
@@ -58,6 +80,10 @@ export class AllReferencesResolver {
     name: 'activeTypes',
     description: "All References's all active generic statuses",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, Type),
+  )
   async findActiveTypes() {
     return this.typesService.findAllActive();
   }
@@ -66,6 +92,10 @@ export class AllReferencesResolver {
     name: 'references',
     description: "All References's all references",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, Reference),
+  )
   async findReferences() {
     return this.referencesService.findAll();
   }
@@ -74,6 +104,10 @@ export class AllReferencesResolver {
     name: 'userActions',
     description: "All References's all user actions",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, UserAction),
+  )
   async findUserActions() {
     return this.userActionsService.findAll();
   }
@@ -82,6 +116,10 @@ export class AllReferencesResolver {
     name: 'activeUserActions',
     description: "All References's all active user actions",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, UserAction),
+  )
   async findActiveUserActions() {
     return this.userActionsService.findAllActive();
   }
@@ -90,6 +128,10 @@ export class AllReferencesResolver {
     name: 'userRoles',
     description: "All References's all user roles",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, UserRole),
+  )
   async findUserRoles() {
     return this.userRolesService.findAll();
   }
@@ -98,6 +140,10 @@ export class AllReferencesResolver {
     name: 'activeUserRoles',
     description: "All References's all active user roles",
   })
+  @UseGuards(SimplePoliciesGuard)
+  @CheckPolicies((ability: AppAbility) =>
+    ability.can(UserActionEnum.Read, UserRole),
+  )
   async findActiveUserRoles() {
     return this.userRolesService.findAllActive();
   }

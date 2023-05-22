@@ -2,15 +2,13 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import {
-  Idable,
-  SimpleEntity,
-  Trackable,
-} from '../../utils/entities/simple-entity.decorator';
+import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { Id } from '../../utils/types/id.type';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 import { UserRole } from '../../references/entities/user-role.entity';
 import { Relation } from '../../data/decorators/relation.decorator';
+import { Idable } from '../../utils/types/idable.type';
+import { Trackable } from '../../utils/types/trackable.type';
 
 @ObjectType()
 @Schema()

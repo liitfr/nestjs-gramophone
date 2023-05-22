@@ -1,4 +1,4 @@
-import { Type } from '@nestjs/common';
+import { Logger, Type } from '@nestjs/common';
 
 import {
   RemovedModel,
@@ -13,6 +13,8 @@ import { Id } from '../types/id.type';
 
 export type SimpleServiceObj<D extends object> = {
   repository: Repository<D>;
+
+  logger: Logger;
 
   create(_params: {
     doc: SimpleRepositoryInputObj<D>;

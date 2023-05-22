@@ -1,11 +1,11 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum IconEnum {
-  NewReleases = 'newReleases',
-  Drafts = 'drafts',
-  DeleteForever = 'deleteForever',
-  Verified = 'verified',
-  MarkEmailRead = 'markEmailRead',
+  NewReleases = 'NewReleases',
+  Drafts = 'Drafts',
+  DeleteForever = 'DeleteForever',
+  Verified = 'Verified',
+  MarkEmailRead = 'MarkEmailRead',
 }
 
 registerEnumType(IconEnum, {

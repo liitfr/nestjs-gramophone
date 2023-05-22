@@ -1,13 +1,13 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum ColorEnum {
-  Error = 'error',
-  Info = 'info',
-  Success = 'success',
-  Warning = 'warning',
-  Default = 'default',
-  Primary = 'primary',
-  Secondary = 'secondary',
+  Error = 'Error',
+  Info = 'Info',
+  Success = 'Success',
+  Warning = 'Warning',
+  Default = 'Default',
+  Primary = 'Primary',
+  Secondary = 'Secondary',
 }
 
 registerEnumType(ColorEnum, {

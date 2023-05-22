@@ -2,8 +2,10 @@ import { registerEnumType } from '@nestjs/graphql';
 
 export enum ReferenceEnum {
   Color = 'Color',
+  Reference = 'Reference',
   Type = 'Type',
-  References = 'References',
+  UserAction = 'UserAction',
+  UserRole = 'UserRole',
 }
 
 registerEnumType(ReferenceEnum, {

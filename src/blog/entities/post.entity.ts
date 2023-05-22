@@ -4,16 +4,14 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import { Type } from '../../references/entities/type.entity';
 import { Relation } from '../../data/decorators/relation.decorator';
 import { Color } from '../../references/entities/color.entity';
-import {
-  Idable,
-  Memoable,
-  SimpleEntity,
-  Trackable,
-} from '../../utils/entities/simple-entity.decorator';
+import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
 import { Id } from '../../utils/types/id.type';
 import { Nested } from '../../data/decorators/nested.decorator';
 import { Chip } from '../../references/entities/chip.entity';
+import { Idable } from '../../utils/types/idable.type';
+import { Trackable } from '../../utils/types/trackable.type';
+import { Memoable } from '../../utils/types/memoable.type';
 
 @ObjectType()
 @Schema()

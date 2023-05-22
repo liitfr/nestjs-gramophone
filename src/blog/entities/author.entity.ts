@@ -1,11 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema } from '@nestjs/mongoose';
 
-import {
-  Idable,
-  SimpleEntity,
-} from '../../utils/entities/simple-entity.decorator';
+import { SimpleEntity } from '../../utils/entities/simple-entity.decorator';
 import { CreateRepository } from '../../data/decorators/create-repository.decorator';
+import { Idable } from '../../utils/types/idable.type';
 
 @ObjectType()
 @Schema()

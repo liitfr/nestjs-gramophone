@@ -19,10 +19,13 @@ import { SimpleRepositoryOutputObj } from '../resolvers/types/simple-repository-
 import { SetServiceMetadata } from './set-service-metadata.decorator';
 import { getServiceToken } from './service.util';
 import { SetServiceToken } from './set-service-token.decorator';
-import { SimpleService } from './simple-service.type';
+import {
+  SimpleService as ISimpleService,
+  SimpleServiceObj,
+} from './simple-service.type';
 
 interface Return<E extends object> {
-  Service: SimpleService<E>;
+  Service: ISimpleService<E>;
   serviceToken: symbol;
 }
 
@@ -59,12 +62,18 @@ export const SimpleServiceFactory = <E extends object>(
     'SimpleServiceFactory',
   );
 
-  class SimpleService<D extends object> implements Repository<D> {
+  class SimpleService<D extends object> implements SimpleServiceObj<D> {
     @Inject(entityRepositoryToken)
+    // FIXME : repository should be private
     public readonly repository!: Repository<D>;
 
+    // FIXME : logger should be private
+    public readonly logger = entityTokenDescription
+      ? new Logger(entityTokenDescription)
+      : new Logger('UnknownService');
+
     @SaveVersionIfEnabled()
-    public create({
+    public async create({
       doc,
       saveOptions,
     }: {
@@ -76,7 +85,7 @@ export const SimpleServiceFactory = <E extends object>(
     }
 
     @SaveVersionIfEnabled()
-    async createMany({
+    public async createMany({
       docs,
       insertManyOptions,
     }: {
@@ -87,7 +96,7 @@ export const SimpleServiceFactory = <E extends object>(
       return this.repository.createMany({ docs, insertManyOptions });
     }
 
-    async uncertainFind({
+    public async uncertainFind({
       filter,
       options,
     }: {
@@ -97,7 +106,7 @@ export const SimpleServiceFactory = <E extends object>(
       return this.repository.uncertainFind({ filter, options });
     }
 
-    async find({
+    public async find({
       filter,
       options,
     }: {
@@ -107,7 +116,7 @@ export const SimpleServiceFactory = <E extends object>(
       return this.repository.find({ filter, options });
     }
 
-    async uncertainFindById({
+    public async uncertainFindById({
       id,
     }: {
       id: Id;
@@ -115,7 +124,11 @@ export const SimpleServiceFactory = <E extends object>(
       return this.repository.uncertainFindById({ id });
     }
 
-    async findById({ id }: { id: Id }): Promise<SimpleRepositoryOutputObj<D>> {
+    public async findById({
+      id,
+    }: {
+      id: Id;
+    }): Promise<SimpleRepositoryOutputObj<D>> {
       return this.repository.findById({ id });
     }
 
@@ -123,7 +136,7 @@ export const SimpleServiceFactory = <E extends object>(
       return this.repository.findAll();
     }
 
-    async remove({
+    public async remove({
       filter,
     }: {
       filter: PartialSimpleRepositoryInputObj<D>;
@@ -132,7 +145,7 @@ export const SimpleServiceFactory = <E extends object>(
     }
 
     @SaveVersionIfEnabled()
-    async updateOne({
+    public async updateOne({
       filter,
       update,
       options,
@@ -146,7 +159,7 @@ export const SimpleServiceFactory = <E extends object>(
     }
 
     @SaveVersionIfEnabled()
-    async updateMany({
+    public async updateMany({
       filter,
       update,
       options,
@@ -160,7 +173,7 @@ export const SimpleServiceFactory = <E extends object>(
     }
 
     @SaveVersionIfEnabled()
-    async uncertainFindOneAndUpdate({
+    public async uncertainFindOneAndUpdate({
       filter,
       update,
       options,
@@ -178,7 +191,7 @@ export const SimpleServiceFactory = <E extends object>(
     }
 
     @SaveVersionIfEnabled()
-    async findOneAndUpdate({
+    public async findOneAndUpdate({
       filter,
       update,
       options,
@@ -195,7 +208,7 @@ export const SimpleServiceFactory = <E extends object>(
       return this.repository.countAll();
     }
 
-    async count({
+    public async count({
       filter,
       options,
     }: {

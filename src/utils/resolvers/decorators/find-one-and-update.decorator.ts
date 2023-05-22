@@ -14,7 +14,6 @@ import { CheckRelationsPipe } from '../../../data/pipes/check-relations.pipe';
 import { UserActionEnum } from '../../../references/enums/user-action.enum';
 import { VersionDataInput } from '../../../versioning/dtos/version-data.input';
 
-import { Constructor } from '../../types/constructor.type';
 import { Id } from '../../types/id.type';
 import { pascalCase } from '../../utils/string.util';
 import { Pipe } from '../../types/pipe.type';
@@ -89,7 +88,7 @@ export function WithFindOneAndUpdate<E extends object>({
     checkRelations = options.general.defaultMutationCheckRelations;
   }
 
-  return <T extends Constructor<SimpleResolver<E>>>(constructor: T) => {
+  return <T extends SimpleResolver<E>>(constructor: T) => {
     if (
       !options.general?.enableMutations ||
       options.findOneAndUpdate === false ||

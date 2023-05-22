@@ -5,6 +5,7 @@ import { Constructor } from '../../utils/types/constructor.type';
 import { SetReferenceToken } from '../decorators/set-reference-token.decorator';
 import { SetReferenceMetadata } from '../decorators/set-reference-metadata.decorator';
 import { ReferenceStore } from '../services/reference-store.service';
+import { ReferenceEnum } from '../enums/reference.enum';
 
 export const REFERENCE_METADATA: unique symbol = Symbol('referenceMetadata');
 
@@ -28,18 +29,26 @@ export const initReferenceMetadata = (
   constructor: Constructor,
   defaultToken?: symbol,
 ) => {
-  let originalReferenceMetadata: Partial<ReferenceMetadata>;
+  let referenceMetadata: Partial<ReferenceMetadata>;
 
-  if (!getReferenceToken(constructor)) {
-    const referenceToken = defaultToken ?? Symbol(constructor.name);
-    SetReferenceToken(defaultToken)(constructor);
-    originalReferenceMetadata = {
-      referenceToken,
-    };
-    SetReferenceMetadata(originalReferenceMetadata)(constructor);
-  } else {
-    originalReferenceMetadata = ReferenceStore.get(constructor);
+  const referenceToken = defaultToken ?? Symbol(constructor.name);
+
+  if (
+    !referenceToken?.description ||
+    !ReferenceEnum[referenceToken?.description]
+  ) {
+    throw new Error(`ReferenceEnum.${String(referenceToken)} is not defined`);
   }
 
-  return originalReferenceMetadata;
+  if (!getReferenceToken(constructor)) {
+    SetReferenceToken(defaultToken)(constructor);
+    referenceMetadata = {
+      referenceToken,
+    };
+    SetReferenceMetadata(referenceMetadata)(constructor);
+  } else {
+    referenceMetadata = ReferenceStore.get(constructor);
+  }
+
+  return referenceMetadata;
 };
