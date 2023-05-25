@@ -24,5 +24,9 @@
     "MHO"
   ],
   "editor.stickyScroll.enabled": true,
-  "workbench.colorTheme": "Ayu Mirage"
+  "workbench.colorTheme": "Ayu Mirage",
+  "editor.unicodeHighlight.invisibleCharacters": true,
+  "editor.unicodeHighlight.includeComments": true,
+  "editor.unicodeHighlight.nonBasicASCII": true,
+  "editor.unicodeHighlight.ambiguousCharacters": true
 }

@@ -1,5 +1,5 @@
 import { L, A, Object } from 'ts-toolbelt';
-import { update, cloneDeep } from 'lodash';
+import { update, cloneDeep, get } from 'lodash';
 
 import { Id } from '../types/id.type';
 
@@ -19,27 +19,30 @@ export const convertObjectIds = <
 >(
   obj: T,
   wildcardPaths: string[] = ['_id'],
+  { noError = false }: { noError: boolean } = { noError: false },
 ): RecurseUpdate<T, P> => {
   const newObj = cloneDeep(obj);
   const convertedPaths = resolveWildcardPathsInObject(newObj, wildcardPaths);
 
   for (const convertedPath of convertedPaths) {
-    update(newObj, convertedPath, (value) => {
-      if (
-        value &&
-        typeof value === 'string' &&
-        value.length === 24 &&
-        value.match(/^[0-9a-fA-F]{24}$/)
-      ) {
-        return IdFactory(value);
-      }
+    const value = get(newObj, convertedPath);
 
+    if (
+      value &&
+      typeof value === 'string' &&
+      value.length === 24 &&
+      value.match(/^[0-9a-fA-F]{24}$/)
+    ) {
+      update(newObj, convertedPath, IdFactory);
+    }
+
+    if (!noError) {
       throw new Error(
         `Invalid ObjectId. Object : ${JSON.stringify(
           obj,
         )}, path: ${convertedPath}`,
       );
-    });
+    }
   }
 
   return newObj as RecurseUpdate<T, P>;

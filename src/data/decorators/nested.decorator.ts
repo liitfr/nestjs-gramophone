@@ -58,9 +58,10 @@ export function Nested<T extends object>(
     };
 
     Prop({
-      type: nestedOptions?.multiple
-        ? [nestedTargetMetadata.entitySchema]
-        : nestedTargetMetadata.entitySchema,
+      type: () =>
+        nestedOptions?.multiple
+          ? [nestedTargetMetadata.entitySchema]
+          : nestedTargetMetadata.entitySchema,
       required: !nestedOptions?.nullable,
     })(decoratorTarget, propertyKey);
 
